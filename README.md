@@ -63,32 +63,73 @@ sedori-platform/
 - Node.js (推奨: 18.x以上)
 - npm または yarn
 
+### クイックスタート
+
+```bash
+# 開発環境起動
+npm run dev:start
+
+# 開発環境停止
+npm run dev:stop
+
+# 全データリセット
+npm run dev:reset
+
+# ログ確認
+npm run dev:logs
+```
+
+### サービス URL
+
+起動後、以下のURLでサービスにアクセスできます：
+
+- **PostgreSQL**: `localhost:5432`
+  - データベース: `sedori`
+  - ユーザー: `sedori`
+  - パスワード: `sedori123`
+- **Redis**: `localhost:6379`
+  - パスワード: `redis123`
+- **Meilisearch**: http://localhost:7700
+  - マスターキー: `meilisearch123`
+- **MinIO Console**: http://localhost:9001
+  - ユーザー: `sedori`
+  - パスワード: `sedori123`
+- **MinIO API**: http://localhost:9000
+
 ### 開発用コマンド
 
 ```bash
-# 全サービス起動
-docker-compose up -d
+# Docker Compose コマンド
+npm run docker:up           # サービス起動
+npm run docker:down         # サービス停止
+npm run docker:build        # イメージビルド
+npm run docker:ps           # サービス状態確認
 
-# 全サービス停止
-docker-compose down
+# 直接 Docker Compose を使用
+docker-compose up -d        # バックグラウンド起動
+docker-compose down         # 停止
+docker-compose logs -f      # ログ監視
 
-# ログ確認
-docker-compose logs -f
+# データベース操作（今後実装予定）
+npm run db:migrate          # マイグレーション実行
+npm run db:seed            # テストデータ投入
+npm run db:backup          # データベースバックアップ
 
-# データベース操作
-npm run db:migrate           # マイグレーション実行
-npm run db:seed             # テストデータ投入
-npm run db:backup           # データベースバックアップ
+# テスト（今後実装予定）
+npm run test               # ユニットテスト
+npm run test:e2e          # E2Eテスト
+npm run test:coverage     # カバレッジレポート生成
 
-# テスト
-npm run test                # ユニットテスト
-npm run test:e2e           # E2Eテスト
-npm run test:coverage      # カバレッジレポート生成
-
-# ビルド・デプロイ
-npm run build              # 本番用ビルド
-npm run start:prod         # 本番サーバー起動
+# ビルド・デプロイ（今後実装予定）
+npm run build             # 本番用ビルド
+npm run start:prod        # 本番サーバー起動
 ```
+
+### 設定ファイル
+
+- **環境変数**: `.env` (`.env.example`からコピー)
+- **Docker設定**: `docker-compose.yml`
+- **初期化SQL**: `scripts/init-db.sql`
 
 ## 開発フェーズ
 

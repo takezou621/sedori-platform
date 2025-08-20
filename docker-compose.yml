@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  postgresql:
+    image: postgres:15
+    container_name: sedori-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sedori}
+      POSTGRES_USER: ${POSTGRES_USER:-sedori}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sedori123}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sedori} -d ${POSTGRES_DB:-sedori}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sedori-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sedori-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis123}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sedori-network
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: sedori-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-meilisearch123}
+      MEILI_NO_ANALYTICS: ${MEILI_NO_ANALYTICS:-true}
+      MEILI_ENV: ${MEILI_ENV:-development}
+      MEILI_LOG_LEVEL: INFO
+      MEILI_DB_PATH: /meili_data
+    ports:
+      - "${MEILI_PORT:-7700}:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sedori-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: sedori-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sedori}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sedori123}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sedori-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  meilisearch_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  sedori-network:
+    driver: bridge

@@ -1,0 +1,19 @@
+{
+  "name": "sedori-platform",
+  "version": "1.0.0",
+  "description": "Sedori Platform - Local Development Environment",
+  "private": true,
+  "scripts": {
+    "dev:start": "./scripts/dev-start.sh",
+    "dev:stop": "./scripts/dev-stop.sh",
+    "dev:reset": "./scripts/dev-reset.sh",
+    "dev:logs": "./scripts/dev-logs.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:ps": "docker-compose ps"
+  },
+  "keywords": ["sedori", "docker", "development"],
+  "author": "Sedori Team",
+  "license": "UNLICENSED"
+}
