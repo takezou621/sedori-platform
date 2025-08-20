@@ -33,13 +33,15 @@ export default function RegisterPage() {
     clearError();
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registerData } = data;
       await registerUser(registerData);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
       setError('root', {
-        message: error.message || 'Registration failed. Please try again.',
+        message: errorMessage,
       });
     } finally {
       setIsLoading(false);

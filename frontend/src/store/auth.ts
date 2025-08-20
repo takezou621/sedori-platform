@@ -5,7 +5,6 @@ import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api';
 import type {
   AuthStore,
-  User,
   LoginRequest,
   RegisterRequest,
   ApiError,
@@ -13,7 +12,7 @@ import type {
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isLoading: false,

@@ -54,7 +54,7 @@ class ApiClient {
         credentials
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
@@ -66,7 +66,7 @@ class ApiClient {
         userData
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
@@ -74,7 +74,7 @@ class ApiClient {
   async logout(): Promise<void> {
     try {
       await this.client.post('/auth/logout');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Even if the request fails, we'll clear local storage
       console.error('Logout request failed:', error);
     } finally {
@@ -88,31 +88,35 @@ class ApiClient {
     try {
       const response = await this.client.get('/auth/profile');
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
 
-  private handleError(error: any): ApiError {
-    if (error.response) {
-      // Server responded with error status
-      const { data, status } = error.response;
+  private handleError(error: unknown): ApiError {
+    // Check if it's an axios error with response
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response: { data?: { message?: string; error?: string }; status: number } };
+      const { data, status } = axiosError.response;
       return {
         message: data?.message || 'An error occurred',
         error: data?.error || 'Unknown error',
         statusCode: status,
       };
-    } else if (error.request) {
-      // Network error
+    } 
+    // Check if it's an axios error with request (network error)
+    else if (error && typeof error === 'object' && 'request' in error) {
       return {
         message: 'Network error. Please check your connection.',
         error: 'Network Error',
         statusCode: 0,
       };
-    } else {
-      // Something else happened
+    } 
+    // Handle other error types
+    else {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
-        message: error.message || 'An unexpected error occurred',
+        message,
         error: 'Unknown Error',
         statusCode: 0,
       };
