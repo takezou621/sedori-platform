@@ -83,6 +83,49 @@ services:
     networks:
       - sedori-network
 
+  api:
+    build:
+      context: ./backend/sedori-api
+      dockerfile: Dockerfile
+    container_name: sedori-api
+    restart: unless-stopped
+    environment:
+      - DATABASE_HOST=postgresql
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=${POSTGRES_USER:-sedori}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-sedori123}
+      - DATABASE_NAME=${POSTGRES_DB:-sedori}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis123}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+      - NODE_ENV=development
+      - PORT=3000
+      - MEILI_HOST=http://meilisearch:7700
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-meilisearch123}
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-sedori}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-sedori123}
+      - MINIO_USE_SSL=false
+    ports:
+      - "${API_PORT:-3000}:3000"
+    volumes:
+      - ./backend/sedori-api:/app
+      - /app/node_modules
+    depends_on:
+      - postgresql
+      - redis
+      - meilisearch
+      - minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sedori-network
+
 volumes:
   postgres_data:
     driver: local
