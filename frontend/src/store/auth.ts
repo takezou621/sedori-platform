@@ -1,8 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api';
+import { getUserFromCookie, hasAuthToken } from '@/lib/cookies';
 import type {
   AuthStore,
   User,
@@ -11,93 +11,78 @@ import type {
   ApiError,
 } from '@/types';
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set, get) => ({
+export const useAuthStore = create<AuthStore>()((set) => ({
+  user: getUserFromCookie() as User | null,
+  token: hasAuthToken() ? 'cookie' : null, // We don't expose the actual token value
+  isLoading: false,
+  error: null,
+
+  login: async (credentials: LoginRequest) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.login(credentials);
+      const { user } = response;
+
+      set({
+        user,
+        token: 'cookie', // Token is now stored securely in httpOnly cookie
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      set({
+        error: apiError.message,
+        isLoading: false,
+        user: null,
+        token: null,
+      });
+      throw error;
+    }
+  },
+
+  register: async (userData: RegisterRequest) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.register(userData);
+      const { user } = response;
+
+      set({
+        user,
+        token: 'cookie', // Token is now stored securely in httpOnly cookie
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      const apiError = error as ApiError;
+      set({
+        error: apiError.message,
+        isLoading: false,
+        user: null,
+        token: null,
+      });
+      throw error;
+    }
+  },
+
+  logout: async () => {
+    try {
+      // Call API logout (will clear cookies)
+      await apiClient.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    // Clear state
+    set({
       user: null,
       token: null,
       isLoading: false,
       error: null,
+    });
+  },
 
-      login: async (credentials: LoginRequest) => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await apiClient.login(credentials);
-          const { access_token, user } = response;
-
-          // Store token in localStorage
-          localStorage.setItem('auth_token', access_token);
-          localStorage.setItem('user', JSON.stringify(user));
-
-          set({
-            user,
-            token: access_token,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          const apiError = error as ApiError;
-          set({
-            error: apiError.message,
-            isLoading: false,
-            user: null,
-            token: null,
-          });
-          throw error;
-        }
-      },
-
-      register: async (userData: RegisterRequest) => {
-        set({ isLoading: true, error: null });
-        try {
-          const response = await apiClient.register(userData);
-          const { access_token, user } = response;
-
-          // Store token in localStorage
-          localStorage.setItem('auth_token', access_token);
-          localStorage.setItem('user', JSON.stringify(user));
-
-          set({
-            user,
-            token: access_token,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          const apiError = error as ApiError;
-          set({
-            error: apiError.message,
-            isLoading: false,
-            user: null,
-            token: null,
-          });
-          throw error;
-        }
-      },
-
-      logout: () => {
-        // Call API logout
-        apiClient.logout();
-        
-        // Clear state
-        set({
-          user: null,
-          token: null,
-          isLoading: false,
-          error: null,
-        });
-      },
-
-      clearError: () => {
-        set({ error: null });
-      },
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-      }),
-    }
-  )
-);
+  clearError: () => {
+    set({ error: null });
+  },
+}));

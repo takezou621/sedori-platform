@@ -28,10 +28,11 @@ export default function LoginPage() {
     try {
       await login(data);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login failed:', error);
+      const errorMessage = (error as Error)?.message || 'Login failed. Please try again.';
       setError('root', {
-        message: error.message || 'Login failed. Please try again.',
+        message: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -107,7 +108,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="bg-white px-2 text-secondary-500">
-                    Don't have an account?
+                    Don&apos;t have an account?
                   </span>
                 </div>
               </div>

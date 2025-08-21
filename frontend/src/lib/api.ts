@@ -6,7 +6,8 @@ import type {
   ApiError,
 } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Use Next.js API routes for secure authentication
+const API_BASE_URL = '/api';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -19,26 +20,12 @@ class ApiClient {
       },
     });
 
-    // Request interceptor to add auth token
-    this.client.interceptors.request.use(
-      config => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      error => Promise.reject(error)
-    );
-
     // Response interceptor to handle errors
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       error => {
         if (error.response?.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user');
+          // Token expired or invalid - redirect to login
           window.location.href = '/login';
         }
         return Promise.reject(error);
@@ -54,7 +41,7 @@ class ApiClient {
         credentials
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
@@ -66,7 +53,7 @@ class ApiClient {
         userData
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
@@ -74,12 +61,9 @@ class ApiClient {
   async logout(): Promise<void> {
     try {
       await this.client.post('/auth/logout');
-    } catch (error: any) {
-      // Even if the request fails, we'll clear local storage
+    } catch (error: unknown) {
+      // Even if the request fails, we'll redirect to login
       console.error('Logout request failed:', error);
-    } finally {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
     }
   }
 
@@ -88,35 +72,40 @@ class ApiClient {
     try {
       const response = await this.client.get('/auth/profile');
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw this.handleError(error);
     }
   }
 
-  private handleError(error: any): ApiError {
-    if (error.response) {
-      // Server responded with error status
-      const { data, status } = error.response;
-      return {
-        message: data?.message || 'An error occurred',
-        error: data?.error || 'Unknown error',
-        statusCode: status,
-      };
-    } else if (error.request) {
-      // Network error
-      return {
-        message: 'Network error. Please check your connection.',
-        error: 'Network Error',
-        statusCode: 0,
-      };
-    } else {
-      // Something else happened
-      return {
-        message: error.message || 'An unexpected error occurred',
-        error: 'Unknown Error',
-        statusCode: 0,
-      };
+  private handleError(error: unknown): ApiError {
+    // Type guard for axios errors
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string; error?: string }; status: number }; request?: unknown };
+      if (axiosError.response) {
+        // Server responded with error status
+        const { data, status } = axiosError.response;
+        return {
+          message: data?.message || 'An error occurred',
+          error: data?.error || 'Unknown error',
+          statusCode: status,
+        };
+      } else if (axiosError.request) {
+        // Network error
+        return {
+          message: 'Network error. Please check your connection.',
+          error: 'Network Error',
+          statusCode: 0,
+        };
+      }
     }
+    
+    // Fallback for other error types
+    const errorMessage = (error as Error)?.message || 'An unexpected error occurred';
+    return {
+      message: errorMessage,
+      error: 'Unknown Error',
+      statusCode: 0,
+    };
   }
 }
 
