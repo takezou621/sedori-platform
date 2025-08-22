@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ProductsModule } from './products/products.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 
@@ -18,10 +19,12 @@ import appConfig from './config/app.config';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => configService.get('database')!,
+      useFactory: (configService: ConfigService) =>
+        configService.get('database')!,
     }),
     AuthModule,
     UsersModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
