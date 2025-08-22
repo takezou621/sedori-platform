@@ -7,6 +7,8 @@ import {
   UpdateProductDto,
   ProductQueryDto,
   ProductSortBy,
+  UpdateMarketDataDto,
+  UpdateProfitabilityDataDto,
 } from './dto';
 
 export interface PaginatedResult<T> {
@@ -157,7 +159,16 @@ export class ProductsService {
     await this.productRepository.increment({ id }, 'viewCount', 1);
   }
 
-  async updateMarketData(id: string, marketData: any): Promise<void> {
+  async updateMarketData(
+    id: string,
+    marketData: UpdateMarketDataDto,
+  ): Promise<void> {
+    // Verify product exists before updating
+    const product = await this.findById(id);
+    if (!product) {
+      throw new NotFoundException('商品が見つかりません');
+    }
+
     await this.productRepository.update(id, {
       marketData,
       lastUpdatedAt: new Date(),
@@ -166,8 +177,14 @@ export class ProductsService {
 
   async updateProfitabilityData(
     id: string,
-    profitabilityData: any,
+    profitabilityData: UpdateProfitabilityDataDto,
   ): Promise<void> {
+    // Verify product exists before updating
+    const product = await this.findById(id);
+    if (!product) {
+      throw new NotFoundException('商品が見つかりません');
+    }
+
     await this.productRepository.update(id, {
       profitabilityData,
       lastUpdatedAt: new Date(),

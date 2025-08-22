@@ -11,6 +11,7 @@ import {
   ParseUUIDPipe,
   HttpStatus,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -25,6 +26,8 @@ import {
   UpdateProductDto,
   ProductResponseDto,
   ProductQueryDto,
+  UpdateMarketDataDto,
+  UpdateProfitabilityDataDto,
 } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -143,6 +146,58 @@ export class ProductsController {
     return this.productsService.findAll(queryDto);
   }
 
+  // Specific routes BEFORE generic :id route to avoid conflicts
+  @Get('category/:categoryId')
+  @ApiOperation({ summary: 'カテゴリ別商品一覧取得' })
+  @ApiResponse({ status: 200, description: 'カテゴリ別商品一覧取得成功' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '取得件数',
+    example: 10,
+  })
+  async findByCategory(
+    @Param('categoryId', ParseUUIDPipe) categoryId: string,
+    @Query('limit') limit: number = 10,
+  ): Promise<ProductResponseDto[]> {
+    return this.productsService.findByCategory(categoryId, limit);
+  }
+
+  @Get('sku/:sku')
+  @ApiOperation({ summary: 'SKUによる商品検索' })
+  @ApiResponse({
+    status: 200,
+    description: 'SKU検索成功',
+    type: ProductResponseDto,
+  })
+  @ApiResponse({ status: 404, description: '商品が見つかりません' })
+  async findBySku(@Param('sku') sku: string): Promise<ProductResponseDto> {
+    const product = await this.productsService.findBySku(sku);
+    if (!product) {
+      throw new NotFoundException('商品が見つかりません');
+    }
+    return product;
+  }
+
+  @Get('supplier/:supplier')
+  @ApiOperation({ summary: '仕入れ先別商品一覧取得' })
+  @ApiResponse({ status: 200, description: '仕入れ先別商品一覧取得成功' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '取得件数',
+    example: 10,
+  })
+  async findBySupplier(
+    @Param('supplier') supplier: string,
+    @Query('limit') limit: number = 10,
+  ): Promise<ProductResponseDto[]> {
+    return this.productsService.findBySupplier(supplier, limit);
+  }
+
+  // Generic :id route comes AFTER specific routes
   @Get(':id')
   @ApiOperation({ summary: '商品詳細取得' })
   @ApiResponse({
@@ -156,7 +211,7 @@ export class ProductsController {
   ): Promise<ProductResponseDto> {
     const product = await this.productsService.findById(id);
     if (!product) {
-      throw new Error('商品が見つかりません');
+      throw new NotFoundException('商品が見つかりません');
     }
 
     // Increment view count asynchronously
@@ -198,70 +253,19 @@ export class ProductsController {
     await this.productsService.remove(id);
   }
 
-  // Additional endpoints for specific use cases
-
-  @Get('category/:categoryId')
-  @ApiOperation({ summary: 'カテゴリ別商品一覧取得' })
-  @ApiResponse({ status: 200, description: 'カテゴリ別商品一覧取得成功' })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: '取得件数',
-    example: 10,
-  })
-  async findByCategory(
-    @Param('categoryId', ParseUUIDPipe) categoryId: string,
-    @Query('limit') limit: number = 10,
-  ): Promise<ProductResponseDto[]> {
-    return this.productsService.findByCategory(categoryId, limit);
-  }
-
-  @Get('sku/:sku')
-  @ApiOperation({ summary: 'SKUによる商品検索' })
-  @ApiResponse({
-    status: 200,
-    description: 'SKU検索成功',
-    type: ProductResponseDto,
-  })
-  @ApiResponse({ status: 404, description: '商品が見つかりません' })
-  async findBySku(@Param('sku') sku: string): Promise<ProductResponseDto> {
-    const product = await this.productsService.findBySku(sku);
-    if (!product) {
-      throw new Error('商品が見つかりません');
-    }
-    return product;
-  }
-
-  @Get('supplier/:supplier')
-  @ApiOperation({ summary: '仕入れ先別商品一覧取得' })
-  @ApiResponse({ status: 200, description: '仕入れ先別商品一覧取得成功' })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: '取得件数',
-    example: 10,
-  })
-  async findBySupplier(
-    @Param('supplier') supplier: string,
-    @Query('limit') limit: number = 10,
-  ): Promise<ProductResponseDto[]> {
-    return this.productsService.findBySupplier(supplier, limit);
-  }
-
   @Put(':id/market-data')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '商品市場データ更新（管理者のみ）' })
   @ApiResponse({ status: 204, description: '市場データ更新成功' })
+  @ApiResponse({ status: 400, description: 'バリデーションエラー' })
   @ApiResponse({ status: 401, description: '認証が必要です' })
   @ApiResponse({ status: 403, description: '権限がありません' })
   @ApiResponse({ status: 404, description: '商品が見つかりません' })
   async updateMarketData(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() marketData: any,
+    @Body() marketData: UpdateMarketDataDto,
   ): Promise<void> {
     await this.productsService.updateMarketData(id, marketData);
   }
@@ -272,12 +276,13 @@ export class ProductsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '商品収益性データ更新（管理者のみ）' })
   @ApiResponse({ status: 204, description: '収益性データ更新成功' })
+  @ApiResponse({ status: 400, description: 'バリデーションエラー' })
   @ApiResponse({ status: 401, description: '認証が必要です' })
   @ApiResponse({ status: 403, description: '権限がありません' })
   @ApiResponse({ status: 404, description: '商品が見つかりません' })
   async updateProfitabilityData(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() profitabilityData: any,
+    @Body() profitabilityData: UpdateProfitabilityDataDto,
   ): Promise<void> {
     await this.productsService.updateProfitabilityData(id, profitabilityData);
   }
