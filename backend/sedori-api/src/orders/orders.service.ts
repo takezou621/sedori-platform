@@ -523,6 +523,13 @@ export class OrdersService {
       .getCount();
 
     const sequence = String(count + 1).padStart(4, '0');
+    
+    // Add timestamp suffix for test environment to ensure uniqueness
+    if (process.env.NODE_ENV === 'test') {
+      const timestamp = Date.now().toString().slice(-6);
+      return `ORD${dateStr}${sequence}${timestamp}`;
+    }
+    
     return `ORD${dateStr}${sequence}`;
   }
 

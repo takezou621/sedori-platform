@@ -31,7 +31,7 @@ sleep 10
 # Check service health
 echo "🔍 Checking service health..."
 
-services=("postgresql" "redis" "meilisearch" "minio")
+services=("postgresql" "redis" "meilisearch" "minio" "api" "frontend")
 for service in "${services[@]}"; do
     if docker-compose ps | grep "sedori-$service" | grep -q "healthy\|Up"; then
         echo "✅ $service is ready"
@@ -44,6 +44,8 @@ echo ""
 echo "🎉 Development environment is starting up!"
 echo ""
 echo "📋 Service URLs:"
+echo "  Frontend: http://localhost:3001"
+echo "  Backend API: http://localhost:3000"
 echo "  PostgreSQL: localhost:5432"
 echo "  Redis: localhost:6379"
 echo "  Meilisearch: http://localhost:7700"

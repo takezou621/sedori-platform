@@ -42,8 +42,9 @@ export class AnalyticsController {
 
   @Get('dashboard')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'ユーザー向けアナリティクスダッシュボード取得' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'アナリティクスダッシュボード取得（管理者のみ）' })
   @ApiResponse({
     status: 200,
     description: 'アナリティクスダッシュボードデータを返します',
@@ -53,9 +54,7 @@ export class AnalyticsController {
     @Request() req: { user: { id: string } },
     @Query() queryDto: AnalyticsQueryDto,
   ): Promise<AnalyticsDashboardDto> {
-    // Filter data by user for regular users
-    const userFilteredQuery = { ...queryDto, userId: req.user.id };
-    return this.analyticsService.getDashboard(userFilteredQuery);
+    return this.analyticsService.getDashboard(queryDto);
   }
 
   @Get('admin/dashboard')

@@ -22,7 +22,13 @@
     "migration:generate": "npm run typeorm -- -d src/config/data-source.ts migration:generate",
     "migration:run": "npm run typeorm -- -d src/config/data-source.ts migration:run",
     "migration:revert": "npm run typeorm -- -d src/config/data-source.ts migration:revert",
-    "migration:create": "npm run typeorm -- migration:create"
+    "migration:create": "npm run typeorm -- migration:create",
+    "seed": "ts-node src/database/seeds/index.ts",
+    "seed:categories": "ts-node -e \"import('./src/database/seeds/category.seed').then(m => m.seedCategories(require('./src/config/data-source').AppDataSource))\"",
+    "seed:users": "ts-node -e \"import('./src/database/seeds/user.seed').then(m => m.seedUsers(require('./src/config/data-source').AppDataSource))\"",
+    "seed:products": "ts-node -e \"import('./src/database/seeds/product.seed').then(m => m.seedProducts(require('./src/config/data-source').AppDataSource))\"",
+    "seed:orders": "ts-node -e \"import('./src/database/seeds/order.seed').then(m => m.seedOrders(require('./src/config/data-source').AppDataSource))\"",
+    "seed:carts": "ts-node -e \"import('./src/database/seeds/cart.seed').then(m => m.seedCarts(require('./src/config/data-source').AppDataSource))\""
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -57,6 +63,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^9.9.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",

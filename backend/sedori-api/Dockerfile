@@ -1,31 +1,58 @@
-FROM node:20-alpine
+# Multi-stage build for production optimization
+FROM node:20-alpine AS base
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install system dependencies
+RUN apk add --no-cache curl dumb-init
+
+# Create app directory and user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nestjs -u 1001
 
 WORKDIR /app
 
-# Copy package files
+# Development stage
+FROM base AS dev
 COPY package*.json ./
-
-# Install all dependencies (including dev dependencies for build)
 RUN npm ci
-
-# Copy source code
 COPY . .
+RUN chown -R nestjs:nodejs /app
+EXPOSE 3000
+USER nestjs
+CMD ["npm", "run", "start:dev"]
 
-# Build application
+# Build stage for production
+FROM base AS development
+COPY package*.json ./
+RUN npm ci
+COPY . .
 RUN npm run build
 
-# Remove dev dependencies
-RUN npm prune --omit=dev
+# Production stage  
+FROM base AS production
+
+# Copy package files and install production dependencies only
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy built application from development stage
+COPY --from=development /app/dist ./dist
+
+# Copy necessary files
+COPY --from=development /app/node_modules/@nestjs ./node_modules/@nestjs
+
+# Change ownership to nodejs user
+RUN chown -R nestjs:nodejs /app
+USER nestjs
 
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+# Health check (updated endpoint)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/v1/auth/health || exit 1
+
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
 
 # Start application
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main"]

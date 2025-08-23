@@ -5,6 +5,10 @@ import { Category } from '../categories/entities/category.entity';
 import { Product } from '../products/entities/product.entity';
 import { Sale } from '../sales/entities/sale.entity';
 import { Recommendation } from '../recommendations/entities/recommendation.entity';
+import { Order } from '../orders/entities/order.entity';
+import { OrderItem } from '../orders/entities/order-item.entity';
+import { Cart } from '../carts/entities/cart.entity';
+import { CartItem } from '../carts/entities/cart-item.entity';
 
 config();
 
@@ -15,9 +19,9 @@ const AppDataSource = new DataSource({
   username: process.env.DATABASE_USERNAME || 'sedori',
   password: process.env.DATABASE_PASSWORD || 'sedori123',
   database: process.env.DATABASE_NAME || 'sedori',
-  entities: [User, Category, Product, Sale, Recommendation],
+  entities: [User, Category, Product, Sale, Recommendation, Order, OrderItem, Cart, CartItem],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
   logging: process.env.NODE_ENV === 'development',
 });
 
