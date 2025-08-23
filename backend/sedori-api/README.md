@@ -1,29 +1,51 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Sedori Platform API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Sedori Platform APIは、せどり事業者向けの包括的なバックエンドソリューションです。商品管理、注文処理、分析機能、高度な検索機能などを提供する完全なRESTful APIプラットフォームです。
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## ✨ 主要機能
 
-## Description
+### 🔐 認証・認可
+- JWT ベースの認証システム
+- ロールベースのアクセス制御（RBAC）
+- ユーザー登録・ログイン・プロフィール管理
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 📦 商品管理
+- 商品のCRUD操作
+- カテゴリ分類（階層構造対応）
+- 在庫管理
+- 市場データと収益性分析
+- 商品画像とメタデータ管理
+
+### 🛒 ショッピングカート・注文管理
+- リアルタイムカート機能
+- 注文作成・追跡・管理
+- 複数の支払い状態管理
+- 配送先・請求先住所管理
+- 注文履歴とステータス更新
+
+### 📊 アナリティクス・レポート
+- リアルタイムダッシュボード
+- 売上・ページビュー・ユーザー行動分析
+- 人気商品・カテゴリ分析
+- 時系列データとトレンド分析
+- カスタム期間でのレポート生成
+
+### 🔍 高度な検索・フィルタリング
+- 全文検索（PostgreSQL ベース）
+- ファセット検索（カテゴリ、ブランド、価格帯等）
+- 検索結果のソート・ページネーション
+- 検索候補・オートコンプリート
+- 検索行動の追跡・分析
+
+## 🏗️ 技術スタック
+
+- **フレームワーク**: NestJS (Node.js)
+- **データベース**: PostgreSQL with TypeORM
+- **認証**: JWT (JSON Web Tokens)
+- **バリデーション**: class-validator
+- **ドキュメント**: Swagger/OpenAPI
+- **テスト**: Jest
+- **開発環境**: Docker Compose
 
 ## Project setup
 

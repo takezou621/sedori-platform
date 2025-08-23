@@ -1,4 +1,9 @@
-import { Injectable, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
@@ -22,7 +27,7 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    
+
     const user = await this.usersService.create({
       ...registerDto,
       password: hashedPassword,
@@ -60,7 +65,9 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      throw new UnauthorizedException('メールアドレスまたはパスワードが間違っています');
+      throw new UnauthorizedException(
+        'メールアドレスまたはパスワードが間違っています',
+      );
     }
 
     await this.usersService.updateLastLogin(user.id);

@@ -5,6 +5,12 @@ import { Category } from '../categories/entities/category.entity';
 import { Product } from '../products/entities/product.entity';
 import { Sale } from '../sales/entities/sale.entity';
 import { Recommendation } from '../recommendations/entities/recommendation.entity';
+import { Cart } from '../carts/entities/cart.entity';
+import { CartItem } from '../carts/entities/cart-item.entity';
+import { Order } from '../orders/entities/order.entity';
+import { OrderItem } from '../orders/entities/order-item.entity';
+import { AnalyticsEvent } from '../analytics/entities/analytics-event.entity';
+import { OptimizationResult } from '../optimization/entities/optimization-result.entity';
 
 export default registerAs(
   'database',
@@ -15,11 +21,29 @@ export default registerAs(
     username: process.env.DATABASE_USERNAME || 'sedori',
     password: process.env.DATABASE_PASSWORD || 'sedori123',
     database: process.env.DATABASE_NAME || 'sedori',
-    entities: [User, Category, Product, Sale, Recommendation],
+    entities: [
+      User, 
+      Category, 
+      Product, 
+      Sale, 
+      Recommendation,
+      Cart,
+      CartItem,
+      Order,
+      OrderItem,
+      AnalyticsEvent,
+      OptimizationResult
+    ],
     synchronize: process.env.NODE_ENV === 'development',
     logging: process.env.NODE_ENV === 'development',
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
     migrationsRun: false,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl:
+      process.env.NODE_ENV === 'production'
+        ? { 
+            rejectUnauthorized: true,
+            ca: process.env.DB_CA_CERT || undefined
+          }
+        : false,
   }),
 );

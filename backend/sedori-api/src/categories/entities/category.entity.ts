@@ -1,4 +1,11 @@
-import { Entity, Column, OneToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity('categories')
@@ -28,12 +35,16 @@ export class Category extends BaseEntity {
   @Column({ type: 'uuid', nullable: true })
   parentId?: string;
 
-  @ManyToOne(() => Category, category => category.children)
+  @ManyToOne(() => Category, (category) => category.children)
   @JoinColumn({ name: 'parentId' })
   parent?: Category;
 
-  @OneToMany(() => Category, category => category.parent)
+  @OneToMany(() => Category, (category) => category.parent)
   children?: Category[];
+
+  // Products relationship
+  @OneToMany('Product', 'category')
+  products?: any[];
 
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, any>;
