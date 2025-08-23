@@ -5,3 +5,6 @@ export * from './Select';
 export * from './Badge';
 export * from './Checkbox';
 export * from './LoadingSpinner';
+export * from './ErrorBoundary';
+export * from './OfflineNotice';
+export * from './ThemeToggle';

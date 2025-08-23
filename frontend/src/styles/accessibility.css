@@ -39,19 +39,50 @@ select:focus {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .text-gray-600 {
-    @apply text-black;
+    @apply text-black dark:text-white;
   }
   
   .border-gray-300 {
-    @apply border-black;
+    @apply border-black dark:border-white;
   }
   
   .text-gray-500 {
-    @apply text-black;
+    @apply text-black dark:text-white;
   }
   
   .bg-gray-50 {
-    @apply bg-white;
+    @apply bg-white dark:bg-black;
+  }
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+  th {
+    @apply bg-gray-800 dark:bg-gray-700;
+  }
+  
+  [role="tooltip"] {
+    @apply bg-gray-800 text-gray-100;
+  }
+  
+  [role="progressbar"] {
+    @apply bg-gray-700;
+  }
+  
+  [role="alert"][data-type="error"] {
+    @apply bg-red-900/20 border-red-400 text-red-300;
+  }
+  
+  [role="alert"][data-type="warning"] {
+    @apply bg-yellow-900/20 border-yellow-400 text-yellow-300;
+  }
+  
+  [role="alert"][data-type="success"] {
+    @apply bg-green-900/20 border-green-400 text-green-300;
+  }
+  
+  [role="alert"][data-type="info"] {
+    @apply bg-blue-900/20 border-blue-400 text-blue-300;
   }
 }
 

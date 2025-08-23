@@ -5,6 +5,9 @@ import "@/styles/accessibility.css";
 import { Header, Footer } from "@/components/layout";
 import { OrganizationStructuredData, WebsiteStructuredData } from "@/components/seo/StructuredData";
 import { QueryProvider } from "@/providers";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { OfflineNotice } from "@/components/ui/OfflineNotice";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,25 +56,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" dir="ltr">
+    <html lang="ja" dir="ltr" suppressHydrationWarning>
       <head>
         <OrganizationStructuredData />
         <WebsiteStructuredData />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-        <QueryProvider>
-          <a href="#main-content" className="skip-nav">
-            Skip to main content
-          </a>
-          <Header />
-          <main id="main-content" className="flex-1" role="main">
-            {children}
-          </main>
-          <Footer />
-          <div id="live-region" className="live-region" aria-live="polite" aria-atomic="true"></div>
-        </QueryProvider>
+      <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors`}>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <QueryProvider>
+              <OfflineNotice />
+              <a href="#main-content" className="skip-nav">
+                メインコンテンツにスキップ
+              </a>
+              <Header />
+              <main id="main-content" className="flex-1" role="main">
+                {children}
+              </main>
+              <Footer />
+              <div id="live-region" className="live-region" aria-live="polite" aria-atomic="true"></div>
+            </QueryProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
