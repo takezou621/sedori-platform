@@ -34,15 +34,16 @@ export function LoginForm() {
         password: data.password,
       });
       router.push(redirectUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific error types
-      if (error?.statusCode === 401) {
+      const errorObj = error as { statusCode?: number; message?: string };
+      if (errorObj?.statusCode === 401) {
         setError('email', { message: 'Invalid email or password' });
         setError('password', { message: 'Invalid email or password' });
-      } else if (error?.statusCode === 429) {
+      } else if (errorObj?.statusCode === 429) {
         setError('root', { message: 'Too many login attempts. Please try again later.' });
       } else {
-        setError('root', { message: error?.message || 'Login failed. Please try again.' });
+        setError('root', { message: errorObj?.message || 'Login failed. Please try again.' });
       }
     }
   };
@@ -168,7 +169,7 @@ export function LoginForm() {
 
       <div className="text-center">
         <span className="text-sm text-secondary-600">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/auth/register" className="font-medium text-primary-600 hover:text-primary-500">
             Sign up
           </Link>

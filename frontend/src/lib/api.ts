@@ -152,6 +152,43 @@ class ApiClient {
     }
   }
 
+  // Generic HTTP methods for React Query usage
+  async get<T = unknown>(url: string, config?: { params?: Record<string, unknown> }): Promise<{ data: T }> {
+    try {
+      const response = await this.client.get<T>(url, config);
+      return { data: response.data };
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  async post<T = unknown>(url: string, data?: unknown): Promise<{ data: T }> {
+    try {
+      const response = await this.client.post<T>(url, data);
+      return { data: response.data };
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  async patch<T = unknown>(url: string, data?: unknown): Promise<{ data: T }> {
+    try {
+      const response = await this.client.patch<T>(url, data);
+      return { data: response.data };
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  async delete<T = unknown>(url: string): Promise<{ data: T }> {
+    try {
+      const response = await this.client.delete<T>(url);
+      return { data: response.data };
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
   private handleError(error: unknown): ApiError {
     // Type guard for axios errors
     if (typeof error === 'object' && error !== null && 'response' in error) {
@@ -184,5 +221,8 @@ class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient();
+const apiClient = new ApiClient();
+
+// Export both named and default export for compatibility
+export const api = apiClient;
 export default apiClient;

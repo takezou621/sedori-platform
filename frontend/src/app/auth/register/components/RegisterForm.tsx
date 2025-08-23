@@ -29,7 +29,7 @@ export function RegisterForm() {
   const password = watch('password', '');
 
   const getPasswordStrength = (password: string) => {
-    if (!password) return { strength: 0, label: '' };
+    if (!password) return { strength: 0, label: '', textClass: '', bgClass: '', percentage: 0 };
     
     let strength = 0;
     const checks = [
@@ -43,12 +43,20 @@ export function RegisterForm() {
     strength = checks.filter(Boolean).length;
     
     const labels = ['', 'Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
-    const colors = ['', 'red', 'red', 'yellow', 'blue', 'green'];
+    const colorClasses = [
+      { textClass: '', bgClass: '' },
+      { textClass: 'text-red-600', bgClass: 'bg-red-500' },
+      { textClass: 'text-red-600', bgClass: 'bg-red-500' },
+      { textClass: 'text-yellow-600', bgClass: 'bg-yellow-500' },
+      { textClass: 'text-blue-600', bgClass: 'bg-blue-500' },
+      { textClass: 'text-green-600', bgClass: 'bg-green-500' }
+    ];
     
     return { 
       strength, 
       label: labels[strength], 
-      color: colors[strength],
+      textClass: colorClasses[strength].textClass,
+      bgClass: colorClasses[strength].bgClass,
       percentage: (strength / 5) * 100 
     };
   };
@@ -64,16 +72,17 @@ export function RegisterForm() {
         password: data.password,
       });
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific error types
-      if (error?.statusCode === 409) {
+      const errorObj = error as { statusCode?: number; message?: string };
+      if (errorObj?.statusCode === 409) {
         setError('email', { message: 'An account with this email already exists' });
-      } else if (error?.statusCode === 422) {
+      } else if (errorObj?.statusCode === 422) {
         setError('root', { message: 'Please check your input and try again' });
-      } else if (error?.statusCode === 429) {
+      } else if (errorObj?.statusCode === 429) {
         setError('root', { message: 'Too many registration attempts. Please try again later.' });
       } else {
-        setError('root', { message: error?.message || 'Registration failed. Please try again.' });
+        setError('root', { message: errorObj?.message || 'Registration failed. Please try again.' });
       }
     }
   };
@@ -188,13 +197,13 @@ export function RegisterForm() {
           <div className="mt-2">
             <div className="flex items-center justify-between text-xs text-secondary-600 mb-1">
               <span>Password Strength</span>
-              <span className={`font-medium text-${passwordStrength.color}-600`}>
+              <span className={`font-medium ${passwordStrength.textClass}`}>
                 {passwordStrength.label}
               </span>
             </div>
             <div className="w-full bg-secondary-200 rounded-full h-2">
               <div
-                className={`bg-${passwordStrength.color}-500 h-2 rounded-full transition-all duration-300`}
+                className={`${passwordStrength.bgClass} h-2 rounded-full transition-all duration-300`}
                 style={{ width: `${passwordStrength.percentage}%` }}
               ></div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { apiClient } from '@/lib/api';
+import apiClient from '@/lib/api';
 import { getUserFromCookie, hasAuthToken } from '@/lib/cookies';
 import type {
   AuthStore,
@@ -84,5 +84,21 @@ export const useAuthStore = create<AuthStore>()((set) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  initialize: () => {
+    // Initialize auth state from cookies or localStorage
+    const hasToken = hasAuthToken();
+    if (hasToken) {
+      const userData = getUserFromCookie();
+      if (userData) {
+        set({
+          user: userData as User,
+          token: null,
+          isLoading: false,
+          error: null,
+        });
+      }
+    }
   },
 }));

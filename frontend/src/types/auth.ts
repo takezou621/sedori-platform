@@ -32,4 +32,5 @@ export interface AuthStore {
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  initialize: () => void;
 }

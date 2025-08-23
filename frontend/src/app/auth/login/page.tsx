@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Card } from '@/components/ui';
+import { Suspense } from 'react';
+import { Card, LoadingSpinner } from '@/components/ui';
 import { LoginForm } from './components/LoginForm';
 
 export default function LoginPage() {
@@ -19,7 +20,9 @@ export default function LoginPage() {
         </div>
 
         <Card className="p-8">
-          <LoginForm />
+          <Suspense fallback={<LoadingSpinner />}>
+            <LoginForm />
+          </Suspense>
         </Card>
       </div>
     </div>
