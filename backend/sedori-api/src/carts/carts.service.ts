@@ -74,169 +74,105 @@ export class CartsService {
       throw new BadRequestException('この商品は現在購入できません');
     }
 
-    // Use retry with exponential backoff for concurrent requests
-    const maxRetries = 3;
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        return await this.cartRepository.manager.transaction(
-          async (transactionalEntityManager) => {
-            // Get or create cart within transaction
-            let cart = await transactionalEntityManager.findOne(Cart, {
-              where: { userId, status: CartStatus.ACTIVE }
-            });
+    // Use transaction to handle concurrency
+    return await this.cartRepository.manager.transaction(async (manager) => {
+      // Get or create cart
+      let cart = await manager.findOne(Cart, {
+        where: { userId, status: CartStatus.ACTIVE },
+      });
 
-            if (cart) {
-              // Load relations separately to avoid lock issues
-              cart = await transactionalEntityManager.findOne(Cart, {
-                where: { id: cart.id },
-                relations: ['items', 'items.product']
-              });
-            }
-
-            if (!cart) {
-              cart = transactionalEntityManager.create(Cart, {
-                userId,
-                status: CartStatus.ACTIVE,
-                totalAmount: 0,
-                totalItems: 0,
-                lastActivityAt: new Date(),
-              });
-              cart = await transactionalEntityManager.save(cart);
-            }
-
-            // Use upsert pattern for cart item
-            const unitPrice = product.wholesalePrice;
-            
-            // Try to find existing item first
-            let cartItem = await transactionalEntityManager.findOne(CartItem, {
-              where: { cartId: cart.id, productId }
-            });
-
-            if (cartItem) {
-              // Update existing item atomically
-              const result = await transactionalEntityManager.query(
-                `UPDATE cart_items 
-                 SET quantity = quantity + $1, 
-                     "totalPrice" = "totalPrice" + ($2::decimal * $1),
-                     "updatedAt" = NOW()
-                 WHERE id = $3 AND "cartId" = $4 AND "productId" = $5
-                 RETURNING id, quantity, "totalPrice"`,
-                [quantity, unitPrice, cartItem.id, cart.id, productId],
-              );
-              
-              if (result.length === 0) {
-                // Item was deleted concurrently, create new one
-                throw new Error('RETRY_NEEDED');
-              }
-            } else {
-              // Try to insert new item with ON CONFLICT handling
-              try {
-                await transactionalEntityManager.query(
-                  `INSERT INTO cart_items ("cartId", "productId", quantity, "unitPrice", "totalPrice", "productSnapshot", "addedAt", "createdAt", "updatedAt")
-                   VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), NOW())
-                   ON CONFLICT ("cartId", "productId") DO UPDATE SET
-                   quantity = cart_items.quantity + EXCLUDED.quantity,
-                   "totalPrice" = cart_items."totalPrice" + EXCLUDED."totalPrice",
-                   "updatedAt" = NOW()`,
-                  [
-                    cart.id,
-                    productId,
-                    quantity,
-                    unitPrice,
-                    unitPrice * quantity,
-                    JSON.stringify({
-                      name: product.name,
-                      brand: product.brand,
-                      imageUrl: product.primaryImageUrl,
-                    })
-                  ]
-                );
-              } catch (error) {
-                // If still failing, might be a different constraint issue
-                if (attempt === maxRetries - 1) {
-                  throw error;
-                }
-                throw new Error('RETRY_NEEDED');
-              }
-            }
-
-            // Update cart totals
-            await this.updateCartTotals(cart.id, transactionalEntityManager);
-            
-            // Return updated cart
-            return await transactionalEntityManager.findOne(Cart, {
-              where: { id: cart.id },
-              relations: ['items', 'items.product'],
-            });
-          },
-        );
-      } catch (error) {
-        if (error.message === 'RETRY_NEEDED' && attempt < maxRetries - 1) {
-          // Wait with exponential backoff
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 10));
-          continue;
-        }
-        throw error;
+      if (!cart) {
+        cart = manager.create(Cart, {
+          userId,
+          status: CartStatus.ACTIVE,
+          totalAmount: 0,
+          totalItems: 0,
+          lastActivityAt: new Date(),
+        });
+        cart = await manager.save(cart);
       }
-    }
-    
-    throw new Error('Failed to add item to cart after retries');
+
+      // Check if item already exists in cart
+      let cartItem = await manager.findOne(CartItem, {
+        where: { cartId: cart.id, productId },
+      });
+
+      const unitPrice = product.wholesalePrice;
+      const totalPrice = unitPrice * quantity;
+
+      if (cartItem) {
+        // Update existing item
+        cartItem.quantity += quantity;
+        cartItem.totalPrice += totalPrice;
+        if (metadata) {
+          cartItem.productSnapshot = {
+            ...cartItem.productSnapshot,
+            ...metadata,
+          };
+        }
+        await manager.save(cartItem);
+      } else {
+        // Create new item
+        cartItem = manager.create(CartItem, {
+          cartId: cart.id,
+          productId,
+          quantity,
+          unitPrice,
+          totalPrice,
+          productSnapshot: {
+            name: product.name,
+            brand: product.brand,
+            imageUrl: product.primaryImageUrl,
+            ...(metadata || {}),
+          },
+        });
+        await manager.save(cartItem);
+      }
+
+      // Update cart totals within transaction
+      const cartItems = await manager.find(CartItem, {
+        where: { cartId: cart.id },
+      });
+
+      const totalAmount = cartItems.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+      const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+      await manager.update(Cart, cart.id, {
+        totalAmount,
+        totalItems,
+        lastActivityAt: new Date(),
+      });
+
+      // Return updated cart with relations
+      return await manager.findOne(Cart, {
+        where: { id: cart.id },
+        relations: ['items', 'items.product'],
+      });
+    });
   }
 
-  private async updateCartTotals(
-    cartId: string, 
-    transactionalEntityManager?: any
-  ): Promise<void> {
-    const manager = transactionalEntityManager || this.cartRepository.manager;
-    
-    // Calculate totals from cart items
-    const result = await manager.query(
-      `UPDATE carts 
-       SET "totalAmount" = (
-         SELECT COALESCE(SUM("totalPrice"), 0) 
-         FROM cart_items 
-         WHERE "cartId" = $1 AND "deletedAt" IS NULL
-       ),
-       "totalItems" = (
-         SELECT COALESCE(SUM(quantity), 0) 
-         FROM cart_items 
-         WHERE "cartId" = $1 AND "deletedAt" IS NULL
-       ),
-       "lastActivityAt" = NOW(),
-       "updatedAt" = NOW()
-       WHERE id = $1`,
-      [cartId]
-    );
+  private async updateCartTotals(cartId: string): Promise<void> {
+    // Get all cart items for this cart
+    const cartItems = await this.cartItemRepository.find({
+      where: { cartId },
+    });
+
+    // Calculate totals
+    const totalAmount = cartItems.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Update cart
+    await this.cartRepository.update(cartId, {
+      totalAmount,
+      totalItems,
+      lastActivityAt: new Date(),
+    });
   }
 
   async getCart(userId: string): Promise<Cart> {
     return await this.getOrCreateCart(userId);
   }
 
-  // Keep the old methods for backwards compatibility
-  private async handleRaceCondition(cart: Cart, productId: string, quantity: number, unitPrice: number): Promise<void> {
-    // This method is now deprecated as we use transactions
-    const existingItem = await this.cartItemRepository.findOne({
-      where: { cartId: cart.id, productId },
-    });
-
-    if (existingItem) {
-      await this.cartItemRepository.manager.transaction(
-        async (transactionalEntityManager) => {
-          await transactionalEntityManager.query(
-            `UPDATE cart_items 
-             SET quantity = quantity + $1, 
-                 "totalPrice" = "totalPrice" + ($2::decimal * $1),
-                 "updatedAt" = NOW()
-             WHERE id = $3`,
-            [quantity, unitPrice, existingItem.id],
-          );
-        },
-      );
-      // Unexpected error, re-throw
-      throw new Error('Failed to update cart item');
-    }
-  }
 
   async updateCartItem(
     userId: string,
