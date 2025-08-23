@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,6 +13,7 @@ import {
 } from './entities/optimization-result.entity';
 import { Product } from '../products/entities/product.entity';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { MarketDataService } from '../external-apis/market-data.service';
 import {
   OptimizationRequestDto,
   OptimizationResponseDto,
@@ -20,12 +22,15 @@ import {
 
 @Injectable()
 export class OptimizationService {
+  private readonly logger = new Logger(OptimizationService.name);
+
   constructor(
     @InjectRepository(OptimizationResult)
     private readonly optimizationRepository: Repository<OptimizationResult>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly analyticsService: AnalyticsService,
+    private readonly marketDataService: MarketDataService,
   ) {}
 
   async requestOptimization(
@@ -309,19 +314,45 @@ export class OptimizationService {
 
   // Helper methods for market analysis
   private async analyzeMarket(product: Product) {
-    // This is a simplified simulation - in real implementation, 
-    // this would integrate with external APIs like Amazon MWS, eBay API, etc.
-    return {
-      competitorPrices: [
-        { source: 'Amazon', price: product.wholesalePrice * 1.1, timestamp: new Date() },
-        { source: '楽天', price: product.wholesalePrice * 0.95, timestamp: new Date() },
-        { source: 'Yahoo!', price: product.wholesalePrice * 1.05, timestamp: new Date() },
-      ],
-      demandScore: Math.random() * 100, // 0-100
-      seasonalityFactor: 0.8 + Math.random() * 0.4, // 0.8-1.2
-      priceElasticity: Math.random() * 0.8, // 0-0.8
-      marketTrend: (['rising', 'falling', 'stable'] as const)[Math.floor(Math.random() * 3)],
-    };
+    try {
+      this.logger.log(`Starting market analysis for product ${product.id}: ${product.name}`);
+      
+      // Use real market data service
+      const marketAnalysis = await this.marketDataService.analyzeMarket(product);
+      
+      this.logger.log(`Market analysis completed for product ${product.id}. Demand score: ${marketAnalysis.demandScore}`);
+      
+      return {
+        competitorPrices: marketAnalysis.competitorPrices.map(cp => ({
+          source: cp.source,
+          price: cp.price,
+          timestamp: cp.timestamp,
+        })),
+        demandScore: marketAnalysis.demandScore,
+        seasonalityFactor: marketAnalysis.seasonalityScore / 100, // Convert to 0-1 range
+        priceElasticity: marketAnalysis.priceVolatility / 100, // Use volatility as elasticity proxy
+        marketTrend: marketAnalysis.trendIndicator,
+      };
+    } catch (error) {
+      this.logger.error(`Market analysis failed for product ${product.id}:`, {
+        productId: product.id,
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      });
+      
+      // Fallback to basic analysis
+      return {
+        competitorPrices: [
+          { source: 'Amazon.co.jp', price: product.wholesalePrice * 1.1, timestamp: new Date() },
+          { source: '楽天市場', price: product.wholesalePrice * 0.95, timestamp: new Date() },
+        ],
+        demandScore: 50 + Math.random() * 30, // 50-80 fallback range
+        seasonalityFactor: 0.9 + Math.random() * 0.2, // 0.9-1.1
+        priceElasticity: 0.3 + Math.random() * 0.3, // 0.3-0.6
+        marketTrend: 'stable' as const,
+      };
+    }
   }
 
   private async calculateSalesVelocity(product: Product): Promise<number> {

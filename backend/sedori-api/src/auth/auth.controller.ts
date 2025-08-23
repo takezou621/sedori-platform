@@ -13,6 +13,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -22,11 +23,13 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 
 @ApiTags('認証')
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 registrations per hour
   @ApiOperation({ summary: 'ユーザー登録' })
   @ApiResponse({
     status: 201,
@@ -40,6 +43,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 900000 } }) // 5 login attempts per 15 minutes
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'ログイン' })
   @ApiResponse({
@@ -48,6 +52,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @ApiResponse({ status: 401, description: '認証失敗' })
+  @ApiResponse({ status: 429, description: 'ログイン試行回数が上限に達しました' })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
   }

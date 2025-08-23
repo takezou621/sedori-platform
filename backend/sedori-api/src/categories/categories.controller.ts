@@ -40,9 +40,8 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: 'カテゴリ作成（管理者のみ）' })
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'カテゴリ作成' })
   @ApiResponse({
     status: 201,
     description: 'カテゴリ作成成功',
@@ -50,7 +49,6 @@ export class CategoriesController {
   })
   @ApiResponse({ status: 400, description: 'バリデーションエラー' })
   @ApiResponse({ status: 401, description: '認証が必要です' })
-  @ApiResponse({ status: 403, description: '権限がありません' })
   @ApiResponse({ status: 409, description: 'スラッグが重複しています' })
   async create(
     @Body() createCategoryDto: CreateCategoryDto,

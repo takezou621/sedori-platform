@@ -10,6 +10,7 @@ import { CartItem } from '../carts/entities/cart-item.entity';
 import { Order } from '../orders/entities/order.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { AnalyticsEvent } from '../analytics/entities/analytics-event.entity';
+import { OptimizationResult } from '../optimization/entities/optimization-result.entity';
 
 export default registerAs(
   'database',
@@ -30,7 +31,8 @@ export default registerAs(
       CartItem,
       Order,
       OrderItem,
-      AnalyticsEvent
+      AnalyticsEvent,
+      OptimizationResult
     ],
     synchronize: process.env.NODE_ENV === 'development',
     logging: process.env.NODE_ENV === 'development',

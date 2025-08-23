@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -23,6 +24,20 @@ import appConfig from './config/app.config';
       load: [databaseConfig, appConfig],
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get('NODE_ENV') === 'production';
+        return [
+          {
+            name: 'default',
+            ttl: 60 * 1000,
+            limit: isProduction ? 100 : 1000,
+          },
+        ];
+      },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

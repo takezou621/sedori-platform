@@ -16,6 +16,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { OptimizationService } from './optimization.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptimizationType } from './entities/optimization-result.entity';
@@ -27,12 +28,13 @@ import {
 
 @ApiTags('Optimization')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 @Controller('optimization')
 export class OptimizationController {
   constructor(private readonly optimizationService: OptimizationService) {}
 
   @Post('request')
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   @ApiOperation({ summary: '販売最適化リクエスト' })
   @ApiResponse({
     status: 201,
@@ -41,6 +43,7 @@ export class OptimizationController {
   })
   @ApiResponse({ status: 400, description: 'リクエストが無効です' })
   @ApiResponse({ status: 404, description: '商品が見つかりません' })
+  @ApiResponse({ status: 429, description: 'レート制限に達しました' })
   async requestOptimization(
     @Request() req: any,
     @Body() optimizationRequestDto: OptimizationRequestDto,

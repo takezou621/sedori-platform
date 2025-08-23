@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { DataSource, Repository } from 'typeorm';
 import { AppModule } from '../../src/app.module';
 import { User } from '../../src/users/entities/user.entity';
@@ -72,6 +73,8 @@ export class E2ETestHelper {
         require('../../src/search/search.module').SearchModule,
       ],
     })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
       .overrideProvider(ConfigService)
       .useValue({
         get: (key: string) => {
