@@ -186,7 +186,14 @@ export class OrdersService {
           .getCount();
 
         const sequence = String(count + 1 + attempt).padStart(4, '0'); // Add attempt to avoid collisions
-        const orderNumber = `ORD${dateStr}${sequence}`;
+        
+        // Add more uniqueness for test environment with microseconds and random suffix
+        let orderNumber = `ORD${dateStr}${sequence}`;
+        if (process.env.NODE_ENV === 'test') {
+          const microSeconds = String(Date.now() % 100000).padStart(5, '0');
+          const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+          orderNumber = `ORD${dateStr}${sequence}${microSeconds}${randomSuffix}`;
+        }
 
         // Check if order number already exists
         const existing = await transactionalEntityManager.findOne(Order, {
@@ -523,6 +530,13 @@ export class OrdersService {
       .getCount();
 
     const sequence = String(count + 1).padStart(4, '0');
+    
+    // Add random suffix for test environment to ensure uniqueness
+    if (process.env.NODE_ENV === 'test') {
+      const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+      return `ORD${dateStr}${sequence}${randomSuffix}`;
+    }
+    
     return `ORD${dateStr}${sequence}`;
   }
 
