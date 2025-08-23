@@ -1,4 +1,8 @@
-import { UserRole, UserPlan, UserStatus } from '../../users/entities/user.entity';
+import {
+  UserRole,
+  UserPlan,
+  UserStatus,
+} from '../../users/entities/user.entity';
 
 export interface JwtPayload {
   sub: string;

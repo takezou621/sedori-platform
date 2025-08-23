@@ -35,22 +35,22 @@ export class User extends BaseEntity {
   password: string;
 
   @Column({
-    type: 'enum',
-    enum: UserRole,
+    type: 'varchar',
+    length: 20,
     default: UserRole.USER,
   })
   role: UserRole;
 
   @Column({
-    type: 'enum',
-    enum: UserPlan,
+    type: 'varchar',
+    length: 20,
     default: UserPlan.FREE,
   })
   plan: UserPlan;
 
   @Column({
-    type: 'enum',
-    enum: UserStatus,
+    type: 'varchar',
+    length: 20,
     default: UserStatus.PENDING,
   })
   status: UserStatus;

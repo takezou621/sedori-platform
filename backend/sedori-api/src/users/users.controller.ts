@@ -9,7 +9,12 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -72,7 +77,10 @@ export class UsersController {
   @Patch('me')
   @ApiOperation({ summary: '自分の情報更新' })
   @ApiResponse({ status: 200, description: '情報更新成功' })
-  async updateMe(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+  async updateMe(
+    @CurrentUser() user: User,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     const updatedUser = await this.usersService.update(user.id, updateUserDto);
     const { password, ...userInfo } = updatedUser;
     return userInfo;

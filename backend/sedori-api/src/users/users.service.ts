@@ -19,7 +19,16 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
-      select: ['id', 'name', 'email', 'role', 'plan', 'status', 'createdAt', 'updatedAt'],
+      select: [
+        'id',
+        'name',
+        'email',
+        'role',
+        'plan',
+        'status',
+        'createdAt',
+        'updatedAt',
+      ],
     });
   }
 
@@ -28,14 +37,14 @@ export class UsersService {
       .createQueryBuilder('user')
       .select([
         'user.id',
-        'user.createdAt', 
+        'user.createdAt',
         'user.updatedAt',
         'user.deletedAt',
         'user.name',
         'user.email',
         'user.password',
         'user.role',
-        'user.plan', 
+        'user.plan',
         'user.status',
         'user.phoneNumber',
         'user.dateOfBirth',
@@ -50,7 +59,7 @@ export class UsersService {
         'user.planStartedAt',
         'user.planExpiresAt',
         'user.preferences',
-        'user.metadata'
+        'user.metadata',
       ])
       .where('user.id = :id', { id })
       .getOne();
@@ -60,13 +69,13 @@ export class UsersService {
     // Use raw query to ensure password field is included
     const result = await this.userRepository.query(
       'SELECT * FROM users WHERE email = $1 AND "deletedAt" IS NULL LIMIT 1',
-      [email]
+      [email],
     );
-    
+
     if (result.length === 0) {
       return null;
     }
-    
+
     // Convert the raw result to User entity - handle snake_case to camelCase
     const userData = result[0];
     const user = new User();
@@ -94,13 +103,13 @@ export class UsersService {
       planStartedAt: userData.planStartedAt,
       planExpiresAt: userData.planExpiresAt,
       preferences: userData.preferences,
-      metadata: userData.metadata
+      metadata: userData.metadata,
     });
-    
+
     // Debug: verify password is included
     console.log('Raw password from DB:', userData.password);
     console.log('User entity password:', user.password);
-    
+
     return user;
   }
 

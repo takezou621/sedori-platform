@@ -61,15 +61,15 @@ export class Product extends BaseEntity {
   currency: string;
 
   @Column({
-    type: 'enum',
-    enum: ProductCondition,
+    type: 'varchar',
+    length: 20,
     default: ProductCondition.NEW,
   })
   condition: ProductCondition;
 
   @Column({
-    type: 'enum',
-    enum: ProductStatus,
+    type: 'varchar',
+    length: 20,
     default: ProductStatus.ACTIVE,
   })
   status: ProductStatus;

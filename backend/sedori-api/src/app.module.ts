@@ -6,6 +6,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
+import { CartsModule } from './carts/carts.module';
+import { OrdersModule } from './orders/orders.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { SearchModule } from './search/search.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 
@@ -25,6 +30,11 @@ import appConfig from './config/app.config';
     AuthModule,
     UsersModule,
     ProductsModule,
+    CategoriesModule,
+    CartsModule,
+    OrdersModule,
+    AnalyticsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [AppService],
