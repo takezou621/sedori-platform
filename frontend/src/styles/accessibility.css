@@ -38,16 +38,20 @@ select:focus {
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .bg-white {
-    @apply bg-white;
-  }
-  
   .text-gray-600 {
     @apply text-black;
   }
   
   .border-gray-300 {
     @apply border-black;
+  }
+  
+  .text-gray-500 {
+    @apply text-black;
+  }
+  
+  .bg-gray-50 {
+    @apply bg-white;
   }
 }
 

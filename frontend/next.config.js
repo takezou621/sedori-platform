@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Performance optimizations
   output: 'standalone',
   poweredByHeader: false,
@@ -21,9 +20,9 @@ const nextConfig: NextConfig = {
   //   enabled: process.env.ANALYZE === 'true',
   // },
 
-  // Experimental features for better performance
+  // Experimental features (minimal to avoid issues)
   experimental: {
-    optimizePackageImports: ['react-icons', 'date-fns', 'lodash'],
+    // optimizePackageImports: ['react-icons', 'date-fns', 'lodash'], // Disabled due to compatibility issues
   },
 
   // Headers for security and caching
@@ -82,15 +81,9 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Webpack optimizations
+  // Webpack optimizations (simplified to avoid compilation issues)
   webpack: (config, { dev, isServer }) => {
-    // Optimize bundle
-    config.optimization = {
-      ...config.optimization,
-      usedExports: true,
-      sideEffects: false,
-    };
-
+    // Only apply minimal webpack config changes
     return config;
   },
 
@@ -105,4 +98,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

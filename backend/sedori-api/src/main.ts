@@ -14,6 +14,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Set global prefix
+  app.setGlobalPrefix('api');
+
   // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
@@ -23,11 +26,11 @@ async function bootstrap() {
     }),
   );
 
-  // API versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // API versioning (temporarily disabled)
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1',
+  // });
 
   // Swagger API documentation
   if (configService.get('app.nodeEnv') === 'development') {
