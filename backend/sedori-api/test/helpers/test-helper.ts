@@ -442,7 +442,27 @@ export class E2ETestHelper {
 
   // Data cleanup
   async cleanupTestData(): Promise<void> {
-    // Clean up test data arrays only - let database handle schema recreation
+    try {
+      // Clean up database data
+      if (this.httpServer && this.testUsers.length > 0) {
+        // Clear carts for all test users
+        for (const user of this.testUsers) {
+          try {
+            await request(this.httpServer)
+              .delete('/carts')
+              .set('Authorization', `Bearer ${user.accessToken}`)
+              .send();
+          } catch (error) {
+            // Ignore individual cart clear errors
+          }
+        }
+      }
+    } catch (error) {
+      // Ignore cleanup errors to prevent test interference
+      console.warn('Cleanup warning:', error.message);
+    }
+
+    // Clean up test data arrays
     this.testUsers = [];
     this.testCategories = [];
     this.testProducts = [];
