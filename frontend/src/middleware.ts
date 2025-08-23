@@ -5,8 +5,8 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define protected routes
-  const protectedRoutes = ['/dashboard'];
-  const authRoutes = ['/login', '/register'];
+  const protectedRoutes = ['/dashboard', '/products', '/analytics'];
+  const authRoutes = ['/auth/login', '/auth/register', '/login', '/register'];
   
   // Get auth token from cookies
   const token = request.cookies.get('auth_token');
@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
 
   // If user is not authenticated and tries to access protected route
   if (isProtectedRoute && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }

@@ -11,7 +11,7 @@ export function Header() {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push('/auth/login');
   };
 
   return (
@@ -42,10 +42,10 @@ export function Header() {
                   Products
                 </Link>
                 <Link
-                  href="/sales"
+                  href="/analytics"
                   className="text-secondary-700 hover:text-primary-600 transition-colors"
                 >
-                  Sales
+                  Analytics
                 </Link>
               </>
             )}
@@ -68,12 +68,12 @@ export function Header() {
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <Link href="/login">
+                <Link href="/auth/login">
                   <Button variant="ghost" size="sm">
                     Login
                   </Button>
                 </Link>
-                <Link href="/register">
+                <Link href="/auth/register">
                   <Button size="sm">
                     Sign Up
                   </Button>

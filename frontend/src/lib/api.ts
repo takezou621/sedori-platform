@@ -6,8 +6,8 @@ import type {
   ApiError,
 } from '@/types';
 
-// Use Next.js API routes for secure authentication
-const API_BASE_URL = '/api';
+// Connect directly to NestJS backend API
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/v1';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -18,7 +18,18 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // Include cookies in requests
     });
+
+    // Request interceptor to add auth token
+    this.client.interceptors.request.use(
+      (config) => {
+        // Token will be handled via httpOnly cookies
+        // No need to manually add Authorization header
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
 
     // Response interceptor to handle errors
     this.client.interceptors.response.use(
@@ -26,7 +37,9 @@ class ApiClient {
       error => {
         if (error.response?.status === 401) {
           // Token expired or invalid - redirect to login
-          window.location.href = '/login';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login';
+          }
         }
         return Promise.reject(error);
       }
@@ -71,6 +84,68 @@ class ApiClient {
   async getCurrentUser() {
     try {
       const response = await this.client.get('/auth/profile');
+      return response.data;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Products endpoints
+  async getProducts(params?: { 
+    page?: number; 
+    limit?: number; 
+    search?: string; 
+    categoryId?: string; 
+  }) {
+    try {
+      const response = await this.client.get('/products', { params });
+      return response.data;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  async getProduct(id: string) {
+    try {
+      const response = await this.client.get(`/products/${id}`);
+      return response.data;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Categories endpoints
+  async getCategories() {
+    try {
+      const response = await this.client.get('/categories');
+      return response.data;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Search endpoints
+  async searchProducts(query: string, filters?: { 
+    categoryId?: string; 
+    minPrice?: number; 
+    maxPrice?: number; 
+  }) {
+    try {
+      const response = await this.client.get('/search', { 
+        params: { query, ...filters } 
+      });
+      return response.data;
+    } catch (error: unknown) {
+      throw this.handleError(error);
+    }
+  }
+
+  // Analytics endpoints
+  async getAnalytics(dateRange?: { from: string; to: string }) {
+    try {
+      const response = await this.client.get('/analytics/dashboard', { 
+        params: dateRange 
+      });
       return response.data;
     } catch (error: unknown) {
       throw this.handleError(error);
