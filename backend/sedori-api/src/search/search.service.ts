@@ -167,8 +167,11 @@ export class SearchService {
     // Active status
     queryBuilder.andWhere('product.status = :status', { status: 'active' });
 
-    // Category filter
-    if (searchQuery.categoryId) {
+    // Category filter - validate UUID format
+    if (searchQuery.categoryId && 
+        searchQuery.categoryId !== 'undefined' && 
+        searchQuery.categoryId !== 'null' &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(searchQuery.categoryId)) {
       queryBuilder.andWhere('product.categoryId = :categoryId', {
         categoryId: searchQuery.categoryId,
       });
