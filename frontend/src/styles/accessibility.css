@@ -1,0 +1,188 @@
+/* Accessibility styles for Sedori Platform */
+
+/* Skip navigation link */
+.skip-nav {
+  @apply absolute top-0 left-0 bg-blue-600 text-white p-2 -translate-y-full transition-transform focus:translate-y-0 z-50;
+}
+
+/* Focus indicators */
+*:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* High contrast focus for buttons */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Screen reader only text */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Remove animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .bg-white {
+    @apply bg-white;
+  }
+  
+  .text-gray-600 {
+    @apply text-black;
+  }
+  
+  .border-gray-300 {
+    @apply border-black;
+  }
+}
+
+/* Color-blind friendly indicators */
+.success-indicator::before {
+  content: '✓ ';
+  @apply text-green-600;
+}
+
+.error-indicator::before {
+  content: '✗ ';
+  @apply text-red-600;
+}
+
+.warning-indicator::before {
+  content: '⚠ ';
+  @apply text-yellow-600;
+}
+
+/* Focus trap for modals */
+.modal-focus-trap {
+  @apply relative;
+}
+
+.modal-focus-trap::before,
+.modal-focus-trap::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Improved link accessibility */
+a:not([class]) {
+  @apply underline text-blue-600 hover:text-blue-800;
+}
+
+a:focus {
+  @apply outline-2 outline-blue-600;
+}
+
+/* Form validation styling */
+input:invalid,
+textarea:invalid,
+select:invalid {
+  @apply border-red-500 ring-red-500;
+}
+
+input:valid,
+textarea:valid,
+select:valid {
+  @apply border-green-500;
+}
+
+/* Loading state accessibility */
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* Disabled state styling */
+[disabled],
+[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Improved table accessibility */
+table {
+  @apply border-collapse w-full;
+}
+
+th {
+  @apply bg-gray-100 font-semibold text-left p-3 border-b;
+}
+
+td {
+  @apply p-3 border-b;
+}
+
+/* ARIA live regions */
+.live-region {
+  @apply sr-only;
+}
+
+[aria-live] {
+  @apply absolute overflow-hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* Custom checkbox and radio button styling */
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  @apply ring-2 ring-blue-500 ring-offset-1;
+}
+
+/* Tooltip accessibility */
+[role="tooltip"] {
+  @apply absolute z-50 px-2 py-1 text-sm bg-gray-900 text-white rounded shadow-lg;
+  pointer-events: none;
+}
+
+/* Progress bar accessibility */
+[role="progressbar"] {
+  @apply relative overflow-hidden bg-gray-200 rounded;
+}
+
+[role="progressbar"]::after {
+  content: attr(aria-valuenow) '% complete';
+  @apply sr-only;
+}
+
+/* Alert styling */
+[role="alert"] {
+  @apply p-4 rounded border-l-4;
+}
+
+[role="alert"][data-type="error"] {
+  @apply bg-red-50 border-red-500 text-red-800;
+}
+
+[role="alert"][data-type="warning"] {
+  @apply bg-yellow-50 border-yellow-500 text-yellow-800;
+}
+
+[role="alert"][data-type="success"] {
+  @apply bg-green-50 border-green-500 text-green-800;
+}
+
+[role="alert"][data-type="info"] {
+  @apply bg-blue-50 border-blue-500 text-blue-800;
+}

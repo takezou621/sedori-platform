@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Button, Card } from '@/components/ui';
+import { ProductStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData';
+import type { Metadata } from 'next';
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -7,11 +9,45 @@ interface ProductDetailPageProps {
   }>;
 }
 
+export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+  const { id } = await params;
+  
+  return {
+    title: `Sample Product ${id} - Sedori Platform`,
+    description: `Detailed information about Sample Product ${id} including profit analysis, sales performance, and product specifications.`,
+    openGraph: {
+      title: `Sample Product ${id}`,
+      description: `High quality product with 50% profit margin and excellent sales performance.`,
+      images: ['/product-images/placeholder.jpg'],
+    },
+  };
+}
+
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = await params;
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Products', url: '/products' },
+    { name: `Product ${id}`, url: `/products/${id}` },
+  ];
+
+  const mockProduct = {
+    id,
+    title: `Sample Product ${id}`,
+    description: 'High quality product with excellent profit margins and sales performance',
+    price: 99.99,
+    cost: 49.99,
+    stock: 150,
+    category: 'Electronics',
+    brand: 'Premium Brand',
+    imageUrl: '/product-images/placeholder.jpg',
+  };
+
   return (
     <div className="bg-white">
+      <BreadcrumbStructuredData breadcrumbs={breadcrumbs} />
+      <ProductStructuredData product={mockProduct} />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="mb-8">
