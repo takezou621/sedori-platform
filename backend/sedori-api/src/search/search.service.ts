@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
 import { Category } from '../categories/entities/category.entity';
+import { MeilisearchService } from './meilisearch.service';
 import {
   SearchQueryDto,
   SearchSortBy,
@@ -15,16 +16,42 @@ import {
 
 @Injectable()
 export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
+
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly meilisearchService: MeilisearchService,
   ) {}
 
   async search(searchQuery: SearchQueryDto): Promise<SearchResultsDto> {
     const startTime = Date.now();
 
+    // Try Meilisearch first for product searches
+    if (
+      (searchQuery.type === SearchType.PRODUCTS || searchQuery.type === SearchType.ALL) &&
+      searchQuery.q
+    ) {
+      const meilisearchResult = await this.meilisearchService.searchProducts(searchQuery);
+      if (meilisearchResult) {
+        this.logger.debug('Using Meilisearch for product search');
+        
+        // Add category search if needed
+        if (searchQuery.type === SearchType.ALL) {
+          const categoryResults = await this.searchCategories(searchQuery);
+          meilisearchResult.categories = categoryResults.categories;
+          meilisearchResult.total += categoryResults.total;
+        }
+        
+        return meilisearchResult;
+      }
+    }
+
+    // Fallback to PostgreSQL search
+    this.logger.debug('Using PostgreSQL fallback for search');
+    
     let products: SearchProductDto[] = [];
     let categories: SearchCategoryDto[] = [];
     let total = 0;

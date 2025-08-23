@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
+import { MeilisearchService } from './meilisearch.service';
+import { ProductIndexerService } from './indexing/product-indexer.service';
 import { Product } from '../products/entities/product.entity';
 import { Category } from '../categories/entities/category.entity';
 import { AnalyticsModule } from '../analytics/analytics.module';
@@ -9,7 +11,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Product, Category]), AnalyticsModule],
   controllers: [SearchController],
-  providers: [SearchService],
-  exports: [SearchService],
+  providers: [SearchService, MeilisearchService, ProductIndexerService],
+  exports: [SearchService, MeilisearchService, ProductIndexerService],
 })
 export class SearchModule {}
