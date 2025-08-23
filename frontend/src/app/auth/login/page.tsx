@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { Card } from '@/components/ui';
 import { LoginForm } from './components/LoginForm';
 
@@ -19,7 +20,9 @@ export default function LoginPage() {
         </div>
 
         <Card className="p-8">
-          <LoginForm />
+          <Suspense fallback={<div className="flex justify-center py-4"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div></div>}>
+            <LoginForm />
+          </Suspense>
         </Card>
       </div>
     </div>

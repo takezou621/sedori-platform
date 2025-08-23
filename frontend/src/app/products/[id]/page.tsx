@@ -2,13 +2,13 @@ import Link from 'next/link';
 import { Button, Card } from '@/components/ui';
 
 interface ProductDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { id } = params;
+export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+  const { id } = await params;
 
   return (
     <div className="bg-white">

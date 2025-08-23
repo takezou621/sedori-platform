@@ -72,16 +72,17 @@ export function RegisterForm() {
         password: data.password,
       });
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific error types
-      if (error?.statusCode === 409) {
+      const apiError = error as { statusCode?: number; message?: string };
+      if (apiError?.statusCode === 409) {
         setError('email', { message: 'An account with this email already exists' });
-      } else if (error?.statusCode === 422) {
+      } else if (apiError?.statusCode === 422) {
         setError('root', { message: 'Please check your input and try again' });
-      } else if (error?.statusCode === 429) {
+      } else if (apiError?.statusCode === 429) {
         setError('root', { message: 'Too many registration attempts. Please try again later.' });
       } else {
-        setError('root', { message: error?.message || 'Registration failed. Please try again.' });
+        setError('root', { message: apiError?.message || 'Registration failed. Please try again.' });
       }
     }
   };
