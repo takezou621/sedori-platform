@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('🚀 Enhanced Comprehensive Browser E2E Tests', () => {
-  const API_BASE = 'http://localhost:3000/v1';
+  const API_BASE = 'http://localhost:3000/api';
 
   // Common test utilities
   class TestHelper {

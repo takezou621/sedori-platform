@@ -1,0 +1,1672 @@
+{
+  "config": {
+    "configFile": "/Users/kawai/dev/sedori-platform/backend/sedori-api/playwright.config.ts",
+    "rootDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/Users/kawai/dev/sedori-platform/backend/sedori-api/tests/browser-e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "enhanced-comprehensive.browser.spec.ts",
+      "file": "enhanced-comprehensive.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🚀 Enhanced Comprehensive Browser E2E Tests",
+          "file": "enhanced-comprehensive.browser.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "🎯 System Health and Basic Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 36,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.434Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-ed38ac24ccf4ab02f7b5",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "🔐 Authentication System Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 99,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Authentication system appears to be experiencing issues\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.478Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-0efeec5827174099d23f",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "📊 API Endpoint Availability Survey",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 33,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "API Endpoint Survey Results: [\n  {\n    endpoint: \u001b[32m'/health'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/auth/profile'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/categories'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/analytics/dashboard'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.585Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-ed5912600252628c5298",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "🔄 Error Handling and Recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error Handling Test Results: [\n  { test: \u001b[32m'Invalid JSON payload'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  {\n    test: \u001b[32m'Missing required fields'\u001b[39m,\n    status: \u001b[33m400\u001b[39m,\n    handledProperly: \u001b[33mtrue\u001b[39m\n  },\n  { test: \u001b[32m'Non-existent endpoint'\u001b[39m, status: \u001b[33m404\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  { test: \u001b[32m'Invalid UUID in URL'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.622Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-4b27c0f6ed1c493974a6",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance and Load Testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Test Results: [\n  { endpoint: \u001b[32m'/health'\u001b[39m, responseTime: \u001b[33m6\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    responseTime: \u001b[33m6\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    success: \u001b[33mtrue\u001b[39m\n  },\n  { endpoint: \u001b[32m'/search'\u001b[39m, responseTime: \u001b[33m4\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.639Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-e0e4b5551909353c739c",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "🧪 Concurrent Request Handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Concurrent Request Results: [\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m11\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m11\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m6\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m10\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.660Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-a6c93277672b71a2ddee",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "🔍 Search Functionality Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 38,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Search Resilience Results: [\n  {\n    query: \u001b[32m'Empty query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Simple text search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Product name search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Special characters'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Very long query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.676Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-d9b759dce7cb086b34d2",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 285,
+              "column": 7
+            },
+            {
+              "title": "🛡️ Security Headers and Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Security Headers Analysis: {\n  \u001b[32m'content-type'\u001b[39m: \u001b[32m'application/json; charset=utf-8'\u001b[39m,\n  \u001b[32m'x-powered-by'\u001b[39m: \u001b[32m'Express'\u001b[39m,\n  server: \u001b[90mundefined\u001b[39m,\n  \u001b[32m'access-control-allow-origin'\u001b[39m: \u001b[90mundefined\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "🎉 Enhanced Comprehensive E2E Test Suite Completed!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.717Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-8a40435265f1c6523f1b",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 325,
+              "column": 7
+            },
+            {
+              "title": "🎯 System Health and Basic Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:34.977Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-2632ee053138f9d08be5",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "🔐 Authentication System Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 67,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Authentication system appears to be experiencing issues\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.005Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-0363414b3a6df18b0572",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "📊 API Endpoint Availability Survey",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 29,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "API Endpoint Survey Results: [\n  {\n    endpoint: \u001b[32m'/health'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/auth/profile'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/categories'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/analytics/dashboard'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.078Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-73fe627a0b60521ab1de",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "🔄 Error Handling and Recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error Handling Test Results: [\n  { test: \u001b[32m'Invalid JSON payload'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  {\n    test: \u001b[32m'Missing required fields'\u001b[39m,\n    status: \u001b[33m400\u001b[39m,\n    handledProperly: \u001b[33mtrue\u001b[39m\n  },\n  { test: \u001b[32m'Non-existent endpoint'\u001b[39m, status: \u001b[33m404\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  { test: \u001b[32m'Invalid UUID in URL'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.113Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-fa6538ab455756eb3345",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance and Load Testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Test Results: [\n  { endpoint: \u001b[32m'/health'\u001b[39m, responseTime: \u001b[33m1\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    responseTime: \u001b[33m4\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    success: \u001b[33mtrue\u001b[39m\n  },\n  { endpoint: \u001b[32m'/search'\u001b[39m, responseTime: \u001b[33m4\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.124Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-cfb5e5c598662e6b3884",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "🧪 Concurrent Request Handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Concurrent Request Results: [\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.140Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-9041e8da52623d917ad6",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "🔍 Search Functionality Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 35,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Search Resilience Results: [\n  {\n    query: \u001b[32m'Empty query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Simple text search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Product name search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Special characters'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Very long query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.150Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-8b5551661eda4ee628df",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 285,
+              "column": 7
+            },
+            {
+              "title": "🛡️ Security Headers and Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Security Headers Analysis: {\n  \u001b[32m'content-type'\u001b[39m: \u001b[32m'application/json; charset=utf-8'\u001b[39m,\n  \u001b[32m'x-powered-by'\u001b[39m: \u001b[32m'Express'\u001b[39m,\n  server: \u001b[90mundefined\u001b[39m,\n  \u001b[32m'access-control-allow-origin'\u001b[39m: \u001b[90mundefined\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "🎉 Enhanced Comprehensive E2E Test Suite Completed!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.189Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-af8e6c545bc4cc038b1b",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 325,
+              "column": 7
+            },
+            {
+              "title": "🎯 System Health and Basic Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.443Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-c30ce1ebd19a638d4570",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "🔐 Authentication System Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 64,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Authentication system appears to be experiencing issues\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.470Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-4e8ef4dcd6f449269007",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "📊 API Endpoint Availability Survey",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "API Endpoint Survey Results: [\n  {\n    endpoint: \u001b[32m'/health'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/auth/profile'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/categories'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/analytics/dashboard'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.539Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-420a48c04c20252f667d",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "🔄 Error Handling and Recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error Handling Test Results: [\n  { test: \u001b[32m'Invalid JSON payload'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  {\n    test: \u001b[32m'Missing required fields'\u001b[39m,\n    status: \u001b[33m400\u001b[39m,\n    handledProperly: \u001b[33mtrue\u001b[39m\n  },\n  { test: \u001b[32m'Non-existent endpoint'\u001b[39m, status: \u001b[33m404\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  { test: \u001b[32m'Invalid UUID in URL'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.562Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-db2640be03f20bf9345f",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance and Load Testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Test Results: [\n  { endpoint: \u001b[32m'/health'\u001b[39m, responseTime: \u001b[33m2\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    responseTime: \u001b[33m4\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    success: \u001b[33mtrue\u001b[39m\n  },\n  { endpoint: \u001b[32m'/search'\u001b[39m, responseTime: \u001b[33m3\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.574Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-5ea5efbd66b63016f419",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "🧪 Concurrent Request Handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Concurrent Request Results: [\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.588Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-7d6219b369fea1ec3272",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "🔍 Search Functionality Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Search Resilience Results: [\n  {\n    query: \u001b[32m'Empty query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Simple text search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Product name search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Special characters'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Very long query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.598Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-48d21ec923f902a43c7d",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 285,
+              "column": 7
+            },
+            {
+              "title": "🛡️ Security Headers and Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Security Headers Analysis: {\n  \u001b[32m'content-type'\u001b[39m: \u001b[32m'application/json; charset=utf-8'\u001b[39m,\n  \u001b[32m'x-powered-by'\u001b[39m: \u001b[32m'Express'\u001b[39m,\n  server: \u001b[90mundefined\u001b[39m,\n  \u001b[32m'access-control-allow-origin'\u001b[39m: \u001b[90mundefined\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "🎉 Enhanced Comprehensive E2E Test Suite Completed!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.630Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-713b2fabfc13296ec17e",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 325,
+              "column": 7
+            },
+            {
+              "title": "🎯 System Health and Basic Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.888Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-7415090159435405b18c",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "🔐 Authentication System Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 63,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Authentication system appears to be experiencing issues\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.916Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-674c55f00ca25a741b31",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "📊 API Endpoint Availability Survey",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "API Endpoint Survey Results: [\n  {\n    endpoint: \u001b[32m'/health'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/auth/profile'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/categories'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/analytics/dashboard'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:35.983Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-591536edca58f912c392",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "🔄 Error Handling and Recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error Handling Test Results: [\n  { test: \u001b[32m'Invalid JSON payload'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  {\n    test: \u001b[32m'Missing required fields'\u001b[39m,\n    status: \u001b[33m400\u001b[39m,\n    handledProperly: \u001b[33mtrue\u001b[39m\n  },\n  { test: \u001b[32m'Non-existent endpoint'\u001b[39m, status: \u001b[33m404\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  { test: \u001b[32m'Invalid UUID in URL'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.004Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-e4c161d0d22d9adbba70",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance and Load Testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Test Results: [\n  { endpoint: \u001b[32m'/health'\u001b[39m, responseTime: \u001b[33m1\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    responseTime: \u001b[33m3\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    success: \u001b[33mtrue\u001b[39m\n  },\n  { endpoint: \u001b[32m'/search'\u001b[39m, responseTime: \u001b[33m4\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.015Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-94fba5bcbf2cca2482d6",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "🧪 Concurrent Request Handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Concurrent Request Results: [\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m5\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.030Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-71ad24a884e9582caa86",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "🔍 Search Functionality Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 33,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Search Resilience Results: [\n  {\n    query: \u001b[32m'Empty query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Simple text search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Product name search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Special characters'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Very long query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.039Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-a17cee8afedd2749bde9",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 285,
+              "column": 7
+            },
+            {
+              "title": "🛡️ Security Headers and Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Security Headers Analysis: {\n  \u001b[32m'content-type'\u001b[39m: \u001b[32m'application/json; charset=utf-8'\u001b[39m,\n  \u001b[32m'x-powered-by'\u001b[39m: \u001b[32m'Express'\u001b[39m,\n  server: \u001b[90mundefined\u001b[39m,\n  \u001b[32m'access-control-allow-origin'\u001b[39m: \u001b[90mundefined\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "🎉 Enhanced Comprehensive E2E Test Suite Completed!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.076Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-f395ccfe03d57f1b6029",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 325,
+              "column": 7
+            },
+            {
+              "title": "🎯 System Health and Basic Connectivity",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.326Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-8810cd9eb18c5ce637f1",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "🔐 Authentication System Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 64,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "Authentication system appears to be experiencing issues\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.352Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-58b8de53bae28057ffff",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "📊 API Endpoint Availability Survey",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "API Endpoint Survey Results: [\n  {\n    endpoint: \u001b[32m'/health'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/auth/profile'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/categories'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  },\n  {\n    endpoint: \u001b[32m'/analytics/dashboard'\u001b[39m,\n    status: \u001b[33m401\u001b[39m,\n    implemented: \u001b[33mtrue\u001b[39m,\n    accessible: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.419Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-d9b3586e7995816a82c4",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 112,
+              "column": 7
+            },
+            {
+              "title": "🔄 Error Handling and Recovery",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Error Handling Test Results: [\n  { test: \u001b[32m'Invalid JSON payload'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  {\n    test: \u001b[32m'Missing required fields'\u001b[39m,\n    status: \u001b[33m400\u001b[39m,\n    handledProperly: \u001b[33mtrue\u001b[39m\n  },\n  { test: \u001b[32m'Non-existent endpoint'\u001b[39m, status: \u001b[33m404\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m },\n  { test: \u001b[32m'Invalid UUID in URL'\u001b[39m, status: \u001b[33m400\u001b[39m, handledProperly: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.443Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-3b2102317eeaee8a99d9",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 158,
+              "column": 7
+            },
+            {
+              "title": "⚡ Performance and Load Testing",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Performance Test Results: [\n  { endpoint: \u001b[32m'/health'\u001b[39m, responseTime: \u001b[33m1\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  {\n    endpoint: \u001b[32m'/products'\u001b[39m,\n    responseTime: \u001b[33m3\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    success: \u001b[33mtrue\u001b[39m\n  },\n  { endpoint: \u001b[32m'/search'\u001b[39m, responseTime: \u001b[33m5\u001b[39m, status: \u001b[33m200\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.453Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-47624a20f9b9e06926a6",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 220,
+              "column": 7
+            },
+            {
+              "title": "🧪 Concurrent Request Handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Concurrent Request Results: [\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m2\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m4\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m3\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m3\u001b[39m, success: \u001b[33mtrue\u001b[39m },\n  { status: \u001b[33m200\u001b[39m, responseTime: \u001b[33m3\u001b[39m, success: \u001b[33mtrue\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.466Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-c80d690932d50a1f1bbb",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 255,
+              "column": 7
+            },
+            {
+              "title": "🔍 Search Functionality Resilience",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 25,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Search Resilience Results: [\n  {\n    query: \u001b[32m'Empty query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Simple text search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Product name search'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Special characters'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  },\n  {\n    query: \u001b[32m'Very long query'\u001b[39m,\n    status: \u001b[33m200\u001b[39m,\n    handled: \u001b[33mtrue\u001b[39m,\n    responseReceived: \u001b[33mtrue\u001b[39m\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.474Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-4e9859669e6a69e4a02a",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 285,
+              "column": 7
+            },
+            {
+              "title": "🛡️ Security Headers and Configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "Security Headers Analysis: {\n  \u001b[32m'content-type'\u001b[39m: \u001b[32m'application/json; charset=utf-8'\u001b[39m,\n  \u001b[32m'x-powered-by'\u001b[39m: \u001b[32m'Express'\u001b[39m,\n  server: \u001b[90mundefined\u001b[39m,\n  \u001b[32m'access-control-allow-origin'\u001b[39m: \u001b[90mundefined\u001b[39m\n}\n"
+                        },
+                        {
+                          "text": "🎉 Enhanced Comprehensive E2E Test Suite Completed!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-23T14:08:36.503Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ad60e40ab6502af560-e924bc95d61751a56829",
+              "file": "enhanced-comprehensive.browser.spec.ts",
+              "line": 325,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-23T14:08:34.155Z",
+    "duration": 2368.433,
+    "expected": 40,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

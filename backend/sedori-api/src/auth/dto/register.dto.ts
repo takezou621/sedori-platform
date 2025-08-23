@@ -5,6 +5,7 @@ import {
   MaxLength,
   IsOptional,
   IsEnum,
+  Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserPlan, UserRole } from '../../users/entities/user.entity';
@@ -30,14 +31,20 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    description: 'パスワード',
-    example: 'securePassword123',
+    description: 'パスワード（英数字・記号を含む8文字以上）',
+    example: 'SecurePass123!',
     minLength: 8,
     maxLength: 255,
   })
   @IsString()
-  @MinLength(8)
+  @MinLength(8, { message: 'パスワードは8文字以上である必要があります' })
   @MaxLength(255)
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    {
+      message: 'パスワードは大文字・小文字・数字・記号を含む必要があります',
+    },
+  )
   password: string;
 
   @ApiProperty({

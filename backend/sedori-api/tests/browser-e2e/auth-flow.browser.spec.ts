@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('🔐 Authentication Flow - Browser E2E Tests', () => {
-  const API_BASE = 'http://localhost:3000/v1';
+  const API_BASE = 'http://localhost:3000/api';
   
   // Test user credentials
   const testUser = {
