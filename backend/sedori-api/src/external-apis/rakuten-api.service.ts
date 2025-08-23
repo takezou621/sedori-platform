@@ -19,7 +19,7 @@ export class RakutenApiService {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
       
       if (!applicationId) {
-        this.logger.warn('Rakuten API credentials not configured, using fallback data');
+        this.logger.warn('Required API credentials not configured, using fallback data');
         return this.getFallbackSearchResults(keyword, limit);
       }
 
@@ -51,7 +51,7 @@ export class RakutenApiService {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
       
       if (!applicationId) {
-        this.logger.warn('Rakuten API credentials not configured, using fallback pricing');
+        this.logger.warn('Required API credentials not configured, using fallback pricing');
         return this.getFallbackCompetitorPrices(productName || '');
       }
 
@@ -84,7 +84,7 @@ export class RakutenApiService {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
       
       if (!applicationId) {
-        this.logger.warn('Rakuten API credentials not configured, using fallback ranking');
+        this.logger.warn('Required API credentials not configured, using fallback ranking');
         return this.getFallbackRankingData();
       }
 

@@ -25,7 +25,7 @@ export class AmazonApiService {
       const associateTag = this.configService.get('AMAZON_ASSOCIATE_TAG');
 
       if (!accessKey || !secretKey || !associateTag) {
-        this.logger.warn('Amazon API credentials not configured, using fallback data');
+        this.logger.warn('Required Amazon API credentials not configured, using fallback data');
         return this.getFallbackSearchResults(keyword, limit);
       }
 
@@ -51,7 +51,7 @@ export class AmazonApiService {
       const secretKey = this.configService.get('AMAZON_SECRET_KEY');
 
       if (!accessKey || !secretKey) {
-        this.logger.warn('Amazon API credentials not configured, using fallback pricing');
+        this.logger.warn('Required API credentials not configured, using fallback pricing');
         return this.getFallbackCompetitorPrices(asin);
       }
 

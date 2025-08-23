@@ -41,8 +41,9 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: '商品作成' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: '商品作成（管理者のみ）' })
   @ApiResponse({
     status: 201,
     description: '商品作成成功',
@@ -50,6 +51,7 @@ export class ProductsController {
   })
   @ApiResponse({ status: 400, description: 'バリデーションエラー' })
   @ApiResponse({ status: 401, description: '認証が必要です' })
+  @ApiResponse({ status: 403, description: '管理者権限が必要です' })
   async create(
     @Body() createProductDto: CreateProductDto,
   ): Promise<ProductResponseDto> {

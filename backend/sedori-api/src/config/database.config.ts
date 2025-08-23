@@ -40,7 +40,10 @@ export default registerAs(
     migrationsRun: false,
     ssl:
       process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
+        ? { 
+            rejectUnauthorized: true,
+            ca: process.env.DB_CA_CERT || undefined
+          }
         : false,
   }),
 );
