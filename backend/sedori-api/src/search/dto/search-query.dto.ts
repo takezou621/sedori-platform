@@ -11,7 +11,10 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { ProductCondition, ProductStatus } from '../../products/entities/product.entity';
+import {
+  ProductCondition,
+  ProductStatus,
+} from '../../products/entities/product.entity';
 
 export enum SearchSortBy {
   RELEVANCE = 'relevance',

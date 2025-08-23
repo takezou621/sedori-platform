@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Index,
-  Unique,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index, Unique } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Cart } from './cart.entity';
 import { Product } from '../../products/entities/product.entity';
@@ -38,7 +31,11 @@ export class CartItem extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   totalPrice: number;
 
-  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   addedAt: Date;
 
   @Column({ type: 'json', nullable: true })

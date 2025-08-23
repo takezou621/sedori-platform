@@ -12,12 +12,20 @@ import { OrderStatus, PaymentStatus } from '../entities/order.entity';
 import { AddressDto } from './create-order.dto';
 
 export class UpdateOrderDto {
-  @ApiProperty({ description: '注文ステータス', enum: OrderStatus, required: false })
+  @ApiProperty({
+    description: '注文ステータス',
+    enum: OrderStatus,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(OrderStatus)
   status?: OrderStatus;
 
-  @ApiProperty({ description: '支払いステータス', enum: PaymentStatus, required: false })
+  @ApiProperty({
+    description: '支払いステータス',
+    enum: PaymentStatus,
+    required: false,
+  })
   @IsOptional()
   @IsEnum(PaymentStatus)
   paymentStatus?: PaymentStatus;

@@ -78,7 +78,11 @@ export class Order extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   totalAmount: number;
 
-  @Column({ type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   orderDate: Date;
 
   @Column({ type: 'timestamp', nullable: true })

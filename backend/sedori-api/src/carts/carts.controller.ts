@@ -18,11 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { CartsService } from './carts.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import {
-  AddToCartDto,
-  UpdateCartItemDto,
-  CartResponseDto,
-} from './dto';
+import { AddToCartDto, UpdateCartItemDto, CartResponseDto } from './dto';
 
 @ApiTags('Carts')
 @ApiBearerAuth()
@@ -124,22 +120,25 @@ export class CartsController {
       totalAmount: Number(cart.totalAmount),
       totalItems: cart.totalItems,
       lastActivityAt: cart.lastActivityAt,
-      items: cart.items?.map((item: any) => ({
-        id: item.id,
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: Number(item.unitPrice),
-        totalPrice: Number(item.totalPrice),
-        addedAt: item.addedAt,
-        productSnapshot: item.productSnapshot,
-        product: item.product ? {
-          id: item.product.id,
-          name: item.product.name,
-          brand: item.product.brand,
-          primaryImageUrl: item.product.primaryImageUrl,
-          status: item.product.status,
-        } : undefined,
-      })) || [],
+      items:
+        cart.items?.map((item: any) => ({
+          id: item.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: Number(item.unitPrice),
+          totalPrice: Number(item.totalPrice),
+          addedAt: item.addedAt,
+          productSnapshot: item.productSnapshot,
+          product: item.product
+            ? {
+                id: item.product.id,
+                name: item.product.name,
+                brand: item.product.brand,
+                primaryImageUrl: item.product.primaryImageUrl,
+                status: item.product.status,
+              }
+            : undefined,
+        })) || [],
       createdAt: cart.createdAt,
       updatedAt: cart.updatedAt,
     };

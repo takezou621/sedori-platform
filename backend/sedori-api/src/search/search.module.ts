@@ -7,10 +7,7 @@ import { Category } from '../categories/entities/category.entity';
 import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Product, Category]),
-    AnalyticsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Product, Category]), AnalyticsModule],
   controllers: [SearchController],
   providers: [SearchService],
   exports: [SearchService],

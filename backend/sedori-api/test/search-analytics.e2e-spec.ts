@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { E2ETestHelper } from './helpers/test-helper';
 
 describe('Search & Analytics Flow E2E Tests', () => {
@@ -24,7 +24,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
   beforeEach(async () => {
     testAdmin = await helper.createTestAdmin();
     testUser = await helper.createTestUser();
-    
+
     // Create test categories
     testCategories = [];
     const categories = [
@@ -32,7 +32,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
       { name: 'Books', slug: 'books' },
       { name: 'Clothing', slug: 'clothing' },
     ];
-    
+
     for (const catData of categories) {
       const category = await helper.createTestCategory(testAdmin, catData);
       testCategories.push(category);
@@ -41,13 +41,48 @@ describe('Search & Analytics Flow E2E Tests', () => {
     // Create test products with varied data for search testing
     testProducts = [];
     const products = [
-      { name: 'iPhone 15 Pro', brand: 'Apple', categoryIndex: 0, price: 120000 },
-      { name: 'Samsung Galaxy S24', brand: 'Samsung', categoryIndex: 0, price: 100000 },
-      { name: 'MacBook Air M2', brand: 'Apple', categoryIndex: 0, price: 150000 },
-      { name: 'Programming Book JavaScript', brand: 'TechBooks', categoryIndex: 1, price: 3000 },
-      { name: 'React Development Guide', brand: 'TechBooks', categoryIndex: 1, price: 3500 },
-      { name: 'Nike Air Max Sneakers', brand: 'Nike', categoryIndex: 2, price: 12000 },
-      { name: 'Adidas Running Shoes', brand: 'Adidas', categoryIndex: 2, price: 10000 },
+      {
+        name: 'iPhone 15 Pro',
+        brand: 'Apple',
+        categoryIndex: 0,
+        price: 120000,
+      },
+      {
+        name: 'Samsung Galaxy S24',
+        brand: 'Samsung',
+        categoryIndex: 0,
+        price: 100000,
+      },
+      {
+        name: 'MacBook Air M2',
+        brand: 'Apple',
+        categoryIndex: 0,
+        price: 150000,
+      },
+      {
+        name: 'Programming Book JavaScript',
+        brand: 'TechBooks',
+        categoryIndex: 1,
+        price: 3000,
+      },
+      {
+        name: 'React Development Guide',
+        brand: 'TechBooks',
+        categoryIndex: 1,
+        price: 3500,
+      },
+      {
+        name: 'Nike Air Max Sneakers',
+        brand: 'Nike',
+        categoryIndex: 2,
+        price: 12000,
+      },
+      {
+        name: 'Adidas Running Shoes',
+        brand: 'Adidas',
+        categoryIndex: 2,
+        price: 10000,
+      },
     ];
 
     for (const prodData of products) {
@@ -57,16 +92,16 @@ describe('Search & Analytics Flow E2E Tests', () => {
         {
           name: prodData.name,
           wholesalePrice: prodData.price,
-        }
+        },
       );
-      
+
       // Update brand
       await request(httpServer)
         .put(`/products/${product.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ brand: prodData.brand })
         .expect(200);
-      
+
       product.brand = prodData.brand;
       testProducts.push(product);
     }
@@ -82,7 +117,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
   describe('Basic Search Functionality', () => {
     it('should search products by name', async () => {
       const searchQuery = 'iPhone';
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(searchQuery)}`)
         .expect(200);
@@ -95,20 +130,24 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should search products by brand', async () => {
       const searchQuery = 'Apple';
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(searchQuery)}`)
         .expect(200);
 
       expect(response.body.products.length).toBeGreaterThan(0);
       response.body.products.forEach((product: any) => {
-        expect(product.name.toLowerCase()).toContain('apple');
+        // Check that product is from Apple brand or contains Apple in name/description
+        const hasApple = product.brand?.toLowerCase().includes('apple') ||
+                        product.name?.toLowerCase().includes('apple') ||
+                        product.description?.toLowerCase().includes('apple');
+        expect(hasApple).toBeTruthy();
       });
     });
 
     it('should return empty results for non-existent products', async () => {
       const searchQuery = 'NonExistentProduct12345';
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(searchQuery)}`)
         .expect(200);
@@ -119,7 +158,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should handle special characters in search', async () => {
       const searchQuery = 'iPhone 15 Pro';
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(searchQuery)}`)
         .expect(200);
@@ -129,14 +168,16 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should search case-insensitively', async () => {
       const searchQueries = ['iphone', 'IPHONE', 'iPhone', 'IpHoNe'];
-      
+
       for (const query of searchQueries) {
         const response = await request(httpServer)
           .get(`/search?q=${encodeURIComponent(query)}`)
           .expect(200);
 
         expect(response.body.products.length).toBeGreaterThan(0);
-        expect(response.body.products[0].name.toLowerCase()).toContain('iphone');
+        expect(response.body.products[0].name.toLowerCase()).toContain(
+          'iphone',
+        );
       }
     });
   });
@@ -144,7 +185,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
   describe('Advanced Search Filtering', () => {
     it('should filter by category', async () => {
       const electronicsCategory = testCategories[0];
-      
+
       const response = await request(httpServer)
         .get(`/search?categoryId=${electronicsCategory.id}`)
         .expect(200);
@@ -158,7 +199,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
     it('should filter by price range', async () => {
       const minPrice = 10000;
       const maxPrice = 50000;
-      
+
       const response = await request(httpServer)
         .get(`/search?priceRange[min]=${minPrice}&priceRange[max]=${maxPrice}`)
         .expect(200);
@@ -172,7 +213,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should filter by brand', async () => {
       const brand = 'Apple';
-      
+
       const response = await request(httpServer)
         .get(`/search?brands[]=${encodeURIComponent(brand)}`)
         .expect(200);
@@ -185,8 +226,10 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should filter by multiple brands', async () => {
       const brands = ['Apple', 'Samsung'];
-      const brandQuery = brands.map(b => `brands[]=${encodeURIComponent(b)}`).join('&');
-      
+      const brandQuery = brands
+        .map((b) => `brands[]=${encodeURIComponent(b)}`)
+        .join('&');
+
       const response = await request(httpServer)
         .get(`/search?${brandQuery}`)
         .expect(200);
@@ -202,9 +245,11 @@ describe('Search & Analytics Flow E2E Tests', () => {
       const minPrice = 10000;
       const maxPrice = 200000;
       const brand = 'Apple';
-      
+
       const response = await request(httpServer)
-        .get(`/search?categoryId=${electronicsCategory.id}&priceRange[min]=${minPrice}&priceRange[max]=${maxPrice}&brands[]=${brand}`)
+        .get(
+          `/search?categoryId=${electronicsCategory.id}&priceRange[min]=${minPrice}&priceRange[max]=${maxPrice}&brands[]=${brand}`,
+        )
         .expect(200);
 
       expect(response.body.products.length).toBeGreaterThan(0);
@@ -223,7 +268,9 @@ describe('Search & Analytics Flow E2E Tests', () => {
         .get('/search?sortBy=price_asc&limit=10')
         .expect(200);
 
-      const prices = response.body.products.map((p: any) => Number(p.wholesalePrice));
+      const prices = response.body.products.map((p: any) =>
+        Number(p.wholesalePrice),
+      );
       const sortedPrices = [...prices].sort((a, b) => a - b);
       expect(prices).toEqual(sortedPrices);
     });
@@ -233,7 +280,9 @@ describe('Search & Analytics Flow E2E Tests', () => {
         .get('/search?sortBy=price_desc&limit=10')
         .expect(200);
 
-      const prices = response.body.products.map((p: any) => Number(p.wholesalePrice));
+      const prices = response.body.products.map((p: any) =>
+        Number(p.wholesalePrice),
+      );
       const sortedPrices = [...prices].sort((a, b) => b - a);
       expect(prices).toEqual(sortedPrices);
     });
@@ -276,8 +325,10 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
       expect(response.body.facets).toBeDefined();
       expect(Array.isArray(response.body.facets)).toBe(true);
-      
-      const categoryFacet = response.body.facets.find((f: any) => f.name === 'category');
+
+      const categoryFacet = response.body.facets.find(
+        (f: any) => f.name === 'category',
+      );
       if (categoryFacet) {
         expect(categoryFacet.label).toBeTruthy();
         expect(Array.isArray(categoryFacet.values)).toBe(true);
@@ -326,7 +377,9 @@ describe('Search & Analytics Flow E2E Tests', () => {
         .expect(200);
 
       expect(response.body.categories.length).toBeGreaterThan(0);
-      expect(response.body.categories[0].name.toLowerCase()).toContain('electronics');
+      expect(response.body.categories[0].name.toLowerCase()).toContain(
+        'electronics',
+      );
     });
 
     it('should search both products and categories', async () => {
@@ -342,7 +395,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
   describe('Analytics Event Tracking', () => {
     it('should track search events', async () => {
       const searchQuery = 'test search';
-      
+
       // Perform search
       await request(httpServer)
         .get(`/search?q=${encodeURIComponent(searchQuery)}`)
@@ -403,7 +456,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
         eventType: 'product_view',
         productId: testProducts[0].id,
       });
-      
+
       await helper.trackEvent(testUser, {
         eventType: 'product_search',
         properties: { query: 'test search' },
@@ -485,9 +538,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
   describe('Performance and Edge Cases', () => {
     it('should handle empty search queries', async () => {
-      const response = await request(httpServer)
-        .get('/search?q=')
-        .expect(200);
+      const response = await request(httpServer).get('/search?q=').expect(200);
 
       expect(response.body.products).toBeDefined();
       expect(response.body.total).toBeGreaterThan(0);
@@ -495,7 +546,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should handle very long search queries', async () => {
       const longQuery = 'a'.repeat(1000);
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(longQuery)}`)
         .expect(200);
@@ -506,7 +557,7 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should handle special characters', async () => {
       const specialQuery = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-      
+
       const response = await request(httpServer)
         .get(`/search?q=${encodeURIComponent(specialQuery)}`)
         .expect(200);
@@ -516,31 +567,29 @@ describe('Search & Analytics Flow E2E Tests', () => {
 
     it('should have reasonable search performance', async () => {
       const startTime = Date.now();
-      
+
       const response = await request(httpServer)
         .get('/search?q=electronics&includeFacets=true&limit=20')
         .expect(200);
-      
+
       const endTime = Date.now();
       const responseTime = endTime - startTime;
-      
+
       expect(responseTime).toBeLessThan(5000); // Should complete within 5 seconds
       expect(response.body.searchTime).toBeLessThan(2000); // Search itself should be under 2 seconds
     });
 
     it('should handle concurrent search requests', async () => {
       const promises = [];
-      
+
       for (let i = 0; i < 5; i++) {
         promises.push(
-          request(httpServer)
-            .get(`/search?q=product${i}`)
-            .expect(200)
+          request(httpServer).get(`/search?q=product${i}`).expect(200),
         );
       }
 
       const responses = await Promise.all(promises);
-      
+
       responses.forEach((response, index) => {
         expect(response.body.products).toBeDefined();
         expect(response.body.searchTime).toBeGreaterThan(0);

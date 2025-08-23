@@ -24,13 +24,16 @@ export class SearchService {
 
   async search(searchQuery: SearchQueryDto): Promise<SearchResultsDto> {
     const startTime = Date.now();
-    
+
     let products: SearchProductDto[] = [];
     let categories: SearchCategoryDto[] = [];
     let total = 0;
     let facets: SearchFacetDto[] = [];
 
-    if (searchQuery.type === SearchType.PRODUCTS || searchQuery.type === SearchType.ALL) {
+    if (
+      searchQuery.type === SearchType.PRODUCTS ||
+      searchQuery.type === SearchType.ALL
+    ) {
       const productResults = await this.searchProducts(searchQuery);
       products = productResults.products;
       total += productResults.total;
@@ -40,7 +43,10 @@ export class SearchService {
       }
     }
 
-    if (searchQuery.type === SearchType.CATEGORIES || searchQuery.type === SearchType.ALL) {
+    if (
+      searchQuery.type === SearchType.CATEGORIES ||
+      searchQuery.type === SearchType.ALL
+    ) {
       const categoryResults = await this.searchCategories(searchQuery);
       categories = categoryResults.categories;
       total += categoryResults.total;
@@ -63,7 +69,9 @@ export class SearchService {
       facets: searchQuery.includeFacets ? facets : undefined,
       searchTime,
       query: searchQuery.q || '',
-      suggestions: searchQuery.q ? await this.generateSuggestions(searchQuery.q) : undefined,
+      suggestions: searchQuery.q
+        ? await this.generateSuggestions(searchQuery.q)
+        : undefined,
     };
   }
 
@@ -90,7 +98,7 @@ export class SearchService {
 
     // Apply pagination
     const offset = (searchQuery.page! - 1) * searchQuery.limit!;
-    queryBuilder.skip(offset).take(searchQuery.limit!);
+    queryBuilder.skip(offset).take(searchQuery.limit);
 
     const products = await queryBuilder.getMany();
 
@@ -117,16 +125,22 @@ export class SearchService {
       );
     }
 
-    // Apply sorting
+    // Apply sorting - use simple ordering to avoid PostgreSQL full-text issues
     if (searchQuery.q) {
-      // Sort by relevance when searching
+      // Sort by name relevance (exact matches first, then prefix matches)
       queryBuilder.addSelect(
-        `ts_rank(to_tsvector('english', category.name || ' ' || COALESCE(category.description, '')), 
-         plainto_tsquery('english', :query))`,
-        'rank',
+        `CASE 
+          WHEN LOWER(category.name) = LOWER(:exactQuery) THEN 100
+          WHEN LOWER(category.name) LIKE LOWER(:prefixQuery) THEN 90
+          WHEN LOWER(category.description) LIKE LOWER(:containsQuery) THEN 50
+          ELSE 10
+        END`,
+        'search_rank',
       );
-      queryBuilder.setParameter('query', searchQuery.q);
-      queryBuilder.orderBy('rank', 'DESC');
+      queryBuilder.setParameter('exactQuery', searchQuery.q);
+      queryBuilder.setParameter('prefixQuery', `${searchQuery.q}%`);
+      queryBuilder.setParameter('containsQuery', `%${searchQuery.q}%`);
+      queryBuilder.orderBy('search_rank', 'DESC');
     } else {
       queryBuilder.orderBy('category.sortOrder', 'ASC');
     }
@@ -136,7 +150,7 @@ export class SearchService {
 
     // Apply pagination
     const offset = (searchQuery.page! - 1) * searchQuery.limit!;
-    queryBuilder.skip(offset).take(searchQuery.limit!);
+    queryBuilder.skip(offset).take(searchQuery.limit);
 
     const categories = await queryBuilder.getMany();
 
@@ -146,7 +160,10 @@ export class SearchService {
     };
   }
 
-  private applyProductFilters(queryBuilder: SelectQueryBuilder<Product>, searchQuery: SearchQueryDto): void {
+  private applyProductFilters(
+    queryBuilder: SelectQueryBuilder<Product>,
+    searchQuery: SearchQueryDto,
+  ): void {
     // Active status
     queryBuilder.andWhere('product.status = :status', { status: 'active' });
 
@@ -205,35 +222,88 @@ export class SearchService {
     }
   }
 
-  private applyProductSearch(queryBuilder: SelectQueryBuilder<Product>, query: string): void {
-    // Full-text search using PostgreSQL
-    queryBuilder.addSelect(
-      `ts_rank(to_tsvector('english', 
-        product.name || ' ' || 
-        COALESCE(product.description, '') || ' ' || 
-        COALESCE(product.brand, '') || ' ' || 
-        COALESCE(product.model, '')), 
-        plainto_tsquery('english', :query))`,
-      'search_rank',
-    );
+  private applyProductSearch(
+    queryBuilder: SelectQueryBuilder<Product>,
+    query: string,
+  ): void {
+    // Sanitize search query to prevent injection
+    const sanitizedQuery = query.replace(/[^\w\s-]/g, '').trim();
+    
+    if (!sanitizedQuery) {
+      return;
+    }
 
-    queryBuilder.andWhere(
-      `to_tsvector('english', 
-        product.name || ' ' || 
-        COALESCE(product.description, '') || ' ' || 
-        COALESCE(product.brand, '') || ' ' || 
-        COALESCE(product.model, '')) 
-        @@ plainto_tsquery('english', :query)`,
-      { query },
-    );
+    // Use simpler ILIKE search for better performance, fall back to full-text for complex queries
+    if (sanitizedQuery.length <= 2) {
+      // Simple prefix search for short queries
+      queryBuilder.andWhere(
+        '(product.name ILIKE :prefix OR product.brand ILIKE :prefix)',
+        { prefix: `${sanitizedQuery}%` }
+      );
+    } else if (sanitizedQuery.split(' ').length === 1) {
+      // Single word - use ILIKE with ranking
+      queryBuilder.addSelect(
+        `CASE 
+          WHEN product.name ILIKE :exactQuery THEN 100
+          WHEN product.name ILIKE :prefixQuery THEN 90
+          WHEN product.brand ILIKE :exactQuery THEN 80
+          WHEN category.name ILIKE :exactQuery THEN 75
+          WHEN product.brand ILIKE :prefixQuery THEN 70
+          WHEN category.name ILIKE :prefixQuery THEN 65
+          WHEN product.description ILIKE :containsQuery THEN 50
+          WHEN category.name ILIKE :containsQuery THEN 45
+          ELSE 10
+        END`,
+        'search_rank',
+      );
+      
+      queryBuilder.andWhere(
+        '(product.name ILIKE :containsQuery OR product.brand ILIKE :containsQuery OR product.description ILIKE :containsQuery OR product.model ILIKE :containsQuery OR category.name ILIKE :containsQuery)',
+        { 
+          exactQuery: sanitizedQuery,
+          prefixQuery: `${sanitizedQuery}%`,
+          containsQuery: `%${sanitizedQuery}%`
+        }
+      );
+    } else {
+      // Multi-word - use PostgreSQL full-text search with better performance
+      queryBuilder.addSelect(
+        `ts_rank_cd(to_tsvector('simple', 
+          product.name || ' ' || 
+          COALESCE(product.description, '') || ' ' || 
+          COALESCE(product.brand, '') || ' ' || 
+          COALESCE(product.model, '') || ' ' || 
+          COALESCE(category.name, '')), 
+          plainto_tsquery('simple', :query))`,
+        'search_rank',
+      );
 
-    queryBuilder.setParameter('query', query);
+      queryBuilder.andWhere(
+        `to_tsvector('simple', 
+          product.name || ' ' || 
+          COALESCE(product.description, '') || ' ' || 
+          COALESCE(product.brand, '') || ' ' || 
+          COALESCE(product.model, '') || ' ' || 
+          COALESCE(category.name, '')) 
+          @@ plainto_tsquery('simple', :query)`,
+        { query: sanitizedQuery },
+      );
+    }
+
+    queryBuilder.setParameter('query', sanitizedQuery);
   }
 
-  private applyProductSorting(queryBuilder: SelectQueryBuilder<Product>, sortBy: SearchSortBy): void {
+  private applyProductSorting(
+    queryBuilder: SelectQueryBuilder<Product>,
+    sortBy: SearchSortBy,
+  ): void {
     switch (sortBy) {
       case SearchSortBy.RELEVANCE:
-        if (queryBuilder.expressionMap.selects.some(select => select.aliasName === 'search_rank')) {
+        if (
+          queryBuilder.expressionMap.selects.some(
+            (select) => select.aliasName === 'search_rank',
+          )
+        ) {
           queryBuilder.orderBy('search_rank', 'DESC');
         } else {
           queryBuilder.orderBy('product.viewCount', 'DESC');
@@ -268,7 +338,9 @@ export class SearchService {
     queryBuilder.addOrderBy('product.id', 'ASC');
   }
 
-  private async generateFacets(searchQuery: SearchQueryDto): Promise<SearchFacetDto[]> {
+  private async generateFacets(
+    searchQuery: SearchQueryDto,
+  ): Promise<SearchFacetDto[]> {
     const facets: SearchFacetDto[] = [];
 
     // Category facets
@@ -289,7 +361,7 @@ export class SearchService {
       facets.push({
         name: 'category',
         label: 'カテゴリ',
-        values: categoryFacets.map(facet => ({
+        values: categoryFacets.map((facet) => ({
           value: facet.id,
           count: parseInt(facet.count),
           selected: searchQuery.categoryId === facet.id,
@@ -313,7 +385,7 @@ export class SearchService {
       facets.push({
         name: 'brand',
         label: 'ブランド',
-        values: brandFacets.map(facet => ({
+        values: brandFacets.map((facet) => ({
           value: facet.brand,
           count: parseInt(facet.count),
           selected: searchQuery.brands?.includes(facet.brand) || false,
@@ -335,7 +407,7 @@ export class SearchService {
       facets.push({
         name: 'condition',
         label: '商品状態',
-        values: conditionFacets.map(facet => ({
+        values: conditionFacets.map((facet) => ({
           value: facet.condition,
           count: parseInt(facet.count),
           selected: searchQuery.condition === facet.condition,
@@ -350,14 +422,15 @@ export class SearchService {
     // Simple suggestion generation based on product names
     const suggestions = await this.productRepository
       .createQueryBuilder('product')
-      .select('DISTINCT product.name', 'name')
+      .select('product.name')
+      .addSelect('product.viewCount') 
       .where('product.name ILIKE :query', { query: `%${query}%` })
       .andWhere('product.status = :status', { status: 'active' })
       .orderBy('product.viewCount', 'DESC')
       .limit(5)
       .getRawMany();
 
-    return suggestions.map(s => s.name);
+    return suggestions.map((s) => s.product_name);
   }
 
   private mapProductToSearchResult(product: Product): SearchProductDto {
@@ -371,8 +444,12 @@ export class SearchService {
       categoryId: product.categoryId,
       categoryName: product.category?.name,
       wholesalePrice: Number(product.wholesalePrice),
-      retailPrice: product.retailPrice ? Number(product.retailPrice) : undefined,
-      marketPrice: product.marketPrice ? Number(product.marketPrice) : undefined,
+      retailPrice: product.retailPrice
+        ? Number(product.retailPrice)
+        : undefined,
+      marketPrice: product.marketPrice
+        ? Number(product.marketPrice)
+        : undefined,
       currency: product.currency,
       condition: product.condition,
       status: product.status,

@@ -143,7 +143,11 @@ export class SearchResultsDto {
     hasPrev: boolean;
   };
 
-  @ApiProperty({ description: 'ファセット情報', type: [SearchFacetDto], required: false })
+  @ApiProperty({
+    description: 'ファセット情報',
+    type: [SearchFacetDto],
+    required: false,
+  })
   facets?: SearchFacetDto[];
 
   @ApiProperty({ description: '検索にかかった時間（ミリ秒）' })

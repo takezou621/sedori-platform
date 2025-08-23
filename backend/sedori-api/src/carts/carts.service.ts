@@ -39,6 +39,22 @@ export class CartsService {
       cart = await this.cartRepository.save(cart);
     }
 
+    // Manually load products for cart items that don't have product loaded (including soft-deleted ones)
+    if (cart.items && cart.items.length > 0) {
+      for (const item of cart.items) {
+        if (!item.product) {
+          // Try to load product even if soft-deleted
+          const product = await this.productRepository.findOne({
+            where: { id: item.productId },
+            withDeleted: true,
+          });
+          if (product) {
+            item.product = product;
+          }
+        }
+      }
+    }
+
     return cart;
   }
 
@@ -70,17 +86,34 @@ export class CartsService {
     const totalPrice = unitPrice * quantity;
 
     if (cartItem) {
-      // Update existing item
-      cartItem.quantity += quantity;
-      cartItem.totalPrice = unitPrice * cartItem.quantity;
-      if (metadata) {
-        cartItem.productSnapshot = {
-          name: cartItem.productSnapshot?.name || product.name,
-          brand: cartItem.productSnapshot?.brand || product.brand,
-          imageUrl: cartItem.productSnapshot?.imageUrl || product.primaryImageUrl,
-          ...metadata,
-        };
-      }
+      // Use atomic update to avoid race conditions
+      await this.cartItemRepository.manager.transaction(async transactionalEntityManager => {
+        // Use raw SQL to atomically increment quantity and add to totalPrice
+        // This preserves the price history - adds new items at current price
+        await transactionalEntityManager.query(
+          `UPDATE cart_items 
+           SET quantity = quantity + $1, 
+               "totalPrice" = "totalPrice" + ($2::decimal * $1),
+               "updatedAt" = NOW()
+           WHERE id = $3`,
+          [quantity, unitPrice, cartItem?.id]
+        );
+        
+        // If metadata is provided, update it separately
+        if (metadata && cartItem && cartItem.id) {
+          const updatedSnapshot = {
+            name: cartItem.productSnapshot?.name || product.name,
+            brand: cartItem.productSnapshot?.brand || product.brand,
+            imageUrl: cartItem.productSnapshot?.imageUrl || product.primaryImageUrl,
+            ...metadata,
+          };
+          await transactionalEntityManager.update(
+            'CartItem',
+            { id: cartItem.id },
+            { productSnapshot: updatedSnapshot }
+          );
+        }
+      });
     } else {
       // Create new item
       cartItem = this.cartItemRepository.create({
@@ -95,9 +128,38 @@ export class CartsService {
           imageUrl: product.primaryImageUrl,
         },
       });
+      
+      try {
+        // Save the new item
+        await this.cartItemRepository.save(cartItem);
+      } catch (error) {
+        // Handle race condition - if item was created by another concurrent request
+        if (error.code === '23505' || error.message.includes('duplicate key') || error.message.includes('UNIQUE constraint')) {
+          // Item was created by another request, update it instead
+          const existingItem = await this.cartItemRepository.findOne({
+            where: { cartId: cart.id, productId },
+          });
+          
+          if (existingItem) {
+            await this.cartItemRepository.manager.transaction(async transactionalEntityManager => {
+              await transactionalEntityManager.query(
+                `UPDATE cart_items 
+                 SET quantity = quantity + $1, 
+                     "totalPrice" = "totalPrice" + ($2::decimal * $1),
+                     "updatedAt" = NOW()
+                 WHERE id = $3`,
+                [quantity, unitPrice, existingItem.id]
+              );
+            });
+          } else {
+            // Unexpected error, re-throw
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      }
     }
-
-    await this.cartItemRepository.save(cartItem);
 
     // Update cart totals
     await this.updateCartTotals(cart.id);
@@ -171,7 +233,43 @@ export class CartsService {
   }
 
   async getCart(userId: string): Promise<Cart> {
-    return this.getOrCreateCart(userId);
+    // Always get cart with products loaded to ensure order creation works
+    let cart = await this.cartRepository.findOne({
+      where: { userId, status: CartStatus.ACTIVE },
+      relations: ['items', 'items.product'],
+    });
+
+    if (!cart) {
+      cart = this.cartRepository.create({
+        userId,
+        status: CartStatus.ACTIVE,
+        totalAmount: 0,
+        totalItems: 0,
+        lastActivityAt: new Date(),
+      });
+      cart = await this.cartRepository.save(cart);
+    }
+
+    // Ensure all cart items have their product loaded (including soft-deleted ones)
+    if (cart.items && cart.items.length > 0) {
+      for (const item of cart.items) {
+        if (!item.product) {
+          // Try to load product even if soft-deleted
+          const product = await this.productRepository.findOne({
+            where: { id: item.productId },
+            withDeleted: true,
+          });
+          if (product) {
+            item.product = product;
+          } else {
+            // If product is completely gone, we should handle this gracefully
+            console.warn(`Product ${item.productId} not found for cart item ${item.id}`);
+          }
+        }
+      }
+    }
+
+    return cart;
   }
 
   private async getCartById(cartId: string): Promise<Cart> {
@@ -203,6 +301,7 @@ export class CartsService {
   }
 
   async convertCartToOrder(cartId: string): Promise<void> {
+    // Mark the current cart as converted
     await this.cartRepository.update(cartId, {
       status: CartStatus.CONVERTED,
     });

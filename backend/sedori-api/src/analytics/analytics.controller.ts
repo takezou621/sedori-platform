@@ -18,11 +18,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
-import {
-  AnalyticsQueryDto,
-  AnalyticsDashboardDto,
-  TrackEventDto,
-} from './dto';
+import { AnalyticsQueryDto, AnalyticsDashboardDto, TrackEventDto } from './dto';
 
 @ApiTags('Analytics')
 @Controller('analytics')
@@ -36,7 +32,7 @@ export class AnalyticsController {
     description: 'イベントが記録されました',
   })
   async trackEvent(
-    @Request() req: any,
+    @Request() req: { user?: { id: string } },
     @Body() trackEventDto: TrackEventDto,
   ): Promise<{ success: boolean }> {
     const userId = req.user?.id;
@@ -142,6 +138,83 @@ export class AnalyticsController {
     return {
       userBehavior: dashboard.userBehavior,
       period: dashboard.period,
+    };
+  }
+
+  // Real-time optimization endpoints
+  @Get('realtime/metrics')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ 
+    summary: 'リアルタイムメトリクス取得', 
+    description: '現在のアクティブユーザー、今日の注文、コンバージョン率などのリアルタイム指標'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'リアルタイムメトリクスを返します',
+  })
+  async getRealTimeMetrics() {
+    return this.analyticsService.getRealTimeMetrics();
+  }
+
+  @Get('realtime/alerts')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ 
+    summary: 'パフォーマンスアラート取得',
+    description: 'コンバージョン率低下、離脱率上昇などのパフォーマンス問題をリアルタイム検出'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'パフォーマンスアラート一覧を返します',
+  })
+  async getPerformanceAlerts() {
+    return this.analyticsService.getPerformanceAlerts();
+  }
+
+  @Get('realtime/optimization-suggestions')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ 
+    summary: 'リアルタイム最適化提案',
+    description: '現在のメトリクスを基にした即座実行可能な最適化提案をAIが生成'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'リアルタイム最適化提案を返します',
+  })
+  async getOptimizationSuggestions() {
+    return this.analyticsService.getRealtimeOptimizationSuggestions();
+  }
+
+  @Get('realtime/dashboard')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ 
+    summary: 'リアルタイム最適化ダッシュボード',
+    description: 'リアルタイムメトリクス、アラート、最適化提案を統合したダッシュボード'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'リアルタイム最適化ダッシュボードを返します',
+  })
+  async getRealTimeDashboard() {
+    const [metrics, alerts, suggestions] = await Promise.all([
+      this.analyticsService.getRealTimeMetrics(),
+      this.analyticsService.getPerformanceAlerts(),
+      this.analyticsService.getRealtimeOptimizationSuggestions(),
+    ]);
+
+    return {
+      realTimeMetrics: metrics,
+      alerts,
+      optimizationSuggestions: suggestions,
+      dashboardUpdatedAt: new Date(),
+      refreshRate: 30, // seconds
     };
   }
 }

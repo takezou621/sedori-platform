@@ -153,7 +153,9 @@ describe('Product Management Flow E2E Tests', () => {
 
       expect(response.body.name).toBe(productData.name);
       expect(response.body.categoryId).toBe(productData.categoryId);
-      expect(Number(response.body.wholesalePrice)).toBe(productData.wholesalePrice);
+      expect(Number(response.body.wholesalePrice)).toBe(
+        productData.wholesalePrice,
+      );
       expect(response.body.status).toBe(productData.status);
     });
 
@@ -220,7 +222,7 @@ describe('Product Management Flow E2E Tests', () => {
 
     it('should update product', async () => {
       const product = await helper.createTestProduct(testAdmin, testCategory);
-      
+
       const updateData = {
         name: 'Updated Product Name',
         wholesalePrice: 1500,
@@ -235,7 +237,9 @@ describe('Product Management Flow E2E Tests', () => {
         .expect(200);
 
       expect(response.body.name).toBe(updateData.name);
-      expect(Number(response.body.wholesalePrice)).toBe(updateData.wholesalePrice);
+      expect(Number(response.body.wholesalePrice)).toBe(
+        updateData.wholesalePrice,
+      );
       expect(response.body.stockQuantity).toBe(updateData.stockQuantity);
     });
 
@@ -245,12 +249,10 @@ describe('Product Management Flow E2E Tests', () => {
       await request(httpServer)
         .delete(`/products/${product.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
-        .expect(200);
+        .expect(204);
 
       // Verify product is deleted
-      await request(httpServer)
-        .get(`/products/${product.id}`)
-        .expect(404);
+      await request(httpServer).get(`/products/${product.id}`).expect(404);
     });
   });
 
@@ -272,15 +274,24 @@ describe('Product Management Flow E2E Tests', () => {
         trendScore: 7.2,
       };
 
-      const response = await request(httpServer)
+      await request(httpServer)
         .put(`/products/${testProduct.id}/market-data`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send(marketData)
+        .expect(204);
+
+      // Verify update by fetching the product
+      const response = await request(httpServer)
+        .get(`/products/${testProduct.id}`)
         .expect(200);
 
       expect(response.body.marketData).toBeDefined();
-      expect(Number(response.body.marketData.amazonPrice)).toBe(marketData.amazonPrice);
-      expect(Number(response.body.marketData.averageSellingPrice)).toBe(marketData.averageSellingPrice);
+      expect(Number(response.body.marketData.amazonPrice)).toBe(
+        marketData.amazonPrice,
+      );
+      expect(Number(response.body.marketData.averageSellingPrice)).toBe(
+        marketData.averageSellingPrice,
+      );
     });
 
     it('should update profitability data', async () => {
@@ -292,15 +303,24 @@ describe('Product Management Flow E2E Tests', () => {
         riskLevel: 'medium',
       };
 
-      const response = await request(httpServer)
-        .put(`/products/${testProduct.id}/profitability`)
+      await request(httpServer)
+        .put(`/products/${testProduct.id}/profitability-data`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send(profitabilityData)
+        .expect(204);
+
+      // Verify update by fetching the product
+      const response = await request(httpServer)
+        .get(`/products/${testProduct.id}`)
         .expect(200);
 
       expect(response.body.profitabilityData).toBeDefined();
-      expect(Number(response.body.profitabilityData.estimatedProfit)).toBe(profitabilityData.estimatedProfit);
-      expect(response.body.profitabilityData.riskLevel).toBe(profitabilityData.riskLevel);
+      expect(Number(response.body.profitabilityData.estimatedProfit)).toBe(
+        profitabilityData.estimatedProfit,
+      );
+      expect(response.body.profitabilityData.riskLevel).toBe(
+        profitabilityData.riskLevel,
+      );
     });
 
     it('should validate market data fields', async () => {
@@ -363,7 +383,9 @@ describe('Product Management Flow E2E Tests', () => {
         .get('/products?sortBy=wholesalePrice&sortOrder=ASC')
         .expect(200);
 
-      const ascPrices = ascResponse.body.data.map((p: any) => Number(p.wholesalePrice));
+      const ascPrices = ascResponse.body.data.map((p: any) =>
+        Number(p.wholesalePrice),
+      );
       expect(ascPrices).toEqual(ascPrices.slice().sort((a, b) => a - b));
 
       // Sort by price descending
@@ -371,7 +393,9 @@ describe('Product Management Flow E2E Tests', () => {
         .get('/products?sortBy=wholesalePrice&sortOrder=DESC')
         .expect(200);
 
-      const descPrices = descResponse.body.data.map((p: any) => Number(p.wholesalePrice));
+      const descPrices = descResponse.body.data.map((p: any) =>
+        Number(p.wholesalePrice),
+      );
       expect(descPrices).toEqual(descPrices.slice().sort((a, b) => b - a));
     });
   });
@@ -382,9 +406,13 @@ describe('Product Management Flow E2E Tests', () => {
     beforeEach(async () => {
       products = [];
       for (let i = 1; i <= 3; i++) {
-        const product = await helper.createTestProduct(testAdmin, testCategory, {
-          name: `Bulk Product ${i}`,
-        });
+        const product = await helper.createTestProduct(
+          testAdmin,
+          testCategory,
+          {
+            name: `Bulk Product ${i}`,
+          },
+        );
         products.push(product);
       }
     });
@@ -405,7 +433,7 @@ describe('Product Management Flow E2E Tests', () => {
         const response = await request(httpServer)
           .get(`/products/${product.id}`)
           .expect(200);
-        
+
         expect(response.body.status).toBe('inactive');
       }
     });
@@ -449,9 +477,7 @@ describe('Product Management Flow E2E Tests', () => {
     });
 
     it('should allow anonymous users to view products', async () => {
-      await request(httpServer)
-        .get(`/products/${testProduct.id}`)
-        .expect(200);
+      await request(httpServer).get(`/products/${testProduct.id}`).expect(200);
     });
   });
 });

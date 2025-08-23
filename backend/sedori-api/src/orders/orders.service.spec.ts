@@ -75,6 +75,48 @@ describe('OrdersService', () => {
       save: jest.fn(),
       count: jest.fn(),
       createQueryBuilder: jest.fn(),
+      manager: {
+        transaction: jest.fn((fn) => {
+          // Mock transaction manager
+          const mockManager = {
+            save: jest.fn(),
+            create: jest.fn(),
+            findOne: jest.fn(),
+            count: jest.fn().mockResolvedValue(0),
+            createQueryBuilder: jest.fn().mockReturnValue({
+              where: jest.fn().mockReturnThis(),
+              andWhere: jest.fn().mockReturnThis(),
+              getCount: jest.fn().mockResolvedValue(0),
+            }),
+          };
+
+          // Configure save method to return different things based on entity type
+          mockManager.save.mockImplementation((EntityType, entity) => {
+            if (EntityType === Order || (entity && !EntityType)) {
+              return Promise.resolve(mockOrder);
+            }
+            return Promise.resolve(entity || {});
+          });
+
+          // Configure create method to return appropriate entities
+          mockManager.create.mockImplementation((EntityType, data) => {
+            if (EntityType === Order) {
+              return { ...mockOrder, ...data };
+            }
+            return { ...data };
+          });
+
+          // No existing order with same order number
+          mockManager.findOne.mockImplementation((EntityType, options) => {
+            if (EntityType === Order && options?.where?.orderNumber) {
+              return Promise.resolve(null);
+            }
+            return Promise.resolve(null);
+          });
+
+          return fn(mockManager);
+        }),
+      },
     },
     orderItem: {
       create: jest.fn(),
@@ -108,7 +150,9 @@ describe('OrdersService', () => {
 
     service = module.get<OrdersService>(OrdersService);
     orderRepository = module.get<Repository<Order>>(getRepositoryToken(Order));
-    orderItemRepository = module.get<Repository<OrderItem>>(getRepositoryToken(OrderItem));
+    orderItemRepository = module.get<Repository<OrderItem>>(
+      getRepositoryToken(OrderItem),
+    );
     cartsService = module.get<CartsService>(CartsService);
   });
 
@@ -143,10 +187,11 @@ describe('OrdersService', () => {
       const result = await service.createOrder('user-id', createOrderDto);
 
       expect(mockCartsService.getCart).toHaveBeenCalledWith('user-id');
-      expect(mockRepositories.order.create).toHaveBeenCalled();
-      expect(mockRepositories.order.save).toHaveBeenCalled();
-      expect(mockRepositories.orderItem.save).toHaveBeenCalled();
-      expect(mockCartsService.convertCartToOrder).toHaveBeenCalledWith('cart-id');
+      expect(mockRepositories.order.manager.transaction).toHaveBeenCalled();
+      expect(mockCartsService.convertCartToOrder).toHaveBeenCalledWith(
+        'cart-id',
+      );
+      expect(result).toBeDefined();
     });
 
     it('should throw BadRequestException if cart is empty', async () => {
@@ -164,9 +209,9 @@ describe('OrdersService', () => {
       const emptyCart = { ...mockCart, items: [] };
       mockCartsService.getCart.mockResolvedValue(emptyCart);
 
-      await expect(service.createOrder('user-id', createOrderDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.createOrder('user-id', createOrderDto),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -186,7 +231,9 @@ describe('OrdersService', () => {
     it('should throw NotFoundException if order not found', async () => {
       mockRepositories.order.findOne.mockResolvedValue(null);
 
-      await expect(service.findById('order-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('order-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -217,7 +264,9 @@ describe('OrdersService', () => {
 
       mockRepositories.order.findOne.mockResolvedValue(deliveredOrder);
 
-      await expect(service.cancel('order-id')).rejects.toThrow(BadRequestException);
+      await expect(service.cancel('order-id')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException if order is already cancelled', async () => {
@@ -228,7 +277,9 @@ describe('OrdersService', () => {
 
       mockRepositories.order.findOne.mockResolvedValue(cancelledOrder);
 
-      await expect(service.cancel('order-id')).rejects.toThrow(BadRequestException);
+      await expect(service.cancel('order-id')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

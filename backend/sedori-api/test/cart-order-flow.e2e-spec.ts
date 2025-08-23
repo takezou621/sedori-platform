@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { E2ETestHelper } from './helpers/test-helper';
 
 describe('Cart & Order Flow E2E Tests', () => {
@@ -25,7 +25,7 @@ describe('Cart & Order Flow E2E Tests', () => {
     testAdmin = await helper.createTestAdmin();
     testUser = await helper.createTestUser();
     testCategory = await helper.createTestCategory(testAdmin);
-    
+
     // Create test products
     testProducts = [];
     for (let i = 1; i <= 3; i++) {
@@ -71,8 +71,12 @@ describe('Cart & Order Flow E2E Tests', () => {
       expect(response.body.items).toHaveLength(1);
       expect(response.body.items[0].productId).toBe(product.id);
       expect(response.body.items[0].quantity).toBe(quantity);
-      expect(Number(response.body.items[0].unitPrice)).toBe(product.wholesalePrice);
-      expect(Number(response.body.items[0].totalPrice)).toBe(product.wholesalePrice * quantity);
+      expect(Number(response.body.items[0].unitPrice)).toBe(
+        product.wholesalePrice,
+      );
+      expect(Number(response.body.items[0].totalPrice)).toBe(
+        product.wholesalePrice * quantity,
+      );
     });
 
     it('should update quantity when adding same product', async () => {
@@ -107,7 +111,9 @@ describe('Cart & Order Flow E2E Tests', () => {
 
       expect(cart.totalItems).toBe(3); // 1 + 2
       expect(cart.items).toHaveLength(2);
-      expect(Number(cart.totalAmount)).toBe(product1.wholesalePrice + (product2.wholesalePrice * 2));
+      expect(Number(cart.totalAmount)).toBe(
+        product1.wholesalePrice + product2.wholesalePrice * 2,
+      );
     });
 
     it('should update cart item quantity', async () => {
@@ -124,7 +130,9 @@ describe('Cart & Order Flow E2E Tests', () => {
         .expect(200);
 
       expect(response.body.items[0].quantity).toBe(5);
-      expect(Number(response.body.items[0].totalPrice)).toBe(product.wholesalePrice * 5);
+      expect(Number(response.body.items[0].totalPrice)).toBe(
+        product.wholesalePrice * 5,
+      );
       expect(response.body.totalItems).toBe(5);
     });
 
@@ -209,7 +217,7 @@ describe('Cart & Order Flow E2E Tests', () => {
           state: 'Tokyo',
           postalCode: '100-0001',
           country: 'Japan',
-          phone: '090-1234-5678',
+          phone: '+81-90-1234-5678',
         },
         paymentMethod: 'credit_card',
         notes: 'Please handle with care',
@@ -218,23 +226,33 @@ describe('Cart & Order Flow E2E Tests', () => {
       const response = await request(httpServer)
         .post('/orders')
         .set('Authorization', `Bearer ${testUser.accessToken}`)
-        .send(orderData)
-        .expect(201);
+        .send(orderData);
+        
+      if (response.status !== 201) {
+        console.error('Order creation failed:', response.status, response.body);
+      }
+      
+      expect(response.status).toBe(201);
 
       expect(response.body.userId).toBe(testUser.id);
       expect(response.body.status).toBe('pending');
       expect(response.body.paymentStatus).toBe('pending');
       expect(response.body.items).toHaveLength(2);
-      expect(response.body.shippingAddress.fullName).toBe(orderData.shippingAddress.fullName);
+      expect(response.body.shippingAddress.fullName).toBe(
+        orderData.shippingAddress.fullName,
+      );
       expect(response.body.paymentMethod).toBe(orderData.paymentMethod);
       expect(response.body.notes).toBe(orderData.notes);
       expect(response.body.orderNumber).toBeTruthy();
-      
+
       // Check calculations
-      const expectedSubtotal = testProducts[0].wholesalePrice + (testProducts[1].wholesalePrice * 2);
+      const expectedSubtotal =
+        testProducts[0].wholesalePrice + testProducts[1].wholesalePrice * 2;
       expect(Number(response.body.subtotal)).toBe(expectedSubtotal);
       expect(Number(response.body.taxAmount)).toBe(expectedSubtotal * 0.1);
-      expect(Number(response.body.totalAmount)).toBeGreaterThan(expectedSubtotal);
+      expect(Number(response.body.totalAmount)).toBeGreaterThan(
+        expectedSubtotal,
+      );
     });
 
     it('should not create order with empty cart', async () => {
@@ -382,7 +400,29 @@ describe('Cart & Order Flow E2E Tests', () => {
     });
 
     it('should not cancel delivered order', async () => {
-      // First update order to delivered (admin only)
+      // Update order through proper status sequence to delivered (admin only)
+      // pending -> confirmed
+      await request(httpServer)
+        .put(`/orders/${testOrder.id}`)
+        .set('Authorization', `Bearer ${testAdmin.accessToken}`)
+        .send({ status: 'confirmed' })
+        .expect(200);
+      
+      // confirmed -> processing
+      await request(httpServer)
+        .put(`/orders/${testOrder.id}`)
+        .set('Authorization', `Bearer ${testAdmin.accessToken}`)
+        .send({ status: 'processing' })
+        .expect(200);
+        
+      // processing -> shipped
+      await request(httpServer)
+        .put(`/orders/${testOrder.id}`)
+        .set('Authorization', `Bearer ${testAdmin.accessToken}`)
+        .send({ status: 'shipped' })
+        .expect(200);
+        
+      // shipped -> delivered
       await request(httpServer)
         .put(`/orders/${testOrder.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
@@ -416,6 +456,13 @@ describe('Cart & Order Flow E2E Tests', () => {
     });
 
     it('should update order status (admin only)', async () => {
+      // First move to confirmed status
+      await request(httpServer)
+        .put(`/orders/${testOrder.id}`)
+        .set('Authorization', `Bearer ${testAdmin.accessToken}`)
+        .send({ status: 'confirmed' })
+        .expect(200);
+        
       const updateData = {
         status: 'processing',
         paymentStatus: 'paid',
@@ -450,8 +497,14 @@ describe('Cart & Order Flow E2E Tests', () => {
 
       await helper.addToCart(testUser, testProducts[1], 1);
       const order2 = await helper.createOrder(testUser);
-      
-      // Update second order status
+
+      // Update second order status through proper sequence
+      await request(httpServer)
+        .put(`/orders/${order2.id}`)
+        .set('Authorization', `Bearer ${testAdmin.accessToken}`)
+        .send({ status: 'confirmed' })
+        .expect(200);
+        
       await request(httpServer)
         .put(`/orders/${order2.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
@@ -473,7 +526,7 @@ describe('Cart & Order Flow E2E Tests', () => {
 
     it('should filter orders by date range', async () => {
       const today = new Date().toISOString().split('T')[0];
-      
+
       const response = await request(httpServer)
         .get(`/orders?startDate=${today}&endDate=${today}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
@@ -508,6 +561,9 @@ describe('Cart & Order Flow E2E Tests', () => {
 
       await Promise.all(promises);
 
+      // Allow some time for database transactions to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const cart = await helper.getCart(testUser);
       expect(cart.items).toHaveLength(1);
       expect(cart.items[0].quantity).toBe(4); // 1 + 2 + 1
@@ -527,7 +583,9 @@ describe('Cart & Order Flow E2E Tests', () => {
         .expect(201);
 
       expect(response.body.items[0].quantity).toBe(largeQuantity);
-      expect(Number(response.body.items[0].totalPrice)).toBe(product.wholesalePrice * largeQuantity);
+      expect(Number(response.body.items[0].totalPrice)).toBe(
+        product.wholesalePrice * largeQuantity,
+      );
     });
 
     it('should maintain cart accuracy with price changes', async () => {
@@ -548,7 +606,9 @@ describe('Cart & Order Flow E2E Tests', () => {
       const cart = await helper.getCart(testUser);
       expect(cart.items[0].quantity).toBe(2);
       // Total should reflect the current price for new additions
-      expect(Number(cart.items[0].totalPrice)).toBe(product.wholesalePrice + newPrice);
+      expect(Number(cart.items[0].totalPrice)).toBe(
+        product.wholesalePrice + newPrice,
+      );
     });
   });
 });

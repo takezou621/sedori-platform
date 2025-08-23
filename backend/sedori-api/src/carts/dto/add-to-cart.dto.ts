@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsInt, Min, IsOptional, IsObject } from 'class-validator';
+import { IsUUID, IsInt, Min, Max, IsOptional, IsObject } from 'class-validator';
 
 export class AddToCartDto {
   @ApiProperty({
@@ -13,9 +13,11 @@ export class AddToCartDto {
     description: '数量',
     example: 1,
     minimum: 1,
+    maximum: 1000,
   })
   @IsInt()
-  @Min(1)
+  @Min(1, { message: '数量は1以上でなければなりません' })
+  @Max(1000, { message: '数量は1000以下でなければなりません' })
   quantity: number;
 
   @ApiProperty({

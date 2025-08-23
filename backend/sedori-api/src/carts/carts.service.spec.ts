@@ -72,8 +72,12 @@ describe('CartsService', () => {
 
     service = module.get<CartsService>(CartsService);
     cartRepository = module.get<Repository<Cart>>(getRepositoryToken(Cart));
-    cartItemRepository = module.get<Repository<CartItem>>(getRepositoryToken(CartItem));
-    productRepository = module.get<Repository<Product>>(getRepositoryToken(Product));
+    cartItemRepository = module.get<Repository<CartItem>>(
+      getRepositoryToken(CartItem),
+    );
+    productRepository = module.get<Repository<Product>>(
+      getRepositoryToken(Product),
+    );
   });
 
   afterEach(() => {

@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { Category } from '../categories/entities/category.entity';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -28,9 +29,21 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
+    // Validate category exists if provided
+    if (createProductDto.categoryId) {
+      const category = await this.categoryRepository.findOne({
+        where: { id: createProductDto.categoryId }
+      });
+      if (!category) {
+        throw new BadRequestException('指定されたカテゴリが見つかりません');
+      }
+    }
+
     const product = this.productRepository.create(createProductDto);
     return this.productRepository.save(product);
   }
@@ -156,7 +169,27 @@ export class ProductsService {
   }
 
   async incrementViewCount(id: string): Promise<void> {
-    await this.productRepository.increment({ id }, 'viewCount', 1);
+    try {
+      // Use raw query with better connection handling
+      await this.productRepository.query(
+        'UPDATE products SET "viewCount" = "viewCount" + 1 WHERE id = $1',
+        [id]
+      );
+    } catch (error) {
+      // Log error but don't fail the request - view count is not critical
+      console.warn(`Failed to increment view count for product ${id}:`, error.message);
+      
+      // Fallback to standard repository method
+      try {
+        const product = await this.productRepository.findOne({ where: { id } });
+        if (product) {
+          product.viewCount = product.viewCount + 1;
+          await this.productRepository.save(product);
+        }
+      } catch (fallbackError) {
+        console.warn(`Fallback view count increment also failed for product ${id}:`, fallbackError.message);
+      }
+    }
   }
 
   async updateMarketData(

@@ -66,9 +66,9 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    // Use raw query to ensure password field is included
+    // Use raw query to ensure password field is included with case insensitive search
     const result = await this.userRepository.query(
-      'SELECT * FROM users WHERE email = $1 AND "deletedAt" IS NULL LIMIT 1',
+      'SELECT * FROM "users" WHERE LOWER(email) = LOWER($1) AND "deletedAt" IS NULL LIMIT 1',
       [email],
     );
 
@@ -106,9 +106,6 @@ export class UsersService {
       metadata: userData.metadata,
     });
 
-    // Debug: verify password is included
-    console.log('Raw password from DB:', userData.password);
-    console.log('User entity password:', user.password);
 
     return user;
   }

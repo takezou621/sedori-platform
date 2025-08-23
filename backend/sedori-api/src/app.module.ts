@@ -11,6 +11,9 @@ import { CartsModule } from './carts/carts.module';
 import { OrdersModule } from './orders/orders.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SearchModule } from './search/search.module';
+import { OptimizationModule } from './optimization/optimization.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 
@@ -35,6 +38,9 @@ import appConfig from './config/app.config';
     OrdersModule,
     AnalyticsModule,
     SearchModule,
+    OptimizationModule,
+    SubscriptionsModule,
+    RecommendationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

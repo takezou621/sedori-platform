@@ -58,7 +58,7 @@ describe('Authentication Flow E2E Tests', () => {
       await request(httpServer)
         .post('/auth/register')
         .send(userData)
-        .expect(400);
+        .expect(409);
     });
 
     it('should validate password requirements', async () => {
@@ -92,8 +92,9 @@ describe('Authentication Flow E2E Tests', () => {
     let testUser: any;
 
     beforeEach(async () => {
+      // Use unique email for each test to avoid conflicts
       testUser = await helper.registerUser({
-        email: 'logintest@test.com',
+        email: `logintest-${Date.now()}-${Math.random().toString(36).substr(2, 5)}@test.com`,
         password: 'Password123!',
       });
     });
@@ -152,9 +153,7 @@ describe('Authentication Flow E2E Tests', () => {
     });
 
     it('should not access profile without token', async () => {
-      await request(httpServer)
-        .get('/auth/profile')
-        .expect(401);
+      await request(httpServer).get('/auth/profile').expect(401);
     });
 
     it('should not access profile with invalid token', async () => {
@@ -221,7 +220,7 @@ describe('Authentication Flow E2E Tests', () => {
 
       // Password should not be returned in response
       expect(response.body.user).not.toHaveProperty('password');
-      
+
       // Login should work with original password
       await request(httpServer)
         .post('/auth/login')
@@ -233,9 +232,10 @@ describe('Authentication Flow E2E Tests', () => {
     });
 
     it('should handle case-insensitive email login', async () => {
+      const uniqueEmail = `CaseTest-${Date.now()}@Example.COM`;
       const userData = {
         name: 'Case Test',
-        email: 'CaseTest@Example.COM',
+        email: uniqueEmail,
         password: 'Password123!',
       };
 
@@ -248,7 +248,7 @@ describe('Authentication Flow E2E Tests', () => {
       await request(httpServer)
         .post('/auth/login')
         .send({
-          email: 'casetest@example.com',
+          email: uniqueEmail.toLowerCase(),
           password: userData.password,
         })
         .expect(200);
@@ -276,26 +276,27 @@ describe('Authentication Flow E2E Tests', () => {
 
     it('should update user profile', async () => {
       const updateData = {
-        firstName: 'Updated',
-        lastName: 'Name',
+        name: 'Updated Test User',
         phoneNumber: '090-1234-5678',
+        bio: 'Updated bio information',
       };
 
       const response = await request(httpServer)
-        .put(`/users/${testUser.id}`)
+        .patch('/users/me')
         .set('Authorization', `Bearer ${testUser.accessToken}`)
         .send(updateData)
         .expect(200);
 
-      expect(response.body.firstName).toBe(updateData.firstName);
-      expect(response.body.lastName).toBe(updateData.lastName);
+      expect(response.body.name).toBe(updateData.name);
+      expect(response.body.phoneNumber).toBe(updateData.phoneNumber);
+      expect(response.body.bio).toBe(updateData.bio);
     });
   });
 
   describe('Rate Limiting & Security', () => {
     it('should handle rapid registration attempts', async () => {
       const promises = [];
-      
+
       for (let i = 0; i < 5; i++) {
         promises.push(
           request(httpServer)
@@ -304,14 +305,14 @@ describe('Authentication Flow E2E Tests', () => {
               name: `Rapid Test ${i}`,
               email: `rapid${i}@test.com`,
               password: 'Password123!',
-            })
+            }),
         );
       }
 
       const responses = await Promise.all(promises);
-      
+
       // All should succeed (no rate limiting implemented yet)
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.status).toBe(201);
       });
     });
@@ -319,22 +320,20 @@ describe('Authentication Flow E2E Tests', () => {
     it('should handle rapid login attempts', async () => {
       const testUser = await helper.createTestUser();
       const promises = [];
-      
+
       for (let i = 0; i < 3; i++) {
         promises.push(
-          request(httpServer)
-            .post('/auth/login')
-            .send({
-              email: testUser.email,
-              password: testUser.password,
-            })
+          request(httpServer).post('/auth/login').send({
+            email: testUser.email,
+            password: testUser.password,
+          }),
         );
       }
 
       const responses = await Promise.all(promises);
-      
+
       // All should succeed for valid credentials
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.status).toBe(200);
       });
     });

@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -63,7 +64,9 @@ export class OrdersController {
     status: 200,
     description: '注文一覧を返します',
   })
-  async findAll(@Query() queryDto: OrderQueryDto): Promise<PaginatedOrderResult> {
+  async findAll(
+    @Query() queryDto: OrderQueryDto,
+  ): Promise<PaginatedOrderResult> {
     return this.ordersService.findAll(queryDto);
   }
 
@@ -95,10 +98,10 @@ export class OrdersController {
     @Param('id') id: string,
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.findById(id);
-    
+
     // Check if user owns this order or is admin
     if (order.userId !== req.user.id && req.user.role !== UserRole.ADMIN) {
-      throw new Error('この注文にアクセスする権限がありません');
+      throw new ForbiddenException('この注文にアクセスする権限がありません');
     }
 
     return this.ordersService['mapOrderToResponse'](order);
@@ -118,10 +121,10 @@ export class OrdersController {
     @Param('orderNumber') orderNumber: string,
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.findByOrderNumber(orderNumber);
-    
+
     // Check if user owns this order or is admin
     if (order.userId !== req.user.id && req.user.role !== UserRole.ADMIN) {
-      throw new Error('この注文にアクセスする権限がありません');
+      throw new ForbiddenException('この注文にアクセスする権限がありません');
     }
 
     return this.ordersService['mapOrderToResponse'](order);
@@ -161,10 +164,10 @@ export class OrdersController {
     @Param('id') id: string,
   ): Promise<OrderResponseDto> {
     const order = await this.ordersService.findById(id);
-    
+
     // Check if user owns this order or is admin
     if (order.userId !== req.user.id && req.user.role !== UserRole.ADMIN) {
-      throw new Error('この注文にアクセスする権限がありません');
+      throw new ForbiddenException('この注文にアクセスする権限がありません');
     }
 
     const cancelledOrder = await this.ordersService.cancel(id);

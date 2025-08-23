@@ -9,6 +9,7 @@ import {
   ProductCondition,
 } from './entities/product.entity';
 import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto';
+import { Category } from '../categories/entities/category.entity';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -43,6 +44,11 @@ describe('ProductsService', () => {
     softDelete: jest.fn(),
     increment: jest.fn(),
     createQueryBuilder: jest.fn(),
+    query: jest.fn(),
+  };
+
+  const mockCategoryRepository = {
+    findOne: jest.fn(),
   };
 
   const mockQueryBuilder = {
@@ -65,6 +71,10 @@ describe('ProductsService', () => {
           provide: getRepositoryToken(Product),
           useValue: mockRepository,
         },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: mockCategoryRepository,
+        },
       ],
     }).compile();
 
@@ -85,6 +95,9 @@ describe('ProductsService', () => {
         supplier: 'Test Supplier',
       };
 
+      // Mock category exists check
+      mockCategoryRepository.findOne.mockResolvedValue({ id: createProductDto.categoryId, name: 'Test Category' });
+      
       mockRepository.create.mockReturnValue(mockProduct);
       mockRepository.save.mockResolvedValue(mockProduct);
 
@@ -271,16 +284,32 @@ describe('ProductsService', () => {
   });
 
   describe('incrementViewCount', () => {
-    it('should increment view count', async () => {
+    it('should increment view count using raw query', async () => {
       const id = '123e4567-e89b-12d3-a456-426614174000';
+
+      mockRepository.query.mockResolvedValue(undefined);
 
       await service.incrementViewCount(id);
 
-      expect(mockRepository.increment).toHaveBeenCalledWith(
-        { id },
-        'viewCount',
-        1,
+      expect(mockRepository.query).toHaveBeenCalledWith(
+        'UPDATE products SET "viewCount" = "viewCount" + 1 WHERE id = $1',
+        [id],
       );
+    });
+
+    it('should use fallback method when query fails', async () => {
+      const id = '123e4567-e89b-12d3-a456-426614174000';
+      const productWithViewCount = { ...mockProduct, viewCount: 5 };
+
+      mockRepository.query.mockRejectedValue(new Error('Query failed'));
+      mockRepository.findOne.mockResolvedValue(productWithViewCount);
+      mockRepository.save.mockResolvedValue({ ...productWithViewCount, viewCount: 6 });
+
+      await service.incrementViewCount(id);
+
+      expect(mockRepository.query).toHaveBeenCalled();
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+      expect(mockRepository.save).toHaveBeenCalledWith({ ...productWithViewCount, viewCount: 6 });
     });
   });
 
