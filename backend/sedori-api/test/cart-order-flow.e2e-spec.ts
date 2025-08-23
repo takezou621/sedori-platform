@@ -453,7 +453,7 @@ describe('Cart & Order Flow E2E Tests', () => {
       // Create order for this specific test
       await helper.addToCart(testUser, testProducts[0], 1);
       const testOrder = await helper.createOrder(testUser);
-      
+
       const anotherUser = await helper.createTestUser();
 
       await request(httpServer)

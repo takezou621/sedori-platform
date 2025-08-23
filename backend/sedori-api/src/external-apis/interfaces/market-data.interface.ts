@@ -6,6 +6,7 @@ export interface CompetitorPrice {
   availability: 'in_stock' | 'out_of_stock' | 'limited' | 'unknown';
   shipping?: number;
   currency: string;
+  payPay?: number;
 }
 
 export interface MarketAnalysis {
@@ -36,6 +37,7 @@ export interface ProductSearchResult {
   seller?: string;
   rank?: number;
   category?: string;
+  payPay?: number;
 }
 
 export interface PriceHistory {

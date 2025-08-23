@@ -31,27 +31,29 @@ export class SearchService {
 
     // Try Meilisearch first for product searches
     if (
-      (searchQuery.type === SearchType.PRODUCTS || searchQuery.type === SearchType.ALL) &&
+      (searchQuery.type === SearchType.PRODUCTS ||
+        searchQuery.type === SearchType.ALL) &&
       searchQuery.q
     ) {
-      const meilisearchResult = await this.meilisearchService.searchProducts(searchQuery);
+      const meilisearchResult =
+        await this.meilisearchService.searchProducts(searchQuery);
       if (meilisearchResult) {
         this.logger.debug('Using Meilisearch for product search');
-        
+
         // Add category search if needed
         if (searchQuery.type === SearchType.ALL) {
           const categoryResults = await this.searchCategories(searchQuery);
           meilisearchResult.categories = categoryResults.categories;
           meilisearchResult.total += categoryResults.total;
         }
-        
+
         return meilisearchResult;
       }
     }
 
     // Fallback to PostgreSQL search
     this.logger.debug('Using PostgreSQL fallback for search');
-    
+
     let products: SearchProductDto[] = [];
     let categories: SearchCategoryDto[] = [];
     let total = 0;

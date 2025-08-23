@@ -15,6 +15,9 @@ import { SearchModule } from './search/search.module';
 import { OptimizationModule } from './optimization/optimization.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { StorageModule } from './storage/storage.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { ComplianceModule } from './compliance/compliance.module';
 import { HealthModule } from './health/health.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
@@ -57,6 +60,9 @@ import appConfig from './config/app.config';
     OptimizationModule,
     SubscriptionsModule,
     RecommendationsModule,
+    StorageModule,
+    NotificationsModule,
+    ComplianceModule,
     HealthModule,
   ],
   controllers: [AppController],

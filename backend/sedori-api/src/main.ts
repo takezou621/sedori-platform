@@ -12,22 +12,28 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Enable CORS with production-ready settings
-  const allowedOrigins = configService.get('NODE_ENV') === 'production' 
-    ? [
-        configService.get('FRONTEND_URL', 'https://yourdomain.com'),
-        configService.get('ADMIN_URL', 'https://admin.yourdomain.com'),
-      ]
-    : [
-        'http://localhost:3000', 
-        'http://localhost:3001', 
-        'http://localhost:3003'
-      ];
+  const allowedOrigins =
+    configService.get('NODE_ENV') === 'production'
+      ? [
+          configService.get('FRONTEND_URL', 'https://yourdomain.com'),
+          configService.get('ADMIN_URL', 'https://admin.yourdomain.com'),
+        ]
+      : [
+          'http://localhost:3000',
+          'http://localhost:3001',
+          'http://localhost:3003',
+        ];
 
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'X-Requested-With',
+    ],
     maxAge: 86400, // 24 hours
   });
 
@@ -37,9 +43,15 @@ async function bootstrap() {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()',
+    );
     if (configService.get('NODE_ENV') === 'production') {
-      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+      res.setHeader(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains',
+      );
     }
     next();
   });

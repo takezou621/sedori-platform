@@ -86,14 +86,14 @@ describe('SearchController (e2e)', () => {
   it('/search (GET) - should respect filters', async () => {
     const response = await request(app.getHttpServer())
       .get('/search')
-      .query({ 
-        q: 'test', 
+      .query({
+        q: 'test',
         categoryId: '123e4567-e89b-12d3-a456-426614174000',
         priceMin: 100,
         priceMax: 500,
         inStockOnly: true,
-        limit: 10, 
-        page: 1 
+        limit: 10,
+        page: 1,
       })
       .expect(200);
 
@@ -104,11 +104,11 @@ describe('SearchController (e2e)', () => {
   it('/search (GET) - should handle facets', async () => {
     const response = await request(app.getHttpServer())
       .get('/search')
-      .query({ 
-        q: 'test', 
+      .query({
+        q: 'test',
         includeFacets: true,
-        limit: 10, 
-        page: 1 
+        limit: 10,
+        page: 1,
       })
       .expect(200);
 
@@ -118,23 +118,23 @@ describe('SearchController (e2e)', () => {
   it('/search (GET) - should handle different sort options', async () => {
     const sortOptions = [
       'relevance',
-      'price_asc', 
+      'price_asc',
       'price_desc',
       'name_asc',
       'name_desc',
       'newest',
       'popularity',
-      'rating'
+      'rating',
     ];
 
     for (const sortBy of sortOptions) {
       const response = await request(app.getHttpServer())
         .get('/search')
-        .query({ 
-          q: 'test', 
+        .query({
+          q: 'test',
           sortBy,
-          limit: 10, 
-          page: 1 
+          limit: 10,
+          page: 1,
         })
         .expect(200);
 
@@ -146,10 +146,10 @@ describe('SearchController (e2e)', () => {
   it('/search (GET) - should handle pagination', async () => {
     const response = await request(app.getHttpServer())
       .get('/search')
-      .query({ 
-        q: 'test', 
-        limit: 5, 
-        page: 2 
+      .query({
+        q: 'test',
+        limit: 5,
+        page: 2,
       })
       .expect(200);
 
@@ -166,10 +166,10 @@ describe('SearchController (e2e)', () => {
   it('/search (GET) - should generate suggestions', async () => {
     const response = await request(app.getHttpServer())
       .get('/search')
-      .query({ 
-        q: 'laptop', 
-        limit: 10, 
-        page: 1 
+      .query({
+        q: 'laptop',
+        limit: 10,
+        page: 1,
       })
       .expect(200);
 

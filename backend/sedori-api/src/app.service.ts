@@ -5,5 +5,4 @@ export class AppService {
   getHello(): string {
     return '🚀 Sedori Platform API Server is running!';
   }
-
 }

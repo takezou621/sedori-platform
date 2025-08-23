@@ -39,12 +39,9 @@ export class RegisterDto {
   @IsString()
   @MinLength(8, { message: 'パスワードは8文字以上である必要があります' })
   @MaxLength(255)
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-    {
-      message: 'パスワードは大文字・小文字・数字・記号を含む必要があります',
-    },
-  )
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+    message: 'パスワードは大文字・小文字・数字・記号を含む必要があります',
+  })
   password: string;
 
   @ApiProperty({

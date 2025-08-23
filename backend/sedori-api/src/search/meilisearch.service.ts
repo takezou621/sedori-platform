@@ -15,7 +15,7 @@ export class MeilisearchService implements OnModuleInit {
   async onModuleInit() {
     try {
       const meilisearchConfig = this.configService.get('app.meilisearch');
-      
+
       this.client = new MeiliSearch({
         host: meilisearchConfig.host,
         apiKey: meilisearchConfig.masterKey,
@@ -25,7 +25,10 @@ export class MeilisearchService implements OnModuleInit {
       await this.initializeIndexes();
       this.logger.log('Meilisearch client initialized successfully');
     } catch (error) {
-      this.logger.warn('Failed to initialize Meilisearch client:', error.message);
+      this.logger.warn(
+        'Failed to initialize Meilisearch client:',
+        error.message,
+      );
       // Don't throw error to prevent app from failing if Meilisearch is unavailable
     }
   }
@@ -34,16 +37,16 @@ export class MeilisearchService implements OnModuleInit {
     try {
       // Create products index
       this.productsIndex = this.client.index('products');
-      
+
       // Set searchable attributes
       await this.productsIndex.updateSearchableAttributes([
         'name',
-        'description', 
+        'description',
         'brand',
         'model',
         'sku',
         'tags',
-        'categoryName'
+        'categoryName',
       ]);
 
       // Set filterable attributes
@@ -57,7 +60,7 @@ export class MeilisearchService implements OnModuleInit {
         'retailPrice',
         'stockQuantity',
         'averageRating',
-        'tags'
+        'tags',
       ]);
 
       // Set sortable attributes
@@ -67,7 +70,7 @@ export class MeilisearchService implements OnModuleInit {
         'retailPrice',
         'createdAt',
         'viewCount',
-        'averageRating'
+        'averageRating',
       ]);
 
       // Set ranking rules for better relevance
@@ -78,12 +81,15 @@ export class MeilisearchService implements OnModuleInit {
         'attribute',
         'sort',
         'exactness',
-        'viewCount:desc'
+        'viewCount:desc',
       ]);
 
       this.logger.log('Meilisearch indexes initialized successfully');
     } catch (error) {
-      this.logger.error('Failed to initialize Meilisearch indexes:', error.message);
+      this.logger.error(
+        'Failed to initialize Meilisearch indexes:',
+        error.message,
+      );
     }
   }
 
@@ -104,8 +110,12 @@ export class MeilisearchService implements OnModuleInit {
         categoryId: product.categoryId,
         categoryName: product.category?.name,
         wholesalePrice: Number(product.wholesalePrice),
-        retailPrice: product.retailPrice ? Number(product.retailPrice) : undefined,
-        marketPrice: product.marketPrice ? Number(product.marketPrice) : undefined,
+        retailPrice: product.retailPrice
+          ? Number(product.retailPrice)
+          : undefined,
+        marketPrice: product.marketPrice
+          ? Number(product.marketPrice)
+          : undefined,
         condition: product.condition,
         status: product.status,
         supplier: product.supplier,
@@ -122,7 +132,10 @@ export class MeilisearchService implements OnModuleInit {
       await this.productsIndex.addDocuments([indexableProduct]);
       this.logger.debug(`Product ${product.id} indexed in Meilisearch`);
     } catch (error) {
-      this.logger.error(`Failed to index product ${product.id}:`, error.message);
+      this.logger.error(
+        `Failed to index product ${product.id}:`,
+        error.message,
+      );
     }
   }
 
@@ -133,7 +146,7 @@ export class MeilisearchService implements OnModuleInit {
     }
 
     try {
-      const indexableProducts = products.map(product => ({
+      const indexableProducts = products.map((product) => ({
         id: product.id,
         name: product.name,
         description: product.description,
@@ -143,8 +156,12 @@ export class MeilisearchService implements OnModuleInit {
         categoryId: product.categoryId,
         categoryName: product.category?.name,
         wholesalePrice: Number(product.wholesalePrice),
-        retailPrice: product.retailPrice ? Number(product.retailPrice) : undefined,
-        marketPrice: product.marketPrice ? Number(product.marketPrice) : undefined,
+        retailPrice: product.retailPrice
+          ? Number(product.retailPrice)
+          : undefined,
+        marketPrice: product.marketPrice
+          ? Number(product.marketPrice)
+          : undefined,
         condition: product.condition,
         status: product.status,
         supplier: product.supplier,
@@ -175,11 +192,16 @@ export class MeilisearchService implements OnModuleInit {
       await this.productsIndex.deleteDocument(productId);
       this.logger.debug(`Product ${productId} removed from Meilisearch`);
     } catch (error) {
-      this.logger.error(`Failed to remove product ${productId}:`, error.message);
+      this.logger.error(
+        `Failed to remove product ${productId}:`,
+        error.message,
+      );
     }
   }
 
-  async searchProducts(searchQuery: SearchQueryDto): Promise<SearchResultsDto | null> {
+  async searchProducts(
+    searchQuery: SearchQueryDto,
+  ): Promise<SearchResultsDto | null> {
     if (!this.client || !this.productsIndex) {
       this.logger.warn('Meilisearch not available for search');
       return null;
@@ -194,7 +216,7 @@ export class MeilisearchService implements OnModuleInit {
         offset: ((searchQuery.page || 1) - 1) * (searchQuery.limit || 20),
         attributesToRetrieve: [
           'id',
-          'name', 
+          'name',
           'description',
           'sku',
           'brand',
@@ -211,7 +233,7 @@ export class MeilisearchService implements OnModuleInit {
           'primaryImageUrl',
           'tags',
           'averageRating',
-          'reviewCount'
+          'reviewCount',
         ],
       };
 
@@ -224,7 +246,9 @@ export class MeilisearchService implements OnModuleInit {
       }
 
       if (searchQuery.brands && searchQuery.brands.length > 0) {
-        const brandFilters = searchQuery.brands.map(brand => `brand = "${brand}"`);
+        const brandFilters = searchQuery.brands.map(
+          (brand) => `brand = "${brand}"`,
+        );
         filters.push(`(${brandFilters.join(' OR ')})`);
       }
 
@@ -250,7 +274,7 @@ export class MeilisearchService implements OnModuleInit {
       }
 
       if (searchQuery.tags && searchQuery.tags.length > 0) {
-        const tagFilters = searchQuery.tags.map(tag => `tags = "${tag}"`);
+        const tagFilters = searchQuery.tags.map((tag) => `tags = "${tag}"`);
         filters.push(`(${tagFilters.join(' OR ')})`);
       }
 
@@ -293,7 +317,7 @@ export class MeilisearchService implements OnModuleInit {
       // Perform search
       const searchResult = await this.productsIndex.search(
         searchQuery.q || '',
-        searchParams
+        searchParams,
       );
 
       const searchTime = Date.now() - startTime;
@@ -307,8 +331,12 @@ export class MeilisearchService implements OnModuleInit {
           page: searchQuery.page || 1,
           limit: searchQuery.limit || 20,
           total: searchResult.totalHits || 0,
-          totalPages: Math.ceil((searchResult.totalHits || 0) / (searchQuery.limit || 20)),
-          hasNext: ((searchQuery.page || 1) * (searchQuery.limit || 20)) < (searchResult.totalHits || 0),
+          totalPages: Math.ceil(
+            (searchResult.totalHits || 0) / (searchQuery.limit || 20),
+          ),
+          hasNext:
+            (searchQuery.page || 1) * (searchQuery.limit || 20) <
+            (searchResult.totalHits || 0),
           hasPrev: (searchQuery.page || 1) > 1,
         },
         searchTime,
@@ -317,11 +345,13 @@ export class MeilisearchService implements OnModuleInit {
 
       // Add facets if requested
       if (searchQuery.includeFacets && searchResult.facetDistribution) {
-        result.facets = this.buildFacetsFromMeili(searchResult.facetDistribution, searchQuery);
+        result.facets = this.buildFacetsFromMeili(
+          searchResult.facetDistribution,
+          searchQuery,
+        );
       }
 
       return result;
-
     } catch (error) {
       this.logger.error('Meilisearch search failed:', error.message);
       return null;
@@ -353,18 +383,23 @@ export class MeilisearchService implements OnModuleInit {
     };
   }
 
-  private buildFacetsFromMeili(facetDistribution: any, searchQuery: SearchQueryDto) {
+  private buildFacetsFromMeili(
+    facetDistribution: any,
+    searchQuery: SearchQueryDto,
+  ) {
     const facets = [];
 
     if (facetDistribution.categoryName) {
       facets.push({
         name: 'category',
         label: 'カテゴリ',
-        values: Object.entries(facetDistribution.categoryName).map(([name, count]) => ({
-          value: name,
-          count: count as number,
-          selected: false, // Would need category mapping to check this properly
-        })),
+        values: Object.entries(facetDistribution.categoryName).map(
+          ([name, count]) => ({
+            value: name,
+            count: count as number,
+            selected: false, // Would need category mapping to check this properly
+          }),
+        ),
       });
     }
 
@@ -372,11 +407,13 @@ export class MeilisearchService implements OnModuleInit {
       facets.push({
         name: 'brand',
         label: 'ブランド',
-        values: Object.entries(facetDistribution.brand).map(([brand, count]) => ({
-          value: brand,
-          count: count as number,
-          selected: searchQuery.brands?.includes(brand) || false,
-        })),
+        values: Object.entries(facetDistribution.brand).map(
+          ([brand, count]) => ({
+            value: brand,
+            count: count as number,
+            selected: searchQuery.brands?.includes(brand) || false,
+          }),
+        ),
       });
     }
 
@@ -384,11 +421,13 @@ export class MeilisearchService implements OnModuleInit {
       facets.push({
         name: 'condition',
         label: '商品状態',
-        values: Object.entries(facetDistribution.condition).map(([condition, count]) => ({
-          value: condition,
-          count: count as number,
-          selected: searchQuery.condition === condition,
-        })),
+        values: Object.entries(facetDistribution.condition).map(
+          ([condition, count]) => ({
+            value: condition,
+            count: count as number,
+            selected: searchQuery.condition === condition,
+          }),
+        ),
       });
     }
 

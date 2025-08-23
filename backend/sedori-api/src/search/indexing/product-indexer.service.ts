@@ -16,7 +16,7 @@ export class ProductIndexerService {
 
   async indexAllProducts(): Promise<void> {
     this.logger.log('Starting full product indexing...');
-    
+
     try {
       const products = await this.productRepository.find({
         relations: ['category'],
@@ -24,7 +24,7 @@ export class ProductIndexerService {
       });
 
       await this.meilisearchService.indexProducts(products);
-      
+
       this.logger.log(`Successfully indexed ${products.length} products`);
     } catch (error) {
       this.logger.error('Failed to index all products:', error.message);
@@ -57,21 +57,24 @@ export class ProductIndexerService {
       await this.meilisearchService.removeProduct(productId);
       this.logger.debug(`Successfully removed product ${productId} from index`);
     } catch (error) {
-      this.logger.error(`Failed to remove product ${productId} from index:`, error.message);
+      this.logger.error(
+        `Failed to remove product ${productId} from index:`,
+        error.message,
+      );
       throw error;
     }
   }
 
   async reindexProducts(): Promise<void> {
     this.logger.log('Starting product reindexing...');
-    
+
     try {
       // Clear existing index
       await this.meilisearchService.rebuildIndex();
-      
+
       // Index all products again
       await this.indexAllProducts();
-      
+
       this.logger.log('Product reindexing completed successfully');
     } catch (error) {
       this.logger.error('Failed to reindex products:', error.message);

@@ -76,10 +76,10 @@ export class HealthController {
       await this.dataSource.query('SELECT 1');
       return { status: 'ready', timestamp: new Date().toISOString() };
     } catch (error) {
-      return { 
-        status: 'not_ready', 
+      return {
+        status: 'not_ready',
         timestamp: new Date().toISOString(),
-        error: error.message 
+        error: error.message,
       };
     }
   }

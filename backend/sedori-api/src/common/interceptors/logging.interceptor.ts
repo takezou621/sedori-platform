@@ -29,18 +29,14 @@ export class LoggingInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    this.logger.log(
-      `→ ${method} ${url} - ${ip} - ${userAgent}`,
-    );
+    this.logger.log(`→ ${method} ${url} - ${ip} - ${userAgent}`);
 
     return next.handle().pipe(
       tap({
         next: () => {
           const { statusCode } = res;
           const duration = Date.now() - startTime;
-          this.logger.log(
-            `← ${method} ${url} - ${statusCode} - ${duration}ms`,
-          );
+          this.logger.log(`← ${method} ${url} - ${statusCode} - ${duration}ms`);
         },
         error: (error) => {
           const duration = Date.now() - startTime;

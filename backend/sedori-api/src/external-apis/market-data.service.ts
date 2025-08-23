@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AmazonApiService } from './amazon-api.service';
 import { RakutenApiService } from './rakuten-api.service';
+import { YahooApiService } from './yahoo-api.service';
 import { Product } from '../products/entities/product.entity';
 import {
   MarketAnalysis,
@@ -15,6 +16,7 @@ export class MarketDataService {
   constructor(
     private readonly amazonApiService: AmazonApiService,
     private readonly rakutenApiService: RakutenApiService,
+    private readonly yahooApiService: YahooApiService,
   ) {}
 
   async analyzeMarket(product: Product): Promise<MarketAnalysis> {
@@ -99,6 +101,13 @@ export class MarketDataService {
         product.name,
       );
       allPrices.push(...rakutenPrices);
+
+      // Get Yahoo Shopping prices
+      const yahooPrices = await this.yahooApiService.getCompetitorPrices(
+        product.metadata?.jan,
+        product.name,
+      );
+      allPrices.push(...yahooPrices);
 
       // Add our own price for comparison
       if (product.retailPrice && product.retailPrice > 0) {
