@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
@@ -37,7 +41,7 @@ export class ProductsService {
     // Validate category exists if provided
     if (createProductDto.categoryId) {
       const category = await this.categoryRepository.findOne({
-        where: { id: createProductDto.categoryId }
+        where: { id: createProductDto.categoryId },
       });
       if (!category) {
         throw new BadRequestException('指定されたカテゴリが見つかりません');
@@ -173,12 +177,15 @@ export class ProductsService {
       // Use raw query with better connection handling
       await this.productRepository.query(
         'UPDATE products SET "viewCount" = "viewCount" + 1 WHERE id = $1',
-        [id]
+        [id],
       );
     } catch (error) {
       // Log error but don't fail the request - view count is not critical
-      console.warn(`Failed to increment view count for product ${id}:`, error.message);
-      
+      console.warn(
+        `Failed to increment view count for product ${id}:`,
+        error.message,
+      );
+
       // Fallback to standard repository method
       try {
         const product = await this.productRepository.findOne({ where: { id } });
@@ -187,7 +194,10 @@ export class ProductsService {
           await this.productRepository.save(product);
         }
       } catch (fallbackError) {
-        console.warn(`Fallback view count increment also failed for product ${id}:`, fallbackError.message);
+        console.warn(
+          `Fallback view count increment also failed for product ${id}:`,
+          fallbackError.message,
+        );
       }
     }
   }

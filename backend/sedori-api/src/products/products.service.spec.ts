@@ -96,8 +96,11 @@ describe('ProductsService', () => {
       };
 
       // Mock category exists check
-      mockCategoryRepository.findOne.mockResolvedValue({ id: createProductDto.categoryId, name: 'Test Category' });
-      
+      mockCategoryRepository.findOne.mockResolvedValue({
+        id: createProductDto.categoryId,
+        name: 'Test Category',
+      });
+
       mockRepository.create.mockReturnValue(mockProduct);
       mockRepository.save.mockResolvedValue(mockProduct);
 
@@ -303,13 +306,19 @@ describe('ProductsService', () => {
 
       mockRepository.query.mockRejectedValue(new Error('Query failed'));
       mockRepository.findOne.mockResolvedValue(productWithViewCount);
-      mockRepository.save.mockResolvedValue({ ...productWithViewCount, viewCount: 6 });
+      mockRepository.save.mockResolvedValue({
+        ...productWithViewCount,
+        viewCount: 6,
+      });
 
       await service.incrementViewCount(id);
 
       expect(mockRepository.query).toHaveBeenCalled();
       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id } });
-      expect(mockRepository.save).toHaveBeenCalledWith({ ...productWithViewCount, viewCount: 6 });
+      expect(mockRepository.save).toHaveBeenCalledWith({
+        ...productWithViewCount,
+        viewCount: 6,
+      });
     });
   });
 

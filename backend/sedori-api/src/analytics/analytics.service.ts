@@ -21,13 +21,12 @@ import {
 } from './dto';
 
 // Type definitions for database query results
-interface OrdersQueryResult {
+interface CountResult {
   count: string;
-  revenue: string;
 }
 
-interface UsersQueryResult {
-  count: string;
+interface RevenueResult {
+  revenue: string;
 }
 
 interface TimeSeriesQueryResult {
@@ -117,21 +116,21 @@ export class AnalyticsService {
       .andWhere('event.timestamp <= :endDate', { endDate })
       .getCount();
 
-    const uniqueUsersResult = await this.analyticsEventRepository
+    const uniqueUsersResult = (await this.analyticsEventRepository
       .createQueryBuilder('event')
       .select('COUNT(DISTINCT event.userId)', 'count')
       .where('event.timestamp >= :startDate', { startDate })
       .andWhere('event.timestamp <= :endDate', { endDate })
       .andWhere('event.userId IS NOT NULL')
-      .getRawOne() as UsersQueryResult | undefined;
+      .getRawOne()) as CountResult | null;
 
-    const ordersResult = await this.orderRepository
+    const ordersResult = (await this.orderRepository
       .createQueryBuilder('order')
       .select('COUNT(*)', 'count')
       .addSelect('SUM(order.totalAmount)', 'revenue')
       .where('order.orderDate >= :startDate', { startDate })
       .andWhere('order.orderDate <= :endDate', { endDate })
-      .getRawOne() as OrdersQueryResult | undefined;
+      .getRawOne()) as (CountResult & RevenueResult) | null;
 
     const cartAdds = await this.analyticsEventRepository
       .createQueryBuilder('event')
@@ -151,9 +150,9 @@ export class AnalyticsService {
       .andWhere('event.timestamp <= :endDate', { endDate })
       .getCount();
 
-    const totalOrders = parseInt(String(ordersResult?.count || 0));
-    const totalRevenue = parseFloat(String(ordersResult?.revenue || 0));
-    const uniqueUsers = parseInt(String(uniqueUsersResult?.count || 0));
+    const totalOrders = this.parseIntSafely(ordersResult?.count);
+    const totalRevenue = this.parseFloatSafely(ordersResult?.revenue);
+    const uniqueUsers = this.parseIntSafely(uniqueUsersResult?.count);
 
     return {
       totalPageViews: pageViews,
@@ -173,7 +172,7 @@ export class AnalyticsService {
     endDate: Date,
     groupBy: AnalyticsGroupBy,
   ): Promise<AnalyticsTimeSeriesDto[]> {
-    const dateFormat = this.getDateFormat(groupBy);
+    // const dateFormat = this.getDateFormat(groupBy); // Unused for now
     const dateInterval = this.getDateInterval(groupBy);
 
     const pageViewsSeries = await this.analyticsEventRepository
@@ -217,7 +216,8 @@ export class AnalyticsService {
           value: parseInt(String(row.value || 0)),
         })),
         total: pageViewsSeries.reduce(
-          (sum: number, row: TimeSeriesQueryResult) => sum + parseInt(String(row.value || 0)),
+          (sum: number, row: TimeSeriesQueryResult) =>
+            sum + parseInt(String(row.value || 0)),
           0,
         ),
       },
@@ -228,7 +228,8 @@ export class AnalyticsService {
           value: parseInt(String(row.value || 0)),
         })),
         total: ordersSeries.reduce(
-          (sum: number, row: TimeSeriesQueryResult) => sum + parseInt(String(row.value || 0)),
+          (sum: number, row: TimeSeriesQueryResult) =>
+            sum + parseInt(String(row.value || 0)),
           0,
         ),
       },
@@ -239,7 +240,8 @@ export class AnalyticsService {
           value: parseFloat(String(row.value || 0)),
         })),
         total: revenueSeries.reduce(
-          (sum: number, row: TimeSeriesQueryResult) => sum + parseFloat(String(row.value || 0)),
+          (sum: number, row: TimeSeriesQueryResult) =>
+            sum + parseFloat(String(row.value || 0)),
           0,
         ),
       },
@@ -490,7 +492,11 @@ export class AnalyticsService {
     alertsCount: number;
   }> {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const last5Minutes = new Date(now.getTime() - 5 * 60 * 1000);
 
     try {
@@ -512,7 +518,8 @@ export class AnalyticsService {
 
       const todayOrderCount = parseInt(todayOrdersResult?.count || '0');
       const todayRevenue = parseFloat(todayOrdersResult?.revenue || '0');
-      const avgOrderValue = todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0;
+      const avgOrderValue =
+        todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0;
 
       // Calculate conversion rate (orders / sessions)
       const todaySessionsResult = await this.analyticsEventRepository
@@ -523,7 +530,8 @@ export class AnalyticsService {
         .getRawOne();
 
       const todaySessions = parseInt(todaySessionsResult?.sessions || '0');
-      const conversionRate = todaySessions > 0 ? (todayOrderCount / todaySessions) * 100 : 0;
+      const conversionRate =
+        todaySessions > 0 ? (todayOrderCount / todaySessions) * 100 : 0;
 
       return {
         currentActiveUsers: parseInt(activeUsersResult?.count || '0'),
@@ -568,7 +576,10 @@ export class AnalyticsService {
 
     try {
       // Check conversion rate drop
-      const recentConversionRate = await this.calculateConversionRate(lastHour, now);
+      const recentConversionRate = await this.calculateConversionRate(
+        lastHour,
+        now,
+      );
       const yesterdayConversionRate = await this.calculateConversionRate(
         new Date(last24Hours.getTime() - 24 * 60 * 60 * 1000),
         last24Hours,
@@ -581,7 +592,10 @@ export class AnalyticsService {
           title: 'コンバージョン率低下',
           message: `直近1時間のコンバージョン率が${recentConversionRate.toFixed(2)}%に低下しています`,
           timestamp: now,
-          data: { current: recentConversionRate, previous: yesterdayConversionRate },
+          data: {
+            current: recentConversionRate,
+            previous: yesterdayConversionRate,
+          },
         });
       }
 
@@ -636,13 +650,15 @@ export class AnalyticsService {
     } catch (error) {
       this.logger.error('Error getting performance alerts:', error);
       return {
-        alerts: [{
-          id: 'system_error',
-          type: 'critical' as const,
-          title: 'システムエラー',
-          message: 'パフォーマンス監視でエラーが発生しました',
-          timestamp: now,
-        }],
+        alerts: [
+          {
+            id: 'system_error',
+            type: 'critical' as const,
+            title: 'システムエラー',
+            message: 'パフォーマンス監視でエラーが発生しました',
+            timestamp: now,
+          },
+        ],
         summary: { critical: 1, warning: 0, info: 0 },
       };
     }
@@ -719,7 +735,9 @@ export class AnalyticsService {
       );
 
       if (topProducts.length > 0) {
-        const lowConversionProduct = topProducts.find(p => p.views > 50 && p.sales < p.views * 0.05);
+        const lowConversionProduct = topProducts.find(
+          (p) => p.views > 50 && p.sales < p.views * 0.05,
+        );
         if (lowConversionProduct) {
           suggestions.push({
             id: 'optimize_product_page',
@@ -741,7 +759,7 @@ export class AnalyticsService {
       }
 
       // Performance optimization based on alerts
-      if (alerts.alerts.some(alert => alert.type === 'critical')) {
+      if (alerts.alerts.some((alert) => alert.type === 'critical')) {
         suggestions.push({
           id: 'performance_optimization',
           priority: 'high' as const,
@@ -782,7 +800,7 @@ export class AnalyticsService {
 
       const metrics = {
         totalSuggestions: suggestions.length,
-        highPriority: suggestions.filter(s => s.priority === 'high').length,
+        highPriority: suggestions.filter((s) => s.priority === 'high').length,
         estimatedImpactSum: suggestions.reduce((sum, s) => {
           const impactMatch = s.estimatedImprovement.match(/\+(\d+)%/);
           return sum + (impactMatch ? parseInt(impactMatch[1]) : 0);
@@ -794,7 +812,11 @@ export class AnalyticsService {
       this.logger.error('Error getting optimization suggestions:', error);
       return {
         suggestions: [],
-        metrics: { totalSuggestions: 0, highPriority: 0, estimatedImpactSum: 0 },
+        metrics: {
+          totalSuggestions: 0,
+          highPriority: 0,
+          estimatedImpactSum: 0,
+        },
       };
     }
   }
@@ -805,7 +827,10 @@ export class AnalyticsService {
     return alerts.alerts.length;
   }
 
-  private async calculateConversionRate(startDate: Date, endDate: Date): Promise<number> {
+  private async calculateConversionRate(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
     try {
       const [ordersResult, sessionsResult] = await Promise.all([
         this.orderRepository
@@ -833,7 +858,9 @@ export class AnalyticsService {
     }
   }
 
-  private async identifySlowMovingProducts(): Promise<Array<{ id: string; name: string; daysSinceLastSale: number }>> {
+  private async identifySlowMovingProducts(): Promise<
+    Array<{ id: string; name: string; daysSinceLastSale: number }>
+  > {
     // Mock implementation - would require more complex queries in real scenario
     return [
       { id: '1', name: 'Product A', daysSinceLastSale: 15 },
@@ -842,8 +869,22 @@ export class AnalyticsService {
     ];
   }
 
-  private async calculateBounceRate(startDate: Date, endDate: Date): Promise<number> {
+  private async calculateBounceRate(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
     // Mock implementation - would require session analysis
     return Math.random() * 30 + 40; // 40-70%
+  }
+
+  // Type-safe helper functions
+  private parseIntSafely(value: string | undefined | null): number {
+    const parsed = parseInt(String(value || '0'));
+    return isNaN(parsed) ? 0 : parsed;
+  }
+
+  private parseFloatSafely(value: string | undefined | null): number {
+    const parsed = parseFloat(String(value || '0'));
+    return isNaN(parsed) ? 0 : parsed;
   }
 }

@@ -54,7 +54,9 @@ export class SubscriptionsService {
     });
 
     if (existingSubscription) {
-      throw new BadRequestException('既にアクティブなサブスクリプションがあります');
+      throw new BadRequestException(
+        '既にアクティブなサブスクリプションがあります',
+      );
     }
 
     const planFeatures = this.getPlanFeatures(plan);
@@ -64,14 +66,29 @@ export class SubscriptionsService {
     const subscription = this.subscriptionRepository.create({
       userId,
       plan,
-      status: plan === SubscriptionPlan.FREE ? SubscriptionStatus.ACTIVE : SubscriptionStatus.TRIAL,
+      status:
+        plan === SubscriptionPlan.FREE
+          ? SubscriptionStatus.ACTIVE
+          : SubscriptionStatus.TRIAL,
       billingCycle: billingCycle || BillingCycle.MONTHLY,
       monthlyPrice: pricing.monthlyPrice,
       yearlyPrice: pricing.yearlyPrice,
       startDate: new Date(),
-      endDate: plan === SubscriptionPlan.FREE ? undefined : this.calculateEndDate(billingCycle || BillingCycle.MONTHLY) || undefined,
-      trialEndDate: plan === SubscriptionPlan.FREE ? undefined : this.calculateTrialEndDate(),
-      nextBillingDate: plan === SubscriptionPlan.FREE ? undefined : this.calculateNextBillingDate(billingCycle || BillingCycle.MONTHLY) || undefined,
+      endDate:
+        plan === SubscriptionPlan.FREE
+          ? undefined
+          : this.calculateEndDate(billingCycle || BillingCycle.MONTHLY) ||
+            undefined,
+      trialEndDate:
+        plan === SubscriptionPlan.FREE
+          ? undefined
+          : this.calculateTrialEndDate(),
+      nextBillingDate:
+        plan === SubscriptionPlan.FREE
+          ? undefined
+          : this.calculateNextBillingDate(
+              billingCycle || BillingCycle.MONTHLY,
+            ) || undefined,
       usageResetDate: this.calculateUsageResetDate(),
       maxOptimizations: planFeatures.maxOptimizations,
       maxProducts: planFeatures.maxProducts,
@@ -84,7 +101,8 @@ export class SubscriptionsService {
       currentApiCalls: 0,
     });
 
-    const savedSubscription = await this.subscriptionRepository.save(subscription);
+    const savedSubscription =
+      await this.subscriptionRepository.save(subscription);
 
     // Handle payment processing here (Stripe integration)
     if (plan !== SubscriptionPlan.FREE && paymentMethodId) {
@@ -143,7 +161,8 @@ export class SubscriptionsService {
     // Handle billing cycle change
     if (billingCycle && billingCycle !== subscription.billingCycle) {
       subscription.billingCycle = billingCycle;
-      subscription.nextBillingDate = this.calculateNextBillingDate(billingCycle) || undefined;
+      subscription.nextBillingDate =
+        this.calculateNextBillingDate(billingCycle) || undefined;
     }
 
     // Handle cancellation
@@ -153,7 +172,8 @@ export class SubscriptionsService {
       subscription.cancellationReason = cancellationReason;
     }
 
-    const updatedSubscription = await this.subscriptionRepository.save(subscription);
+    const updatedSubscription =
+      await this.subscriptionRepository.save(subscription);
     return this.mapToResponse(updatedSubscription);
   }
 
@@ -177,7 +197,8 @@ export class SubscriptionsService {
     subscription.cancelledAt = new Date();
     subscription.cancellationReason = reason;
 
-    const cancelledSubscription = await this.subscriptionRepository.save(subscription);
+    const cancelledSubscription =
+      await this.subscriptionRepository.save(subscription);
     return this.mapToResponse(cancelledSubscription);
   }
 
@@ -227,7 +248,8 @@ export class SubscriptionsService {
       case UsageType.OPTIMIZATION_REQUEST:
         if (
           subscription.maxOptimizations !== -1 &&
-          subscription.currentOptimizations + quantity > subscription.maxOptimizations
+          subscription.currentOptimizations + quantity >
+            subscription.maxOptimizations
         ) {
           throw new ForbiddenException('最適化リクエストの上限に達しました');
         }
@@ -338,7 +360,9 @@ export class SubscriptionsService {
     ];
   }
 
-  private async createDefaultSubscription(userId: string): Promise<Subscription> {
+  private async createDefaultSubscription(
+    userId: string,
+  ): Promise<Subscription> {
     const planFeatures = this.getPlanFeatures(SubscriptionPlan.FREE);
 
     const subscription = this.subscriptionRepository.create({
@@ -406,7 +430,10 @@ export class SubscriptionsService {
       [SubscriptionPlan.FREE]: { monthlyPrice: 0, yearlyPrice: 0 },
       [SubscriptionPlan.BASIC]: { monthlyPrice: 2980, yearlyPrice: 29800 },
       [SubscriptionPlan.PRO]: { monthlyPrice: 9800, yearlyPrice: 98000 },
-      [SubscriptionPlan.ENTERPRISE]: { monthlyPrice: 49800, yearlyPrice: 498000 },
+      [SubscriptionPlan.ENTERPRISE]: {
+        monthlyPrice: 49800,
+        yearlyPrice: 498000,
+      },
     };
 
     return pricing[plan];
@@ -451,7 +478,8 @@ export class SubscriptionsService {
 
     switch (type) {
       case UsageType.OPTIMIZATION_REQUEST:
-        updates.currentOptimizations = subscription.currentOptimizations + quantity;
+        updates.currentOptimizations =
+          subscription.currentOptimizations + quantity;
         break;
       case UsageType.API_CALL:
         updates.currentApiCalls = subscription.currentApiCalls + quantity;
@@ -470,8 +498,12 @@ export class SubscriptionsService {
       plan: subscription.plan,
       status: subscription.status,
       billingCycle: subscription.billingCycle,
-      monthlyPrice: subscription.monthlyPrice ? Number(subscription.monthlyPrice) : undefined,
-      yearlyPrice: subscription.yearlyPrice ? Number(subscription.yearlyPrice) : undefined,
+      monthlyPrice: subscription.monthlyPrice
+        ? Number(subscription.monthlyPrice)
+        : undefined,
+      yearlyPrice: subscription.yearlyPrice
+        ? Number(subscription.yearlyPrice)
+        : undefined,
       startDate: subscription.startDate,
       endDate: subscription.endDate,
       trialEndDate: subscription.trialEndDate,
@@ -493,7 +525,9 @@ export class SubscriptionsService {
     };
   }
 
-  private mapUsageToResponse(usage: SubscriptionUsage): SubscriptionUsageResponseDto {
+  private mapUsageToResponse(
+    usage: SubscriptionUsage,
+  ): SubscriptionUsageResponseDto {
     return {
       id: usage.id,
       subscriptionId: usage.subscriptionId,

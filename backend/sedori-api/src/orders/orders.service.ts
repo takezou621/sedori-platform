@@ -33,98 +33,116 @@ export class OrdersService {
     createOrderDto: CreateOrderDto,
   ): Promise<Order> {
     // Use transaction to ensure atomicity
-    return await this.orderRepository.manager.transaction(async transactionalEntityManager => {
-      // Get user's active cart
-      const cart = await this.cartsService.getCart(userId);
+    return await this.orderRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        // Get user's active cart
+        const cart = await this.cartsService.getCart(userId);
 
-      if (!cart.items || cart.items.length === 0) {
-        throw new BadRequestException('カートが空です');
-      }
-
-      // Validate shipping address
-      this.validateShippingAddress(createOrderDto.shippingAddress);
-
-      // Generate order number (with potential retry logic)
-      const orderNumber = await this.generateOrderNumberWithRetry(transactionalEntityManager);
-
-      // Calculate totals with validation
-      const subtotal = Number(cart.totalAmount);
-      if (subtotal <= 0) {
-        throw new BadRequestException('注文金額が正しくありません');
-      }
-      
-      const taxAmount = Math.round(subtotal * 0.1 * 100) / 100; // 10% tax, rounded
-      const shippingAmount = subtotal >= 5000 ? 0 : 500; // Free shipping over 5000
-      const totalAmount = Math.round((subtotal + taxAmount + shippingAmount) * 100) / 100; // Round to avoid floating point errors
-
-      // Create order within transaction
-      const order = transactionalEntityManager.create(Order, {
-        orderNumber,
-        userId,
-        status: OrderStatus.PENDING,
-        subtotal,
-        taxAmount,
-        shippingAmount,
-        discountAmount: 0,
-        totalAmount,
-        orderDate: new Date(),
-        estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        shippingAddress: createOrderDto.shippingAddress,
-        billingAddress:
-          createOrderDto.billingAddress || createOrderDto.shippingAddress,
-        paymentMethod: createOrderDto.paymentMethod || 'pending',
-        notes: createOrderDto.notes,
-        metadata: createOrderDto.metadata,
-      });
-
-      const savedOrder = await transactionalEntityManager.save(Order, order);
-
-      // Create order items from cart items
-      const orderItems = cart.items.map((cartItem) => {
-        // Validate cart item
-        if (!cartItem.product) {
-          console.error(`Cart item validation failed:`, {
-            cartItemId: cartItem.id,
-            productId: cartItem.productId,
-            cartId: cart.id,
-            userId: userId,
-            hasProduct: !!cartItem.product
-          });
-          throw new BadRequestException(`商品ID ${cartItem.productId} が見つかりません`);
+        if (!cart.items || cart.items.length === 0) {
+          throw new BadRequestException('カートが空です');
         }
-        
-        return transactionalEntityManager.create(OrderItem, {
-          orderId: savedOrder.id,
-          productId: cartItem.productId,
-          quantity: cartItem.quantity,
-          unitPrice: cartItem.unitPrice,
-          totalPrice: cartItem.totalPrice,
-          productSnapshot: {
-            name: cartItem.productSnapshot?.name || cartItem.product?.name || '',
-            sku: cartItem.product?.sku,
-            brand: cartItem.productSnapshot?.brand || cartItem.product?.brand,
-            model: cartItem.product?.model,
-            imageUrl:
-              cartItem.productSnapshot?.imageUrl ||
-              cartItem.product?.primaryImageUrl,
-            specifications: cartItem.product?.specifications,
-          },
+
+        // Validate shipping address
+        this.validateShippingAddress(createOrderDto.shippingAddress);
+
+        // Generate order number (with potential retry logic)
+        const orderNumber = await this.generateOrderNumberWithRetry(
+          transactionalEntityManager,
+        );
+
+        // Calculate totals with validation
+        const subtotal = Number(cart.totalAmount);
+        if (subtotal <= 0) {
+          throw new BadRequestException('注文金額が正しくありません');
+        }
+
+        const taxAmount = Math.round(subtotal * 0.1 * 100) / 100; // 10% tax, rounded
+        const shippingAmount = subtotal >= 5000 ? 0 : 500; // Free shipping over 5000
+        const totalAmount =
+          Math.round((subtotal + taxAmount + shippingAmount) * 100) / 100; // Round to avoid floating point errors
+
+        // Create order within transaction
+        const order = transactionalEntityManager.create(Order, {
+          orderNumber,
+          userId,
+          status: OrderStatus.PENDING,
+          subtotal,
+          taxAmount,
+          shippingAmount,
+          discountAmount: 0,
+          totalAmount,
+          orderDate: new Date(),
+          estimatedDeliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+          shippingAddress: createOrderDto.shippingAddress,
+          billingAddress:
+            createOrderDto.billingAddress || createOrderDto.shippingAddress,
+          paymentMethod: createOrderDto.paymentMethod || 'pending',
+          notes: createOrderDto.notes,
+          metadata: createOrderDto.metadata,
         });
-      });
 
-      const savedOrderItems = await transactionalEntityManager.save(OrderItem, orderItems);
+        const savedOrder = await transactionalEntityManager.save(Order, order);
 
-      // Convert cart to order status
-      await this.cartsService.convertCartToOrder(cart.id);
+        // Create order items from cart items
+        const orderItems = cart.items.map((cartItem) => {
+          // Validate cart item
+          if (!cartItem.product) {
+            console.error(`Cart item validation failed:`, {
+              cartItemId: cartItem.id,
+              productId: cartItem.productId,
+              cartId: cart.id,
+              userId: userId,
+              hasProduct: !!cartItem.product,
+            });
+            throw new BadRequestException(
+              `商品ID ${cartItem.productId} が見つかりません`,
+            );
+          }
 
-      // Return order with items loaded directly from transaction data
-      savedOrder.items = savedOrderItems;
-      return savedOrder;
-    });
+          return transactionalEntityManager.create(OrderItem, {
+            orderId: savedOrder.id,
+            productId: cartItem.productId,
+            quantity: cartItem.quantity,
+            unitPrice: cartItem.unitPrice,
+            totalPrice: cartItem.totalPrice,
+            productSnapshot: {
+              name:
+                cartItem.productSnapshot?.name || cartItem.product?.name || '',
+              sku: cartItem.product?.sku,
+              brand: cartItem.productSnapshot?.brand || cartItem.product?.brand,
+              model: cartItem.product?.model,
+              imageUrl:
+                cartItem.productSnapshot?.imageUrl ||
+                cartItem.product?.primaryImageUrl,
+              specifications: cartItem.product?.specifications,
+            },
+          });
+        });
+
+        const savedOrderItems = await transactionalEntityManager.save(
+          OrderItem,
+          orderItems,
+        );
+
+        // Convert cart to order status
+        await this.cartsService.convertCartToOrder(cart.id);
+
+        // Return order with items loaded directly from transaction data
+        savedOrder.items = savedOrderItems;
+        return savedOrder;
+      },
+    );
   }
 
   private validateShippingAddress(address: any): void {
-    const required = ['fullName', 'address1', 'city', 'state', 'postalCode', 'country'];
+    const required = [
+      'fullName',
+      'address1',
+      'city',
+      'state',
+      'postalCode',
+      'country',
+    ];
     for (const field of required) {
       if (!address[field] || address[field].trim() === '') {
         throw new BadRequestException(`配送先の${field}は必須です`);
@@ -140,20 +158,31 @@ export class OrdersService {
     }
   }
 
-  private async generateOrderNumberWithRetry(transactionalEntityManager: any, maxRetries: number = 3): Promise<string> {
+  private async generateOrderNumberWithRetry(
+    transactionalEntityManager: any,
+    maxRetries: number = 3,
+  ): Promise<string> {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const date = new Date();
         const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
 
         // Get today's order count within transaction
-        const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const todayStart = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+        );
         const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
         const count = await transactionalEntityManager
           .createQueryBuilder(Order, 'order')
-          .where('order.orderDate >= :todayStart', { todayStart })
-          .andWhere('order.orderDate < :todayEnd', { todayEnd })
+          .where('order.orderDate >= :todayStart', {
+            todayStart: todayStart.toISOString(),
+          })
+          .andWhere('order.orderDate < :todayEnd', {
+            todayEnd: todayEnd.toISOString(),
+          })
           .getCount();
 
         const sequence = String(count + 1 + attempt).padStart(4, '0'); // Add attempt to avoid collisions
@@ -161,7 +190,7 @@ export class OrdersService {
 
         // Check if order number already exists
         const existing = await transactionalEntityManager.findOne(Order, {
-          where: { orderNumber }
+          where: { orderNumber },
         });
 
         if (!existing) {
@@ -172,10 +201,10 @@ export class OrdersService {
           throw error;
         }
         // Wait a bit before retry
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
     }
-    
+
     throw new ConflictException('注文番号の生成に失敗しました');
   }
 
@@ -216,7 +245,9 @@ export class OrdersService {
       if (isNaN(parsedStartDate.getTime())) {
         throw new BadRequestException('Invalid start date format');
       }
-      queryBuilder.andWhere('order.orderDate >= :startDate', { startDate: parsedStartDate });
+      queryBuilder.andWhere('order.orderDate >= :startDate', {
+        startDate: parsedStartDate,
+      });
     }
     if (endDate) {
       // Validate date format and ensure end of day
@@ -226,7 +257,9 @@ export class OrdersService {
       }
       // Set to end of day for inclusive range
       parsedEndDate.setHours(23, 59, 59, 999);
-      queryBuilder.andWhere('order.orderDate <= :endDate', { endDate: parsedEndDate });
+      queryBuilder.andWhere('order.orderDate <= :endDate', {
+        endDate: parsedEndDate,
+      });
     }
 
     // Search filter
@@ -324,7 +357,9 @@ export class OrdersService {
       if (isNaN(parsedStartDate.getTime())) {
         throw new BadRequestException('Invalid start date format');
       }
-      queryBuilder.andWhere('order.orderDate >= :startDate', { startDate: parsedStartDate });
+      queryBuilder.andWhere('order.orderDate >= :startDate', {
+        startDate: parsedStartDate,
+      });
     }
     if (endDate) {
       // Validate date format and ensure end of day
@@ -334,7 +369,9 @@ export class OrdersService {
       }
       // Set to end of day for inclusive range
       parsedEndDate.setHours(23, 59, 59, 999);
-      queryBuilder.andWhere('order.orderDate <= :endDate', { endDate: parsedEndDate });
+      queryBuilder.andWhere('order.orderDate <= :endDate', {
+        endDate: parsedEndDate,
+      });
     }
 
     if (search) {
@@ -380,13 +417,19 @@ export class OrdersService {
     }
 
     // Handle shipping status
-    if (updateOrderDto.status === OrderStatus.SHIPPED && updateOrderDto.trackingNumber) {
+    if (
+      updateOrderDto.status === OrderStatus.SHIPPED &&
+      updateOrderDto.trackingNumber
+    ) {
       order.trackingNumber = updateOrderDto.trackingNumber;
     }
 
     // Validate payment status consistency
     if (updateOrderDto.paymentStatus && updateOrderDto.status) {
-      this.validatePaymentStatusConsistency(updateOrderDto.status, updateOrderDto.paymentStatus);
+      this.validatePaymentStatusConsistency(
+        updateOrderDto.status,
+        updateOrderDto.paymentStatus,
+      );
     }
 
     await this.orderRepository.save(order);
@@ -394,7 +437,10 @@ export class OrdersService {
     return this.findById(id);
   }
 
-  private validateStatusTransition(currentStatus: OrderStatus, newStatus: OrderStatus): void {
+  private validateStatusTransition(
+    currentStatus: OrderStatus,
+    newStatus: OrderStatus,
+  ): void {
     const validTransitions: Record<OrderStatus, OrderStatus[]> = {
       [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
       [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING, OrderStatus.CANCELLED],
@@ -407,20 +453,33 @@ export class OrdersService {
 
     if (!validTransitions[currentStatus]?.includes(newStatus)) {
       throw new BadRequestException(
-        `Invalid status transition from ${currentStatus} to ${newStatus}`
+        `Invalid status transition from ${currentStatus} to ${newStatus}`,
       );
     }
   }
 
-  private validatePaymentStatusConsistency(orderStatus: OrderStatus, paymentStatus: PaymentStatus): void {
+  private validatePaymentStatusConsistency(
+    orderStatus: OrderStatus,
+    paymentStatus: PaymentStatus,
+  ): void {
     // Delivered orders should have paid status
-    if (orderStatus === OrderStatus.DELIVERED && paymentStatus !== PaymentStatus.PAID) {
-      throw new BadRequestException('Delivered orders must have paid payment status');
+    if (
+      orderStatus === OrderStatus.DELIVERED &&
+      paymentStatus !== PaymentStatus.PAID
+    ) {
+      throw new BadRequestException(
+        'Delivered orders must have paid payment status',
+      );
     }
 
     // Refunded orders should have refunded payment status
-    if (orderStatus === OrderStatus.REFUNDED && paymentStatus !== PaymentStatus.REFUNDED) {
-      throw new BadRequestException('Refunded orders must have refunded payment status');
+    if (
+      orderStatus === OrderStatus.REFUNDED &&
+      paymentStatus !== PaymentStatus.REFUNDED
+    ) {
+      throw new BadRequestException(
+        'Refunded orders must have refunded payment status',
+      );
     }
   }
 
@@ -445,7 +504,7 @@ export class OrdersService {
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
 
-    // Get today's order count
+    // Get today's order count using proper date formatting for PostgreSQL
     const todayStart = new Date(
       date.getFullYear(),
       date.getMonth(),
@@ -455,8 +514,12 @@ export class OrdersService {
 
     const count = await this.orderRepository
       .createQueryBuilder('order')
-      .where('order.orderDate >= :todayStart', { todayStart })
-      .andWhere('order.orderDate < :todayEnd', { todayEnd })
+      .where('order.orderDate >= :todayStart', {
+        todayStart: todayStart.toISOString(),
+      })
+      .andWhere('order.orderDate < :todayEnd', {
+        todayEnd: todayEnd.toISOString(),
+      })
       .getCount();
 
     const sequence = String(count + 1).padStart(4, '0');

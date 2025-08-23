@@ -140,34 +140,45 @@ export class SearchController {
 
   private parseSearchQuery(rawQuery: any): SearchQueryDto {
     const parsed: any = {};
-    
+
     // Copy simple fields
     if (rawQuery.q) parsed.q = rawQuery.q;
     if (rawQuery.type) parsed.type = rawQuery.type;
     if (rawQuery.categoryId) parsed.categoryId = rawQuery.categoryId;
     if (rawQuery.condition) parsed.condition = rawQuery.condition;
     if (rawQuery.status) parsed.status = rawQuery.status;
-    if (rawQuery.inStockOnly !== undefined) parsed.inStockOnly = rawQuery.inStockOnly === 'true';
-    if (rawQuery.minRating !== undefined) parsed.minRating = parseFloat(rawQuery.minRating);
+    if (rawQuery.inStockOnly !== undefined)
+      parsed.inStockOnly = rawQuery.inStockOnly === 'true';
+    if (rawQuery.minRating !== undefined)
+      parsed.minRating = parseFloat(rawQuery.minRating);
     if (rawQuery.sortBy) parsed.sortBy = rawQuery.sortBy;
     if (rawQuery.page !== undefined) parsed.page = parseInt(rawQuery.page);
     if (rawQuery.limit !== undefined) parsed.limit = parseInt(rawQuery.limit);
-    if (rawQuery.includeFacets !== undefined) parsed.includeFacets = rawQuery.includeFacets === 'true';
-    
+    if (rawQuery.includeFacets !== undefined)
+      parsed.includeFacets = rawQuery.includeFacets === 'true';
+
     // Handle brands array parameter (brands[], brands)
     if (rawQuery['brands[]']) {
-      parsed.brands = Array.isArray(rawQuery['brands[]']) ? rawQuery['brands[]'] : [rawQuery['brands[]']];
+      parsed.brands = Array.isArray(rawQuery['brands[]'])
+        ? rawQuery['brands[]']
+        : [rawQuery['brands[]']];
     } else if (rawQuery.brands) {
-      parsed.brands = Array.isArray(rawQuery.brands) ? rawQuery.brands : [rawQuery.brands];
+      parsed.brands = Array.isArray(rawQuery.brands)
+        ? rawQuery.brands
+        : [rawQuery.brands];
     }
-    
+
     // Handle tags array parameter (tags[], tags)
     if (rawQuery['tags[]']) {
-      parsed.tags = Array.isArray(rawQuery['tags[]']) ? rawQuery['tags[]'] : [rawQuery['tags[]']];
+      parsed.tags = Array.isArray(rawQuery['tags[]'])
+        ? rawQuery['tags[]']
+        : [rawQuery['tags[]']];
     } else if (rawQuery.tags) {
-      parsed.tags = Array.isArray(rawQuery.tags) ? rawQuery.tags : [rawQuery.tags];
+      parsed.tags = Array.isArray(rawQuery.tags)
+        ? rawQuery.tags
+        : [rawQuery.tags];
     }
-    
+
     // Handle price range nested object (priceRange[min], priceRange[max])
     if (rawQuery['priceRange[min]'] || rawQuery['priceRange[max]']) {
       parsed.priceRange = {};
@@ -178,7 +189,7 @@ export class SearchController {
         parsed.priceRange.max = parseFloat(rawQuery['priceRange[max]']);
       }
     }
-    
+
     // Set defaults
     parsed.type = parsed.type || 'products';
     parsed.sortBy = parsed.sortBy || 'relevance';
@@ -186,7 +197,7 @@ export class SearchController {
     parsed.limit = parsed.limit || 20;
     parsed.includeFacets = parsed.includeFacets || false;
     parsed.inStockOnly = parsed.inStockOnly || false;
-    
+
     return parsed as SearchQueryDto;
   }
 }

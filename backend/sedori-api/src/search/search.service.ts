@@ -168,10 +168,14 @@ export class SearchService {
     queryBuilder.andWhere('product.status = :status', { status: 'active' });
 
     // Category filter - validate UUID format
-    if (searchQuery.categoryId && 
-        searchQuery.categoryId !== 'undefined' && 
-        searchQuery.categoryId !== 'null' &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(searchQuery.categoryId)) {
+    if (
+      searchQuery.categoryId &&
+      searchQuery.categoryId !== 'undefined' &&
+      searchQuery.categoryId !== 'null' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        searchQuery.categoryId,
+      )
+    ) {
       queryBuilder.andWhere('product.categoryId = :categoryId', {
         categoryId: searchQuery.categoryId,
       });
@@ -231,7 +235,7 @@ export class SearchService {
   ): void {
     // Sanitize search query to prevent injection
     const sanitizedQuery = query.replace(/[^\w\s-]/g, '').trim();
-    
+
     if (!sanitizedQuery) {
       return;
     }
@@ -241,7 +245,7 @@ export class SearchService {
       // Simple prefix search for short queries
       queryBuilder.andWhere(
         '(product.name ILIKE :prefix OR product.brand ILIKE :prefix)',
-        { prefix: `${sanitizedQuery}%` }
+        { prefix: `${sanitizedQuery}%` },
       );
     } else if (sanitizedQuery.split(' ').length === 1) {
       // Single word - use ILIKE with ranking
@@ -259,14 +263,14 @@ export class SearchService {
         END`,
         'search_rank',
       );
-      
+
       queryBuilder.andWhere(
         '(product.name ILIKE :containsQuery OR product.brand ILIKE :containsQuery OR product.description ILIKE :containsQuery OR product.model ILIKE :containsQuery OR category.name ILIKE :containsQuery)',
-        { 
+        {
           exactQuery: sanitizedQuery,
           prefixQuery: `${sanitizedQuery}%`,
-          containsQuery: `%${sanitizedQuery}%`
-        }
+          containsQuery: `%${sanitizedQuery}%`,
+        },
       );
     } else {
       // Multi-word - use PostgreSQL full-text search with better performance
@@ -426,7 +430,7 @@ export class SearchService {
     const suggestions = await this.productRepository
       .createQueryBuilder('product')
       .select('product.name')
-      .addSelect('product.viewCount') 
+      .addSelect('product.viewCount')
       .where('product.name ILIKE :query', { query: `%${query}%` })
       .andWhere('product.status = :status', { status: 'active' })
       .orderBy('product.viewCount', 'DESC')

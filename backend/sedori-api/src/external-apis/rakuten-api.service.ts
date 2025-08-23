@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { CompetitorPrice, ProductSearchResult, MarketTrend } from './interfaces/market-data.interface';
+import {
+  CompetitorPrice,
+  ProductSearchResult,
+  MarketTrend,
+} from './interfaces/market-data.interface';
 
 @Injectable()
 export class RakutenApiService {
@@ -14,12 +18,17 @@ export class RakutenApiService {
     private readonly configService: ConfigService,
   ) {}
 
-  async searchProducts(keyword: string, limit = 10): Promise<ProductSearchResult[]> {
+  async searchProducts(
+    keyword: string,
+    limit = 10,
+  ): Promise<ProductSearchResult[]> {
     try {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
-      
+
       if (!applicationId) {
-        this.logger.warn('Required API credentials not configured, using fallback data');
+        this.logger.warn(
+          'Required API credentials not configured, using fallback data',
+        );
         return this.getFallbackSearchResults(keyword, limit);
       }
 
@@ -39,19 +48,26 @@ export class RakutenApiService {
 
       // For now, return realistic fallback data
       return this.getFallbackSearchResults(keyword, limit);
-
     } catch (error) {
-      this.logger.error(`Rakuten product search failed for "${keyword}":`, error);
+      this.logger.error(
+        `Rakuten product search failed for "${keyword}":`,
+        error,
+      );
       return this.getFallbackSearchResults(keyword, limit);
     }
   }
 
-  async getCompetitorPrices(jan?: string, productName?: string): Promise<CompetitorPrice[]> {
+  async getCompetitorPrices(
+    jan?: string,
+    productName?: string,
+  ): Promise<CompetitorPrice[]> {
     try {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
-      
+
       if (!applicationId) {
-        this.logger.warn('Required API credentials not configured, using fallback pricing');
+        this.logger.warn(
+          'Required API credentials not configured, using fallback pricing',
+        );
         return this.getFallbackCompetitorPrices(productName || '');
       }
 
@@ -72,7 +88,6 @@ export class RakutenApiService {
       // };
 
       return this.getFallbackCompetitorPrices(searchTerm);
-
     } catch (error) {
       this.logger.error(`Failed to get Rakuten competitor prices:`, error);
       return this.getFallbackCompetitorPrices('');
@@ -82,9 +97,11 @@ export class RakutenApiService {
   async getRankingData(categoryId?: number): Promise<ProductSearchResult[]> {
     try {
       const applicationId = this.configService.get('RAKUTEN_APPLICATION_ID');
-      
+
       if (!applicationId) {
-        this.logger.warn('Required API credentials not configured, using fallback ranking');
+        this.logger.warn(
+          'Required API credentials not configured, using fallback ranking',
+        );
         return this.getFallbackRankingData();
       }
 
@@ -98,7 +115,6 @@ export class RakutenApiService {
       // };
 
       return this.getFallbackRankingData();
-
     } catch (error) {
       this.logger.error(`Failed to get Rakuten ranking data:`, error);
       return this.getFallbackRankingData();
@@ -109,7 +125,7 @@ export class RakutenApiService {
     try {
       // In production, this would analyze Rakuten's ranking and price history
       // For now, providing realistic trend analysis based on Japanese market patterns
-      
+
       const trends: MarketTrend[] = [
         {
           period: 'daily',
@@ -132,16 +148,21 @@ export class RakutenApiService {
       ];
 
       return trends;
-
     } catch (error) {
-      this.logger.error(`Failed to get market trends for "${productName}":`, error);
+      this.logger.error(
+        `Failed to get market trends for "${productName}":`,
+        error,
+      );
       return [];
     }
   }
 
-  private getFallbackSearchResults(keyword: string, limit: number): ProductSearchResult[] {
+  private getFallbackSearchResults(
+    keyword: string,
+    limit: number,
+  ): ProductSearchResult[] {
     const results: ProductSearchResult[] = [];
-    
+
     for (let i = 0; i < Math.min(limit, 5); i++) {
       results.push({
         jan: this.generateJanCode(),
@@ -163,7 +184,7 @@ export class RakutenApiService {
 
   private getFallbackCompetitorPrices(searchTerm: string): CompetitorPrice[] {
     const basePrice = 2500 + Math.random() * 8000; // 2,500-10,500 yen
-    
+
     return [
       {
         source: '楽天市場',
@@ -223,10 +244,25 @@ export class RakutenApiService {
 
     // Simple keyword-based category matching for Japanese
     if (keyword.includes('本') || keyword.includes('雑誌')) return '本・雑誌';
-    if (keyword.includes('電子') || keyword.includes('PC') || keyword.includes('スマホ')) return 'エレクトロニクス';
-    if (keyword.includes('服') || keyword.includes('ファッション') || keyword.includes('靴')) return 'ファッション';
-    if (keyword.includes('化粧') || keyword.includes('美容') || keyword.includes('コスメ')) return '美容・コスメ';
-    
+    if (
+      keyword.includes('電子') ||
+      keyword.includes('PC') ||
+      keyword.includes('スマホ')
+    )
+      return 'エレクトロニクス';
+    if (
+      keyword.includes('服') ||
+      keyword.includes('ファッション') ||
+      keyword.includes('靴')
+    )
+      return 'ファッション';
+    if (
+      keyword.includes('化粧') ||
+      keyword.includes('美容') ||
+      keyword.includes('コスメ')
+    )
+      return '美容・コスメ';
+
     return categories[Math.floor(Math.random() * categories.length)];
   }
 
@@ -234,7 +270,10 @@ export class RakutenApiService {
     // Generate a realistic JAN code (Japanese Article Number)
     // JAN codes are 13 digits, starting with 45 or 49 for Japan
     const prefix = Math.random() > 0.5 ? '45' : '49';
-    const middle = String(Math.floor(Math.random() * 10000000000)).padStart(10, '0');
+    const middle = String(Math.floor(Math.random() * 10000000000)).padStart(
+      10,
+      '0',
+    );
     const checkDigit = this.calculateJanCheckDigit(prefix + middle);
     return prefix + middle + checkDigit;
   }

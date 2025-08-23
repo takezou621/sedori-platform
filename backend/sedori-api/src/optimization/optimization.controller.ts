@@ -49,18 +49,31 @@ export class OptimizationController {
     @Body() optimizationRequestDto: OptimizationRequestDto,
   ): Promise<OptimizationResponseDto> {
     const userId = req.user.id;
-    return this.optimizationService.requestOptimization(userId, optimizationRequestDto);
+    return this.optimizationService.requestOptimization(
+      userId,
+      optimizationRequestDto,
+    );
   }
 
   @Get('results')
   @ApiOperation({ summary: '最適化結果一覧取得' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'ページ番号' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: '1ページあたりの件数' })
-  @ApiQuery({ 
-    name: 'type', 
-    required: false, 
-    enum: OptimizationType, 
-    description: '最適化タイプフィルタ' 
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'ページ番号',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '1ページあたりの件数',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    enum: OptimizationType,
+    description: '最適化タイプフィルタ',
   })
   @ApiResponse({
     status: 200,
@@ -100,9 +113,9 @@ export class OptimizationController {
   }
 
   @Post('quick-analysis/:productId')
-  @ApiOperation({ 
-    summary: '商品のクイック分析', 
-    description: '指定商品の全最適化タイプを一括実行（デモ用機能）' 
+  @ApiOperation({
+    summary: '商品のクイック分析',
+    description: '指定商品の全最適化タイプを一括実行（デモ用機能）',
   })
   @ApiParam({ name: 'productId', description: '商品ID' })
   @ApiResponse({
@@ -114,7 +127,7 @@ export class OptimizationController {
     @Param('productId') productId: string,
   ): Promise<{ message: string; optimizations: OptimizationResponseDto[] }> {
     const userId = req.user.id;
-    
+
     const optimizationTypes = [
       OptimizationType.PRICE,
       OptimizationType.INVENTORY,
@@ -123,13 +136,13 @@ export class OptimizationController {
     ];
 
     const optimizations = await Promise.all(
-      optimizationTypes.map(type =>
+      optimizationTypes.map((type) =>
         this.optimizationService.requestOptimization(userId, {
           productId,
           type,
           metadata: { quickAnalysis: true },
-        })
-      )
+        }),
+      ),
     );
 
     return {

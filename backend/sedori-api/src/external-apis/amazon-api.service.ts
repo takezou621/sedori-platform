@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { CompetitorPrice, ProductSearchResult, MarketTrend } from './interfaces/market-data.interface';
+import {
+  CompetitorPrice,
+  ProductSearchResult,
+  MarketTrend,
+} from './interfaces/market-data.interface';
 
 @Injectable()
 export class AmazonApiService {
@@ -15,17 +19,22 @@ export class AmazonApiService {
     private readonly configService: ConfigService,
   ) {}
 
-  async searchProducts(keyword: string, limit = 10): Promise<ProductSearchResult[]> {
+  async searchProducts(
+    keyword: string,
+    limit = 10,
+  ): Promise<ProductSearchResult[]> {
     try {
       // In production, use Amazon Product Advertising API 5.0
       // For now, implementing a fallback mechanism with error handling
-      
+
       const accessKey = this.configService.get('AMAZON_ACCESS_KEY');
       const secretKey = this.configService.get('AMAZON_SECRET_KEY');
       const associateTag = this.configService.get('AMAZON_ASSOCIATE_TAG');
 
       if (!accessKey || !secretKey || !associateTag) {
-        this.logger.warn('Required Amazon API credentials not configured, using fallback data');
+        this.logger.warn(
+          'Required Amazon API credentials not configured, using fallback data',
+        );
         return this.getFallbackSearchResults(keyword, limit);
       }
 
@@ -38,20 +47,27 @@ export class AmazonApiService {
 
       // For now, return realistic fallback data
       return this.getFallbackSearchResults(keyword, limit);
-      
     } catch (error) {
-      this.logger.error(`Amazon product search failed for "${keyword}":`, error);
+      this.logger.error(
+        `Amazon product search failed for "${keyword}":`,
+        error,
+      );
       return this.getFallbackSearchResults(keyword, limit);
     }
   }
 
-  async getCompetitorPrices(asin: string, jan?: string): Promise<CompetitorPrice[]> {
+  async getCompetitorPrices(
+    asin: string,
+    jan?: string,
+  ): Promise<CompetitorPrice[]> {
     try {
       const accessKey = this.configService.get('AMAZON_ACCESS_KEY');
       const secretKey = this.configService.get('AMAZON_SECRET_KEY');
 
       if (!accessKey || !secretKey) {
-        this.logger.warn('Required API credentials not configured, using fallback pricing');
+        this.logger.warn(
+          'Required API credentials not configured, using fallback pricing',
+        );
         return this.getFallbackCompetitorPrices(asin);
       }
 
@@ -62,9 +78,11 @@ export class AmazonApiService {
       // });
 
       return this.getFallbackCompetitorPrices(asin);
-
     } catch (error) {
-      this.logger.error(`Failed to get competitor prices for ASIN ${asin}:`, error);
+      this.logger.error(
+        `Failed to get competitor prices for ASIN ${asin}:`,
+        error,
+      );
       return this.getFallbackCompetitorPrices(asin);
     }
   }
@@ -73,7 +91,7 @@ export class AmazonApiService {
     try {
       // In production, this would analyze historical price data
       // For now, providing realistic trend analysis
-      
+
       const trends: MarketTrend[] = [
         {
           period: 'daily',
@@ -83,29 +101,41 @@ export class AmazonApiService {
         },
         {
           period: 'weekly',
-          trend: Math.random() > 0.4 ? 'up' : Math.random() > 0.5 ? 'down' : 'stable',
+          trend:
+            Math.random() > 0.4
+              ? 'up'
+              : Math.random() > 0.5
+                ? 'down'
+                : 'stable',
           percentage: Math.random() * 20 - 10, // -10% to +10%
           confidence: 0.6 + Math.random() * 0.4, // 60% to 100%
         },
         {
           period: 'monthly',
-          trend: Math.random() > 0.3 ? 'up' : Math.random() > 0.5 ? 'down' : 'stable',
+          trend:
+            Math.random() > 0.3
+              ? 'up'
+              : Math.random() > 0.5
+                ? 'down'
+                : 'stable',
           percentage: Math.random() * 40 - 20, // -20% to +20%
           confidence: 0.5 + Math.random() * 0.5, // 50% to 100%
         },
       ];
 
       return trends;
-
     } catch (error) {
       this.logger.error(`Failed to get market trends for ASIN ${asin}:`, error);
       return [];
     }
   }
 
-  private getFallbackSearchResults(keyword: string, limit: number): ProductSearchResult[] {
+  private getFallbackSearchResults(
+    keyword: string,
+    limit: number,
+  ): ProductSearchResult[] {
     const results: ProductSearchResult[] = [];
-    
+
     for (let i = 0; i < Math.min(limit, 5); i++) {
       results.push({
         asin: `B${String(Math.floor(Math.random() * 1000000000)).padStart(9, '0')}`,
@@ -127,7 +157,7 @@ export class AmazonApiService {
 
   private getFallbackCompetitorPrices(asin: string): CompetitorPrice[] {
     const basePrice = 3000 + Math.random() * 7000; // 3,000-10,000 yen
-    
+
     return [
       {
         source: 'Amazon.co.jp',
@@ -164,9 +194,11 @@ export class AmazonApiService {
 
     // Simple keyword-based category matching
     if (keyword.includes('本') || keyword.includes('book')) return 'Books';
-    if (keyword.includes('電子') || keyword.includes('PC')) return 'Electronics';
-    if (keyword.includes('服') || keyword.includes('fashion')) return 'Clothing & Accessories';
-    
+    if (keyword.includes('電子') || keyword.includes('PC'))
+      return 'Electronics';
+    if (keyword.includes('服') || keyword.includes('fashion'))
+      return 'Clothing & Accessories';
+
     return categories[Math.floor(Math.random() * categories.length)];
   }
 

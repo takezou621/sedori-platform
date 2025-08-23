@@ -87,33 +87,36 @@ export class CartsService {
 
     if (cartItem) {
       // Use atomic update to avoid race conditions
-      await this.cartItemRepository.manager.transaction(async transactionalEntityManager => {
-        // Use raw SQL to atomically increment quantity and add to totalPrice
-        // This preserves the price history - adds new items at current price
-        await transactionalEntityManager.query(
-          `UPDATE cart_items 
+      await this.cartItemRepository.manager.transaction(
+        async (transactionalEntityManager) => {
+          // Use raw SQL to atomically increment quantity and add to totalPrice
+          // This preserves the price history - adds new items at current price
+          await transactionalEntityManager.query(
+            `UPDATE cart_items 
            SET quantity = quantity + $1, 
                "totalPrice" = "totalPrice" + ($2::decimal * $1),
                "updatedAt" = NOW()
            WHERE id = $3`,
-          [quantity, unitPrice, cartItem?.id]
-        );
-        
-        // If metadata is provided, update it separately
-        if (metadata && cartItem && cartItem.id) {
-          const updatedSnapshot = {
-            name: cartItem.productSnapshot?.name || product.name,
-            brand: cartItem.productSnapshot?.brand || product.brand,
-            imageUrl: cartItem.productSnapshot?.imageUrl || product.primaryImageUrl,
-            ...metadata,
-          };
-          await transactionalEntityManager.update(
-            'CartItem',
-            { id: cartItem.id },
-            { productSnapshot: updatedSnapshot }
+            [quantity, unitPrice, cartItem?.id],
           );
-        }
-      });
+
+          // If metadata is provided, update it separately
+          if (metadata && cartItem && cartItem.id) {
+            const updatedSnapshot = {
+              name: cartItem.productSnapshot?.name || product.name,
+              brand: cartItem.productSnapshot?.brand || product.brand,
+              imageUrl:
+                cartItem.productSnapshot?.imageUrl || product.primaryImageUrl,
+              ...metadata,
+            };
+            await transactionalEntityManager.update(
+              'CartItem',
+              { id: cartItem.id },
+              { productSnapshot: updatedSnapshot },
+            );
+          }
+        },
+      );
     } else {
       // Create new item
       cartItem = this.cartItemRepository.create({
@@ -128,29 +131,35 @@ export class CartsService {
           imageUrl: product.primaryImageUrl,
         },
       });
-      
+
       try {
         // Save the new item
         await this.cartItemRepository.save(cartItem);
       } catch (error) {
         // Handle race condition - if item was created by another concurrent request
-        if (error.code === '23505' || error.message.includes('duplicate key') || error.message.includes('UNIQUE constraint')) {
+        if (
+          error.code === '23505' ||
+          error.message.includes('duplicate key') ||
+          error.message.includes('UNIQUE constraint')
+        ) {
           // Item was created by another request, update it instead
           const existingItem = await this.cartItemRepository.findOne({
             where: { cartId: cart.id, productId },
           });
-          
+
           if (existingItem) {
-            await this.cartItemRepository.manager.transaction(async transactionalEntityManager => {
-              await transactionalEntityManager.query(
-                `UPDATE cart_items 
+            await this.cartItemRepository.manager.transaction(
+              async (transactionalEntityManager) => {
+                await transactionalEntityManager.query(
+                  `UPDATE cart_items 
                  SET quantity = quantity + $1, 
                      "totalPrice" = "totalPrice" + ($2::decimal * $1),
                      "updatedAt" = NOW()
                  WHERE id = $3`,
-                [quantity, unitPrice, existingItem.id]
-              );
-            });
+                  [quantity, unitPrice, existingItem.id],
+                );
+              },
+            );
           } else {
             // Unexpected error, re-throw
             throw error;
@@ -184,7 +193,9 @@ export class CartsService {
     }
 
     if (cartItem.cart.userId !== userId) {
-      throw new BadRequestException('このカート項目にアクセスする権限がありません');
+      throw new BadRequestException(
+        'このカート項目にアクセスする権限がありません',
+      );
     }
 
     cartItem.quantity = quantity;
@@ -209,7 +220,9 @@ export class CartsService {
     }
 
     if (cartItem.cart.userId !== userId) {
-      throw new BadRequestException('このカート項目にアクセスする権限がありません');
+      throw new BadRequestException(
+        'このカート項目にアクセスする権限がありません',
+      );
     }
 
     const cartId = cartItem.cartId;
@@ -263,7 +276,9 @@ export class CartsService {
             item.product = product;
           } else {
             // If product is completely gone, we should handle this gracefully
-            console.warn(`Product ${item.productId} not found for cart item ${item.id}`);
+            console.warn(
+              `Product ${item.productId} not found for cart item ${item.id}`,
+            );
           }
         }
       }
@@ -290,7 +305,10 @@ export class CartsService {
       where: { cartId },
     });
 
-    const totalAmount = cartItems.reduce((sum, item) => sum + Number(item.totalPrice), 0);
+    const totalAmount = cartItems.reduce(
+      (sum, item) => sum + Number(item.totalPrice),
+      0,
+    );
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     await this.cartRepository.update(cartId, {

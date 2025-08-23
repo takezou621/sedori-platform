@@ -106,7 +106,6 @@ export class UsersService {
       metadata: userData.metadata,
     });
 
-
     return user;
   }
 

@@ -44,13 +44,19 @@ export class SubscriptionsController {
     description: 'サブスクリプションが作成されました',
     type: SubscriptionResponseDto,
   })
-  @ApiResponse({ status: 400, description: '既にアクティブなサブスクリプションがあります' })
+  @ApiResponse({
+    status: 400,
+    description: '既にアクティブなサブスクリプションがあります',
+  })
   async createSubscription(
     @Request() req: any,
     @Body() subscriptionRequestDto: SubscriptionRequestDto,
   ): Promise<SubscriptionResponseDto> {
     const userId = req.user.id;
-    return this.subscriptionsService.createSubscription(userId, subscriptionRequestDto);
+    return this.subscriptionsService.createSubscription(
+      userId,
+      subscriptionRequestDto,
+    );
   }
 
   @Get('my-subscription')
@@ -60,7 +66,9 @@ export class SubscriptionsController {
     description: 'サブスクリプション情報を返します',
     type: SubscriptionResponseDto,
   })
-  async getMySubscription(@Request() req: any): Promise<SubscriptionResponseDto> {
+  async getMySubscription(
+    @Request() req: any,
+  ): Promise<SubscriptionResponseDto> {
     const userId = req.user.id;
     return this.subscriptionsService.getUserSubscription(userId);
   }
@@ -72,13 +80,19 @@ export class SubscriptionsController {
     description: 'サブスクリプションが更新されました',
     type: SubscriptionResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'アクティブなサブスクリプションがありません' })
+  @ApiResponse({
+    status: 404,
+    description: 'アクティブなサブスクリプションがありません',
+  })
   async updateSubscription(
     @Request() req: any,
     @Body() subscriptionUpdateDto: SubscriptionUpdateDto,
   ): Promise<SubscriptionResponseDto> {
     const userId = req.user.id;
-    return this.subscriptionsService.updateSubscription(userId, subscriptionUpdateDto);
+    return this.subscriptionsService.updateSubscription(
+      userId,
+      subscriptionUpdateDto,
+    );
   }
 
   @Delete('my-subscription')
@@ -89,7 +103,10 @@ export class SubscriptionsController {
     type: SubscriptionResponseDto,
   })
   @ApiResponse({ status: 400, description: '無料プランはキャンセルできません' })
-  @ApiResponse({ status: 404, description: 'アクティブなサブスクリプションがありません' })
+  @ApiResponse({
+    status: 404,
+    description: 'アクティブなサブスクリプションがありません',
+  })
   async cancelSubscription(
     @Request() req: any,
     @Body('reason') reason: string,
@@ -100,13 +117,23 @@ export class SubscriptionsController {
 
   @Get('usage-history')
   @ApiOperation({ summary: '使用履歴取得' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'ページ番号' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: '1ページあたりの件数' })
-  @ApiQuery({ 
-    name: 'type', 
-    required: false, 
-    enum: UsageType, 
-    description: '使用タイプフィルタ' 
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'ページ番号',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '1ページあたりの件数',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    enum: UsageType,
+    description: '使用タイプフィルタ',
   })
   @ApiResponse({
     status: 200,
@@ -131,9 +158,9 @@ export class SubscriptionsController {
   }
 
   @Get('plans')
-  @ApiOperation({ 
-    summary: '利用可能プラン一覧取得', 
-    description: '全ての利用可能なサブスクリプションプランを取得' 
+  @ApiOperation({
+    summary: '利用可能プラン一覧取得',
+    description: '全ての利用可能なサブスクリプションプランを取得',
   })
   @ApiResponse({
     status: 200,
@@ -145,9 +172,9 @@ export class SubscriptionsController {
   }
 
   @Post('usage/track')
-  @ApiOperation({ 
-    summary: '使用量トラッキング', 
-    description: 'API使用量やリクエスト数などをトラッキング（システム内部用）' 
+  @ApiOperation({
+    summary: '使用量トラッキング',
+    description: 'API使用量やリクエスト数などをトラッキング（システム内部用）',
   })
   @ApiResponse({
     status: 201,
@@ -156,7 +183,8 @@ export class SubscriptionsController {
   @ApiResponse({ status: 403, description: '使用上限に達しました' })
   async trackUsage(
     @Request() req: any,
-    @Body() trackingData: {
+    @Body()
+    trackingData: {
       type: UsageType;
       quantity?: number;
       resource?: string;
@@ -178,9 +206,9 @@ export class SubscriptionsController {
   }
 
   @Get('upgrade-preview/:plan')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'プラン変更プレビュー',
-    description: '指定したプランに変更した場合の料金や機能の比較を表示'
+    description: '指定したプランに変更した場合の料金や機能の比較を表示',
   })
   @ApiParam({ name: 'plan', description: '変更予定のプラン' })
   @ApiResponse({
@@ -203,11 +231,14 @@ export class SubscriptionsController {
     };
   }> {
     const userId = req.user.id;
-    const currentSubscription = await this.subscriptionsService.getUserSubscription(userId);
+    const currentSubscription =
+      await this.subscriptionsService.getUserSubscription(userId);
     const availablePlans = await this.subscriptionsService.getAvailablePlans();
 
-    const currentPlanInfo = availablePlans.find(p => p.plan === currentSubscription.plan);
-    const targetPlanInfo = availablePlans.find(p => p.plan === targetPlan);
+    const currentPlanInfo = availablePlans.find(
+      (p) => p.plan === currentSubscription.plan,
+    );
+    const targetPlanInfo = availablePlans.find((p) => p.plan === targetPlan);
 
     if (!targetPlanInfo) {
       throw new Error('指定されたプランが見つかりません');
@@ -215,13 +246,27 @@ export class SubscriptionsController {
 
     // Generate feature differences
     const featureDifferences = [];
-    if (currentPlanInfo && targetPlanInfo.features.maxOptimizations > currentPlanInfo.features.maxOptimizations) {
-      featureDifferences.push(`最適化回数: ${currentPlanInfo.features.maxOptimizations} → ${targetPlanInfo.features.maxOptimizations}`);
+    if (
+      currentPlanInfo &&
+      targetPlanInfo.features.maxOptimizations >
+        currentPlanInfo.features.maxOptimizations
+    ) {
+      featureDifferences.push(
+        `最適化回数: ${currentPlanInfo.features.maxOptimizations} → ${targetPlanInfo.features.maxOptimizations}`,
+      );
     }
-    if (currentPlanInfo && targetPlanInfo.features.hasAIRecommendations && !currentPlanInfo.features.hasAIRecommendations) {
+    if (
+      currentPlanInfo &&
+      targetPlanInfo.features.hasAIRecommendations &&
+      !currentPlanInfo.features.hasAIRecommendations
+    ) {
       featureDifferences.push('AI推奨機能が利用可能になります');
     }
-    if (currentPlanInfo && targetPlanInfo.features.hasAdvancedAnalytics && !currentPlanInfo.features.hasAdvancedAnalytics) {
+    if (
+      currentPlanInfo &&
+      targetPlanInfo.features.hasAdvancedAnalytics &&
+      !currentPlanInfo.features.hasAdvancedAnalytics
+    ) {
       featureDifferences.push('高度な分析機能が利用可能になります');
     }
 
@@ -230,14 +275,18 @@ export class SubscriptionsController {
       targetPlan: targetPlanInfo,
       comparison: {
         featureDifferences,
-        priceChange: currentPlanInfo ? {
-          monthly: targetPlanInfo.monthlyPrice - currentPlanInfo.monthlyPrice,
-          yearly: targetPlanInfo.yearlyPrice - currentPlanInfo.yearlyPrice,
-        } : {
-          monthly: targetPlanInfo.monthlyPrice,
-          yearly: targetPlanInfo.yearlyPrice,
-        },
-        recommendedBillingCycle: targetPlanInfo.yearlyDiscount > 0 ? 'yearly' : 'monthly',
+        priceChange: currentPlanInfo
+          ? {
+              monthly:
+                targetPlanInfo.monthlyPrice - currentPlanInfo.monthlyPrice,
+              yearly: targetPlanInfo.yearlyPrice - currentPlanInfo.yearlyPrice,
+            }
+          : {
+              monthly: targetPlanInfo.monthlyPrice,
+              yearly: targetPlanInfo.yearlyPrice,
+            },
+        recommendedBillingCycle:
+          targetPlanInfo.yearlyDiscount > 0 ? 'yearly' : 'monthly',
       },
     };
   }

@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RecommendationType, RecommendationPriority } from './recommendation-request.dto';
+import {
+  RecommendationType,
+  RecommendationPriority,
+} from './recommendation-request.dto';
 
 export class RecommendationItemDto {
   @ApiProperty({ description: '推奨項目ID' })

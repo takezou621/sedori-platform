@@ -22,17 +22,17 @@ export default registerAs(
     password: process.env.DATABASE_PASSWORD || 'sedori123',
     database: process.env.DATABASE_NAME || 'sedori',
     entities: [
-      User, 
-      Category, 
-      Product, 
-      Sale, 
+      User,
+      Category,
+      Product,
+      Sale,
       Recommendation,
       Cart,
       CartItem,
       Order,
       OrderItem,
       AnalyticsEvent,
-      OptimizationResult
+      OptimizationResult,
     ],
     synchronize: process.env.NODE_ENV === 'development',
     logging: process.env.NODE_ENV === 'development',
@@ -40,9 +40,9 @@ export default registerAs(
     migrationsRun: false,
     ssl:
       process.env.NODE_ENV === 'production'
-        ? { 
+        ? {
             rejectUnauthorized: true,
-            ca: process.env.DB_CA_CERT || undefined
+            ca: process.env.DB_CA_CERT || undefined,
           }
         : false,
   }),

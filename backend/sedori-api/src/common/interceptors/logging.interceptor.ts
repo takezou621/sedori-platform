@@ -23,13 +23,13 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    
+
     const { method, url, ip, headers } = request;
     const userAgent = headers['user-agent'] || '';
     const userId = request.user?.id || 'anonymous';
-    
+
     const startTime = Date.now();
-    
+
     // Log request
     this.winstonLogger.info('Incoming request', {
       context: 'HTTP',
@@ -46,7 +46,7 @@ export class LoggingInterceptor implements NestInterceptor {
         next: (data) => {
           const responseTime = Date.now() - startTime;
           const { statusCode } = response;
-          
+
           // Log successful response
           this.winstonLogger.info('Request completed', {
             context: 'HTTP',
@@ -73,7 +73,7 @@ export class LoggingInterceptor implements NestInterceptor {
         error: (error) => {
           const responseTime = Date.now() - startTime;
           const statusCode = error.status || 500;
-          
+
           // Log error response
           this.winstonLogger.error('Request failed', {
             context: 'HTTP',
@@ -102,7 +102,7 @@ export class SecurityLoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     const { method, url, ip, headers } = request;
-    
+
     // Log potential security events
     const suspiciousPatterns = [
       '/admin',
@@ -116,9 +116,10 @@ export class SecurityLoggingInterceptor implements NestInterceptor {
       'eval(',
     ];
 
-    const isSuspicious = suspiciousPatterns.some(pattern => 
-      url.toLowerCase().includes(pattern.toLowerCase()) ||
-      JSON.stringify(headers).toLowerCase().includes(pattern.toLowerCase())
+    const isSuspicious = suspiciousPatterns.some(
+      (pattern) =>
+        url.toLowerCase().includes(pattern.toLowerCase()) ||
+        JSON.stringify(headers).toLowerCase().includes(pattern.toLowerCase()),
     );
 
     if (isSuspicious) {
@@ -157,13 +158,13 @@ export class SecurityLoggingInterceptor implements NestInterceptor {
   private sanitizeHeaders(headers: any): any {
     const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
     const sanitized = { ...headers };
-    
-    sensitiveHeaders.forEach(header => {
+
+    sensitiveHeaders.forEach((header) => {
       if (sanitized[header]) {
         sanitized[header] = '[REDACTED]';
       }
     });
-    
+
     return sanitized;
   }
 }

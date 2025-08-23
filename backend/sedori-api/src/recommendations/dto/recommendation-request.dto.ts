@@ -1,4 +1,10 @@
-import { IsEnum, IsOptional, IsString, IsNumber, IsObject } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsObject,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum RecommendationType {

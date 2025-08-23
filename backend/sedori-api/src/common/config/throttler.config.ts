@@ -5,7 +5,7 @@ export const ThrottlerConfigModule = ThrottlerModule.forRootAsync({
   inject: [ConfigService],
   useFactory: (configService: ConfigService) => {
     const isProduction = configService.get('NODE_ENV') === 'production';
-    
+
     return [
       {
         name: 'global',
@@ -14,7 +14,7 @@ export const ThrottlerConfigModule = ThrottlerModule.forRootAsync({
       },
       {
         name: 'strict',
-        ttl: 60 * 1000, // 1 minute  
+        ttl: 60 * 1000, // 1 minute
         limit: isProduction ? 10 : 50, // 10 requests per minute in prod, 50 in dev
       },
       {
@@ -95,13 +95,13 @@ export const IPRateLimitConfig = {
     limit: 10,
     ttl: 60 * 60 * 1000, // 10 requests per hour for flagged IPs
   },
-  
+
   // Standard IP limits
   STANDARD: {
     limit: 1000,
     ttl: 60 * 60 * 1000, // 1000 requests per hour per IP
   },
-  
+
   // Lenient for known good IPs
   TRUSTED: {
     limit: 5000,

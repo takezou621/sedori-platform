@@ -62,7 +62,9 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ summary: '管理者向けアナリティクスダッシュボード取得（管理者のみ）' })
+  @ApiOperation({
+    summary: '管理者向けアナリティクスダッシュボード取得（管理者のみ）',
+  })
   @ApiResponse({
     status: 200,
     description: 'システム全体のアナリティクスダッシュボードデータを返します',
@@ -164,9 +166,10 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ 
-    summary: 'リアルタイムメトリクス取得', 
-    description: '現在のアクティブユーザー、今日の注文、コンバージョン率などのリアルタイム指標'
+  @ApiOperation({
+    summary: 'リアルタイムメトリクス取得',
+    description:
+      '現在のアクティブユーザー、今日の注文、コンバージョン率などのリアルタイム指標',
   })
   @ApiResponse({
     status: 200,
@@ -180,9 +183,10 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'パフォーマンスアラート取得',
-    description: 'コンバージョン率低下、離脱率上昇などのパフォーマンス問題をリアルタイム検出'
+    description:
+      'コンバージョン率低下、離脱率上昇などのパフォーマンス問題をリアルタイム検出',
   })
   @ApiResponse({
     status: 200,
@@ -196,9 +200,9 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'リアルタイム最適化提案',
-    description: '現在のメトリクスを基にした即座実行可能な最適化提案をAIが生成'
+    description: '現在のメトリクスを基にした即座実行可能な最適化提案をAIが生成',
   })
   @ApiResponse({
     status: 200,
@@ -212,9 +216,10 @@ export class AnalyticsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'リアルタイム最適化ダッシュボード',
-    description: 'リアルタイムメトリクス、アラート、最適化提案を統合したダッシュボード'
+    description:
+      'リアルタイムメトリクス、アラート、最適化提案を統合したダッシュボード',
   })
   @ApiResponse({
     status: 200,

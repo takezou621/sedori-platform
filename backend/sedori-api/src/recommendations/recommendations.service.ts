@@ -110,7 +110,8 @@ export class RecommendationsService {
     data: RecommendationItemDto[];
     pagination: any;
   }> {
-    const queryBuilder = this.recommendationRepository.createQueryBuilder('rec');
+    const queryBuilder =
+      this.recommendationRepository.createQueryBuilder('rec');
     queryBuilder.leftJoinAndSelect('rec.product', 'product');
     queryBuilder.where('rec.userId = :userId', { userId });
 
@@ -127,10 +128,9 @@ export class RecommendationsService {
       queryBuilder.andWhere('rec.status IN (:...statuses)', {
         statuses: [RecommendationStatus.ACTIVE, RecommendationStatus.VIEWED],
       });
-      queryBuilder.andWhere(
-        '(rec.expiresAt IS NULL OR rec.expiresAt > :now)',
-        { now: new Date() },
-      );
+      queryBuilder.andWhere('(rec.expiresAt IS NULL OR rec.expiresAt > :now)', {
+        now: new Date(),
+      });
     }
 
     queryBuilder.orderBy('rec.score', 'DESC');
@@ -193,10 +193,13 @@ export class RecommendationsService {
   }
 
   private async checkRecommendationAccess(userId: string): Promise<void> {
-    const subscription = await this.subscriptionsService.getUserSubscription(userId);
-    
+    const subscription =
+      await this.subscriptionsService.getUserSubscription(userId);
+
     if (!subscription.hasAIRecommendations) {
-      throw new ForbiddenException('AI推奨機能にアクセスできません。プランをアップグレードしてください。');
+      throw new ForbiddenException(
+        'AI推奨機能にアクセスできません。プランをアップグレードしてください。',
+      );
     }
   }
 
@@ -246,7 +249,9 @@ export class RecommendationsService {
     }
 
     if (budgetLimit) {
-      queryBuilder.andWhere('product.wholesalePrice <= :budgetLimit', { budgetLimit });
+      queryBuilder.andWhere('product.wholesalePrice <= :budgetLimit', {
+        budgetLimit,
+      });
     }
 
     queryBuilder.andWhere('product.status = :status', { status: 'active' });
@@ -266,11 +271,18 @@ export class RecommendationsService {
       id: `product_discovery_${product.id}`,
       title: `商品発見: ${product.name}`,
       description: `高収益性が期待される商品です。利益率: ${this.calculateMarginPercentage(product)}%`,
-      reason: 'AI分析により、現在の市場動向と過去の販売データから高い収益性が予測されます',
+      reason:
+        'AI分析により、現在の市場動向と過去の販売データから高い収益性が予測されます',
       confidenceScore: Math.max(70, 95 - index * 3),
-      priority: index < 3 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
+      priority:
+        index < 3 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
       estimatedROI: this.calculateMarginPercentage(product),
-      estimatedProfit: ((product.retailPrice || product.marketPrice || product.wholesalePrice * 1.2) - product.wholesalePrice) * Math.min(10, product.stockQuantity || 0),
+      estimatedProfit:
+        ((product.retailPrice ||
+          product.marketPrice ||
+          product.wholesalePrice * 1.2) -
+          product.wholesalePrice) *
+        Math.min(10, product.stockQuantity || 0),
       riskLevel: Math.min(5, Math.max(1, Math.floor(Math.random() * 3) + 2)),
       implementationDifficulty: 2,
       productId: product.id,
@@ -288,7 +300,10 @@ export class RecommendationsService {
       ],
       supportingData: {
         marketTrend: 'rising',
-        competitorPricing: [product.wholesalePrice * 0.9, product.wholesalePrice * 1.1],
+        competitorPricing: [
+          product.wholesalePrice * 0.9,
+          product.wholesalePrice * 1.1,
+        ],
         demandScore: Math.random() * 40 + 60,
         seasonalityFactor: Math.random() * 0.4 + 0.8,
       },
@@ -309,7 +324,9 @@ export class RecommendationsService {
       });
 
       return Promise.all(
-        products.map((product, index) => this.createPricingRecommendation(product, index)),
+        products.map((product, index) =>
+          this.createPricingRecommendation(product, index),
+        ),
       );
     }
 
@@ -331,7 +348,8 @@ export class RecommendationsService {
   ): Promise<RecommendationItemDto> {
     const currentMargin = this.calculateMarginPercentage(product);
     const suggestedPrice = product.wholesalePrice * 1.15; // 15% markup
-    const newMargin = ((suggestedPrice - product.wholesalePrice) / suggestedPrice) * 100;
+    const newMargin =
+      ((suggestedPrice - product.wholesalePrice) / suggestedPrice) * 100;
 
     return {
       id: `pricing_${product.id}`,
@@ -339,9 +357,14 @@ export class RecommendationsService {
       description: `現在の利益率${currentMargin.toFixed(1)}%から${newMargin.toFixed(1)}%への改善提案`,
       reason: 'マーケット分析により、価格上昇の余地があることを確認しました',
       confidenceScore: Math.max(65, 85 - index * 2),
-      priority: currentMargin < 10 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
+      priority:
+        currentMargin < 10
+          ? RecommendationPriority.HIGH
+          : RecommendationPriority.MEDIUM,
       estimatedROI: newMargin - currentMargin,
-      estimatedProfit: (suggestedPrice - product.wholesalePrice) * Math.min(5, product.stockQuantity || 0),
+      estimatedProfit:
+        (suggestedPrice - product.wholesalePrice) *
+        Math.min(5, product.stockQuantity || 0),
       riskLevel: 2,
       implementationDifficulty: 1,
       productId: product.id,
@@ -359,7 +382,10 @@ export class RecommendationsService {
       ],
       supportingData: {
         marketTrend: 'stable',
-        competitorPricing: [(product.retailPrice || product.wholesalePrice * 1.2) * 0.95, (product.retailPrice || product.wholesalePrice * 1.2) * 1.05],
+        competitorPricing: [
+          (product.retailPrice || product.wholesalePrice * 1.2) * 0.95,
+          (product.retailPrice || product.wholesalePrice * 1.2) * 1.05,
+        ],
         demandScore: Math.random() * 30 + 70,
         seasonalityFactor: Math.random() * 0.2 + 0.9,
       },
@@ -372,11 +398,7 @@ export class RecommendationsService {
   ): Promise<RecommendationItemDto[]> {
     // Find products with low or high stock levels
     const lowStockProducts = await this.productRepository.find({
-      where: [
-        { stockQuantity: 0 },
-        { stockQuantity: 1 },
-        { stockQuantity: 2 },
-      ],
+      where: [{ stockQuantity: 0 }, { stockQuantity: 1 }, { stockQuantity: 2 }],
       take: Math.ceil(limit / 2),
       order: { viewCount: 'DESC' },
     });
@@ -390,9 +412,17 @@ export class RecommendationsService {
         description: `在庫が${product.stockQuantity}個と少なくなっています`,
         reason: '人気商品の在庫切れによる機会損失を防ぐため',
         confidenceScore: Math.max(70, 90 - index * 2),
-        priority: product.stockQuantity === 0 ? RecommendationPriority.URGENT : RecommendationPriority.HIGH,
+        priority:
+          product.stockQuantity === 0
+            ? RecommendationPriority.URGENT
+            : RecommendationPriority.HIGH,
         estimatedROI: this.calculateMarginPercentage(product),
-        estimatedProfit: ((product.retailPrice || product.marketPrice || product.wholesalePrice * 1.2) - product.wholesalePrice) * 10,
+        estimatedProfit:
+          ((product.retailPrice ||
+            product.marketPrice ||
+            product.wholesalePrice * 1.2) -
+            product.wholesalePrice) *
+          10,
         riskLevel: 1,
         implementationDifficulty: 2,
         productId: product.id,
@@ -425,7 +455,8 @@ export class RecommendationsService {
       description: 'トレンド分析により新たな市場機会を発見しました',
       reason: 'SNSトレンドと検索ボリュームの急上昇が確認されています',
       confidenceScore: Math.max(60, 80 - index * 3),
-      priority: index < 2 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
+      priority:
+        index < 2 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
       estimatedROI: Math.random() * 30 + 20,
       estimatedProfit: Math.random() * 50000 + 10000,
       riskLevel: Math.floor(Math.random() * 3) + 2,
@@ -452,10 +483,19 @@ export class RecommendationsService {
   ): Promise<RecommendationItemDto[]> {
     const currentMonth = new Date().getMonth();
     const seasons = [
-      { name: '春商品', products: ['桜グッズ', 'ガーデニング用品', '新生活家電'] },
-      { name: '夏商品', products: ['冷感グッズ', 'アウトドア用品', '水着・プール用品'] },
+      {
+        name: '春商品',
+        products: ['桜グッズ', 'ガーデニング用品', '新生活家電'],
+      },
+      {
+        name: '夏商品',
+        products: ['冷感グッズ', 'アウトドア用品', '水着・プール用品'],
+      },
       { name: '秋商品', products: ['紅葉グッズ', 'ハロウィン用品', '防寒具'] },
-      { name: '冬商品', products: ['クリスマス用品', '暖房器具', 'お正月グッズ'] },
+      {
+        name: '冬商品',
+        products: ['クリスマス用品', '暖房器具', 'お正月グッズ'],
+      },
     ];
 
     const seasonIndex = Math.floor(currentMonth / 3);
@@ -467,7 +507,10 @@ export class RecommendationsService {
       description: `${seasonData.name}の需要が高まる時期です`,
       reason: '季節トレンドと過去の販売データから需要の増加を予測',
       confidenceScore: Math.max(70, 85 - index * 2),
-      priority: index === 0 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
+      priority:
+        index === 0
+          ? RecommendationPriority.HIGH
+          : RecommendationPriority.MEDIUM,
       estimatedROI: Math.random() * 25 + 15,
       estimatedProfit: Math.random() * 30000 + 5000,
       riskLevel: 2,
@@ -504,10 +547,14 @@ export class RecommendationsService {
       description: 'あなたの過去の成功パターンに基づく推奨です',
       reason: `${userPerformance.successRate}%の成功率と過去の選択パターンから選出`,
       confidenceScore: Math.max(60, 80 - index * 2),
-      priority: index < 2 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
+      priority:
+        index < 2 ? RecommendationPriority.HIGH : RecommendationPriority.MEDIUM,
       estimatedROI: userPerformance.averageROI || Math.random() * 20 + 10,
       estimatedProfit: Math.random() * 20000 + 5000,
-      riskLevel: riskTolerance === 'low' ? Math.min(2, Math.random() * 2 + 1) : Math.random() * 3 + 2,
+      riskLevel:
+        riskTolerance === 'low'
+          ? Math.min(2, Math.random() * 2 + 1)
+          : Math.random() * 3 + 2,
       implementationDifficulty: Math.floor(Math.random() * 3) + 1,
       recommendedActions: [
         'あなたの得意分野での展開',
@@ -531,7 +578,11 @@ export class RecommendationsService {
   private async extractUserPatterns(userId: string): Promise<any> {
     // Mock pattern extraction
     return {
-      bestPerformingStrategies: ['価格比較重視', '季節商品狙い', '新商品早期参入'],
+      bestPerformingStrategies: [
+        '価格比較重視',
+        '季節商品狙い',
+        '新商品早期参入',
+      ],
       timeOfDayPreferences: ['朝', '夕方'],
       seasonalPreferences: ['春', '秋'],
     };
@@ -551,9 +602,16 @@ export class RecommendationsService {
 
   private calculateSummary(recommendations: RecommendationItemDto[]) {
     const totalRecommendations = recommendations.length;
-    const highPriorityCount = recommendations.filter(r => r.priority === RecommendationPriority.HIGH).length;
-    const averageConfidence = recommendations.reduce((sum, r) => sum + r.confidenceScore, 0) / totalRecommendations || 0;
-    const estimatedTotalROI = recommendations.reduce((sum, r) => sum + (r.estimatedROI || 0), 0);
+    const highPriorityCount = recommendations.filter(
+      (r) => r.priority === RecommendationPriority.HIGH,
+    ).length;
+    const averageConfidence =
+      recommendations.reduce((sum, r) => sum + r.confidenceScore, 0) /
+        totalRecommendations || 0;
+    const estimatedTotalROI = recommendations.reduce(
+      (sum, r) => sum + (r.estimatedROI || 0),
+      0,
+    );
 
     return {
       totalRecommendations,
@@ -564,7 +622,10 @@ export class RecommendationsService {
   }
 
   private calculateMarginPercentage(product: Product): number {
-    const retailPrice = product.retailPrice || product.marketPrice || product.wholesalePrice * 1.2;
+    const retailPrice =
+      product.retailPrice ||
+      product.marketPrice ||
+      product.wholesalePrice * 1.2;
     if (retailPrice <= 0) return 0;
     return ((retailPrice - product.wholesalePrice) / retailPrice) * 100;
   }
@@ -582,13 +643,15 @@ export class RecommendationsService {
       riskLevel: 3, // Mock value
       implementationDifficulty: 2, // Mock value
       productId: rec.productId,
-      productInfo: rec.product ? {
-        name: rec.product.name,
-        currentPrice: rec.product.wholesalePrice,
-        suggestedPrice: rec.product.retailPrice,
-        category: rec.product.category?.name || 'その他',
-        imageUrl: rec.product.primaryImageUrl,
-      } : undefined,
+      productInfo: rec.product
+        ? {
+            name: rec.product.name,
+            currentPrice: rec.product.wholesalePrice,
+            suggestedPrice: rec.product.retailPrice,
+            category: rec.product.category?.name || 'その他',
+            imageUrl: rec.product.primaryImageUrl,
+          }
+        : undefined,
       recommendedActions: ['詳細分析の実施', '市場調査', '小規模テスト'],
     };
   }

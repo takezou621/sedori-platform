@@ -227,11 +227,11 @@ describe('Cart & Order Flow E2E Tests', () => {
         .post('/orders')
         .set('Authorization', `Bearer ${testUser.accessToken}`)
         .send(orderData);
-        
+
       if (response.status !== 201) {
         console.error('Order creation failed:', response.status, response.body);
       }
-      
+
       expect(response.status).toBe(201);
 
       expect(response.body.userId).toBe(testUser.id);
@@ -407,21 +407,21 @@ describe('Cart & Order Flow E2E Tests', () => {
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ status: 'confirmed' })
         .expect(200);
-      
+
       // confirmed -> processing
       await request(httpServer)
         .put(`/orders/${testOrder.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ status: 'processing' })
         .expect(200);
-        
+
       // processing -> shipped
       await request(httpServer)
         .put(`/orders/${testOrder.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ status: 'shipped' })
         .expect(200);
-        
+
       // shipped -> delivered
       await request(httpServer)
         .put(`/orders/${testOrder.id}`)
@@ -462,7 +462,7 @@ describe('Cart & Order Flow E2E Tests', () => {
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ status: 'confirmed' })
         .expect(200);
-        
+
       const updateData = {
         status: 'processing',
         paymentStatus: 'paid',
@@ -504,7 +504,7 @@ describe('Cart & Order Flow E2E Tests', () => {
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
         .send({ status: 'confirmed' })
         .expect(200);
-        
+
       await request(httpServer)
         .put(`/orders/${order2.id}`)
         .set('Authorization', `Bearer ${testAdmin.accessToken}`)
@@ -562,7 +562,7 @@ describe('Cart & Order Flow E2E Tests', () => {
       await Promise.all(promises);
 
       // Allow some time for database transactions to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const cart = await helper.getCart(testUser);
       expect(cart.items).toHaveLength(1);

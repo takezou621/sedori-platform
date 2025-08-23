@@ -75,11 +75,15 @@ export class OptimizationService {
       metadata,
     });
 
-    const savedOptimization = await this.optimizationRepository.save(optimization);
+    const savedOptimization =
+      await this.optimizationRepository.save(optimization);
 
     // Start optimization process (async)
     this.processOptimization(savedOptimization.id).catch((error) => {
-      console.error(`Optimization processing failed for ${savedOptimization.id}:`, error);
+      console.error(
+        `Optimization processing failed for ${savedOptimization.id}:`,
+        error,
+      );
     });
 
     return this.mapToResponse(savedOptimization);
@@ -91,7 +95,8 @@ export class OptimizationService {
     limit = 20,
     type?: OptimizationType,
   ): Promise<PaginatedOptimizationResult> {
-    const queryBuilder = this.optimizationRepository.createQueryBuilder('optimization');
+    const queryBuilder =
+      this.optimizationRepository.createQueryBuilder('optimization');
     queryBuilder.leftJoinAndSelect('optimization.product', 'product');
     queryBuilder.where('optimization.userId = :userId', { userId });
 
@@ -170,7 +175,9 @@ export class OptimizationService {
     }
   }
 
-  private async performOptimization(optimization: OptimizationResult): Promise<Partial<OptimizationResult>> {
+  private async performOptimization(
+    optimization: OptimizationResult,
+  ): Promise<Partial<OptimizationResult>> {
     const { type, product } = optimization;
 
     switch (type) {
@@ -187,33 +194,48 @@ export class OptimizationService {
     }
   }
 
-  private async optimizePrice(product: Product): Promise<Partial<OptimizationResult>> {
+  private async optimizePrice(
+    product: Product,
+  ): Promise<Partial<OptimizationResult>> {
     // Simulate market analysis (in real implementation, this would call external APIs)
     const marketAnalysis = await this.analyzeMarket(product);
-    
+
     // Calculate optimal price based on market conditions
     const currentPrice = product.wholesalePrice;
-    const marketTrendMultiplier = marketAnalysis.marketTrend === 'rising' ? 1.05 : 
-                                 marketAnalysis.marketTrend === 'falling' ? 0.95 : 1.0;
-    
-    const competitorAvgPrice = marketAnalysis.competitorPrices.reduce((sum, comp) => sum + comp.price, 0) / 
-                              marketAnalysis.competitorPrices.length;
-    
+    const marketTrendMultiplier =
+      marketAnalysis.marketTrend === 'rising'
+        ? 1.05
+        : marketAnalysis.marketTrend === 'falling'
+          ? 0.95
+          : 1.0;
+
+    const competitorAvgPrice =
+      marketAnalysis.competitorPrices.reduce(
+        (sum, comp) => sum + comp.price,
+        0,
+      ) / marketAnalysis.competitorPrices.length;
+
     const recommendedPrice = Math.max(
       currentPrice * 0.9, // Never go below 90% of current price
       Math.min(
         currentPrice * 1.2, // Never go above 120% of current price
-        competitorAvgPrice * marketTrendMultiplier * (1 - marketAnalysis.priceElasticity * 0.1)
-      )
+        competitorAvgPrice *
+          marketTrendMultiplier *
+          (1 - marketAnalysis.priceElasticity * 0.1),
+      ),
     );
 
-    const projectedProfit = (recommendedPrice - product.wholesalePrice) * (product.stockQuantity || 0);
-    const projectedMarginPercentage = ((recommendedPrice - product.wholesalePrice) / recommendedPrice) * 100;
+    const projectedProfit =
+      (recommendedPrice - product.wholesalePrice) *
+      (product.stockQuantity || 0);
+    const projectedMarginPercentage =
+      ((recommendedPrice - product.wholesalePrice) / recommendedPrice) * 100;
 
     return {
       recommendedPrice: Math.round(recommendedPrice * 100) / 100,
       projectedProfit: Math.round(projectedProfit * 100) / 100,
-      projectedMarginPercentage: Math.round(projectedMarginPercentage * 100) / 100,
+      projectedMarginPercentage:
+        Math.round(projectedMarginPercentage * 100) / 100,
       marketAnalysis,
       optimizationInsights: {
         reason: `市場トレンド${marketAnalysis.marketTrend}を考慮した価格最適化`,
@@ -230,15 +252,17 @@ export class OptimizationService {
     };
   }
 
-  private async optimizeInventory(product: Product): Promise<Partial<OptimizationResult>> {
+  private async optimizeInventory(
+    product: Product,
+  ): Promise<Partial<OptimizationResult>> {
     // Get sales velocity data
     const salesVelocity = await this.calculateSalesVelocity(product);
     const demandForecast = await this.forecastDemand(product);
-    
+
     const currentInventory = product.stockQuantity;
     const recommendedInventory = Math.max(
       Math.round(salesVelocity * 30), // At least 30 days of stock
-      Math.round(demandForecast * 1.2) // 20% buffer above forecasted demand
+      Math.round(demandForecast * 1.2), // 20% buffer above forecasted demand
     );
 
     return {
@@ -258,13 +282,16 @@ export class OptimizationService {
     };
   }
 
-  private async optimizeProfit(product: Product): Promise<Partial<OptimizationResult>> {
+  private async optimizeProfit(
+    product: Product,
+  ): Promise<Partial<OptimizationResult>> {
     // Combine price and inventory optimization for maximum profit
     const priceOptimization = await this.optimizePrice(product);
     const inventoryOptimization = await this.optimizeInventory(product);
-    
-    const projectedProfit = ((priceOptimization.recommendedPrice || 0) - product.wholesalePrice) * 
-                          (inventoryOptimization.recommendedInventory || 0);
+
+    const projectedProfit =
+      ((priceOptimization.recommendedPrice || 0) - product.wholesalePrice) *
+      (inventoryOptimization.recommendedInventory || 0);
 
     return {
       recommendedPrice: priceOptimization.recommendedPrice,
@@ -276,10 +303,7 @@ export class OptimizationService {
         reason: '価格と在庫の総合最適化により利益を最大化',
         confidence: 70,
         potentialImpact: `総利益最適化による改善予想`,
-        riskFactors: [
-          '複数要素の変更によるリスク',
-          '市場反応の不確実性',
-        ],
+        riskFactors: ['複数要素の変更によるリスク', '市場反応の不確実性'],
         timeToImplement: '2-5営業日',
         expectedROI: projectedProfit > 0 ? 20 : 0,
       },
@@ -287,20 +311,30 @@ export class OptimizationService {
     };
   }
 
-  private async optimizeMarketTiming(product: Product): Promise<Partial<OptimizationResult>> {
+  private async optimizeMarketTiming(
+    product: Product,
+  ): Promise<Partial<OptimizationResult>> {
     const marketAnalysis = await this.analyzeMarket(product);
     const seasonalityFactor = marketAnalysis.seasonalityFactor;
-    
-    const timing = seasonalityFactor > 1.2 ? 'immediate' : 
-                  seasonalityFactor > 0.8 ? 'within_week' : 'wait';
+
+    const timing =
+      seasonalityFactor > 1.2
+        ? 'immediate'
+        : seasonalityFactor > 0.8
+          ? 'within_week'
+          : 'wait';
 
     return {
       marketAnalysis,
       optimizationInsights: {
         reason: 'seasonal trends and market conditions analysis',
         confidence: marketAnalysis.demandScore,
-        potentialImpact: timing === 'immediate' ? '今すぐ売却推奨' : 
-                        timing === 'within_week' ? '1週間以内に売却推奨' : '価格上昇まで待機推奨',
+        potentialImpact:
+          timing === 'immediate'
+            ? '今すぐ売却推奨'
+            : timing === 'within_week'
+              ? '1週間以内に売却推奨'
+              : '価格上昇まで待機推奨',
         riskFactors: [
           seasonalityFactor < 0.5 ? 'オフシーズン' : '',
           marketAnalysis.marketTrend === 'falling' ? '市場下落トレンド' : '',
@@ -315,15 +349,20 @@ export class OptimizationService {
   // Helper methods for market analysis
   private async analyzeMarket(product: Product) {
     try {
-      this.logger.log(`Starting market analysis for product ${product.id}: ${product.name}`);
-      
+      this.logger.log(
+        `Starting market analysis for product ${product.id}: ${product.name}`,
+      );
+
       // Use real market data service
-      const marketAnalysis = await this.marketDataService.analyzeMarket(product);
-      
-      this.logger.log(`Market analysis completed for product ${product.id}. Demand score: ${marketAnalysis.demandScore}`);
-      
+      const marketAnalysis =
+        await this.marketDataService.analyzeMarket(product);
+
+      this.logger.log(
+        `Market analysis completed for product ${product.id}. Demand score: ${marketAnalysis.demandScore}`,
+      );
+
       return {
-        competitorPrices: marketAnalysis.competitorPrices.map(cp => ({
+        competitorPrices: marketAnalysis.competitorPrices.map((cp) => ({
           source: cp.source,
           price: cp.price,
           timestamp: cp.timestamp,
@@ -340,12 +379,20 @@ export class OptimizationService {
         stack: error.stack,
         timestamp: new Date().toISOString(),
       });
-      
+
       // Fallback to basic analysis
       return {
         competitorPrices: [
-          { source: 'Amazon.co.jp', price: product.wholesalePrice * 1.1, timestamp: new Date() },
-          { source: '楽天市場', price: product.wholesalePrice * 0.95, timestamp: new Date() },
+          {
+            source: 'Amazon.co.jp',
+            price: product.wholesalePrice * 1.1,
+            timestamp: new Date(),
+          },
+          {
+            source: '楽天市場',
+            price: product.wholesalePrice * 0.95,
+            timestamp: new Date(),
+          },
         ],
         demandScore: 50 + Math.random() * 30, // 50-80 fallback range
         seasonalityFactor: 0.9 + Math.random() * 0.2, // 0.9-1.1
@@ -367,17 +414,25 @@ export class OptimizationService {
 
   private calculateCurrentProfit(product: Product): number {
     // For sedori (reselling), we calculate profit as markup over wholesale price
-    const markup = product.retailPrice || product.marketPrice || product.wholesalePrice * 1.2;
+    const markup =
+      product.retailPrice ||
+      product.marketPrice ||
+      product.wholesalePrice * 1.2;
     return (markup - product.wholesalePrice) * (product.stockQuantity || 0);
   }
 
   private calculateMarginPercentage(product: Product): number {
     if (product.wholesalePrice === 0) return 0;
-    const markup = product.retailPrice || product.marketPrice || product.wholesalePrice * 1.2;
+    const markup =
+      product.retailPrice ||
+      product.marketPrice ||
+      product.wholesalePrice * 1.2;
     return ((markup - product.wholesalePrice) / markup) * 100;
   }
 
-  private mapToResponse(optimization: OptimizationResult): OptimizationResponseDto {
+  private mapToResponse(
+    optimization: OptimizationResult,
+  ): OptimizationResponseDto {
     return {
       id: optimization.id,
       userId: optimization.userId,
@@ -388,15 +443,25 @@ export class OptimizationService {
       currentProfit: Number(optimization.currentProfit),
       currentInventory: optimization.currentInventory,
       currentMarginPercentage: Number(optimization.currentMarginPercentage),
-      recommendedPrice: optimization.recommendedPrice ? Number(optimization.recommendedPrice) : undefined,
-      projectedProfit: optimization.projectedProfit ? Number(optimization.projectedProfit) : undefined,
+      recommendedPrice: optimization.recommendedPrice
+        ? Number(optimization.recommendedPrice)
+        : undefined,
+      projectedProfit: optimization.projectedProfit
+        ? Number(optimization.projectedProfit)
+        : undefined,
       recommendedInventory: optimization.recommendedInventory,
-      projectedMarginPercentage: optimization.projectedMarginPercentage ? Number(optimization.projectedMarginPercentage) : undefined,
+      projectedMarginPercentage: optimization.projectedMarginPercentage
+        ? Number(optimization.projectedMarginPercentage)
+        : undefined,
       marketAnalysis: optimization.marketAnalysis,
       optimizationInsights: optimization.optimizationInsights,
-      confidenceScore: optimization.confidenceScore ? Number(optimization.confidenceScore) : undefined,
+      confidenceScore: optimization.confidenceScore
+        ? Number(optimization.confidenceScore)
+        : undefined,
       implementedAt: optimization.implementedAt,
-      actualResult: optimization.actualResult ? Number(optimization.actualResult) : undefined,
+      actualResult: optimization.actualResult
+        ? Number(optimization.actualResult)
+        : undefined,
       createdAt: optimization.createdAt,
       updatedAt: optimization.updatedAt,
     };

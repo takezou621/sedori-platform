@@ -138,9 +138,10 @@ describe('Search & Analytics Flow E2E Tests', () => {
       expect(response.body.products.length).toBeGreaterThan(0);
       response.body.products.forEach((product: any) => {
         // Check that product is from Apple brand or contains Apple in name/description
-        const hasApple = product.brand?.toLowerCase().includes('apple') ||
-                        product.name?.toLowerCase().includes('apple') ||
-                        product.description?.toLowerCase().includes('apple');
+        const hasApple =
+          product.brand?.toLowerCase().includes('apple') ||
+          product.name?.toLowerCase().includes('apple') ||
+          product.description?.toLowerCase().includes('apple');
         expect(hasApple).toBeTruthy();
       });
     });

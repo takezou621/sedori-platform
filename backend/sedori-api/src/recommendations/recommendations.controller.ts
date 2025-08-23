@@ -19,7 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { RecommendationsService } from './recommendations.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RecommendationType, RecommendationStatus } from './entities/recommendation.entity';
+import {
+  RecommendationType,
+  RecommendationStatus,
+} from './entities/recommendation.entity';
 import {
   RecommendationRequestDto,
   RecommendationResponseDto,
@@ -32,7 +35,9 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('recommendations')
 export class RecommendationsController {
-  constructor(private readonly recommendationsService: RecommendationsService) {}
+  constructor(
+    private readonly recommendationsService: RecommendationsService,
+  ) {}
 
   @Post('generate')
   @ApiOperation({ summary: 'AI推奨生成' })
@@ -47,12 +52,20 @@ export class RecommendationsController {
     @Body() recommendationRequestDto: RecommendationRequestDto,
   ): Promise<RecommendationResponseDto> {
     const userId = req.user.id;
-    return this.recommendationsService.generateRecommendations(userId, recommendationRequestDto);
+    return this.recommendationsService.generateRecommendations(
+      userId,
+      recommendationRequestDto,
+    );
   }
 
   @Get('personalized')
   @ApiOperation({ summary: 'パーソナライズ推奨取得' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: '推奨件数' })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '推奨件数',
+  })
   @ApiResponse({
     status: 200,
     description: 'パーソナライズされた推奨を返します',
@@ -64,13 +77,26 @@ export class RecommendationsController {
     @Query('limit') limit = 10,
   ): Promise<PersonalizedRecommendationDto> {
     const userId = req.user.id;
-    return this.recommendationsService.getPersonalizedRecommendations(userId, Number(limit));
+    return this.recommendationsService.getPersonalizedRecommendations(
+      userId,
+      Number(limit),
+    );
   }
 
   @Get('my-recommendations')
   @ApiOperation({ summary: '自分の推奨一覧取得' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'ページ番号' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: '1ページあたりの件数' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'ページ番号',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: '1ページあたりの件数',
+  })
   @ApiQuery({
     name: 'type',
     required: false,
@@ -168,12 +194,14 @@ export class RecommendationsController {
     ] as any[];
 
     const quickRecommendations = [];
-    
-    for (const type of allTypes.slice(0, 3)) { // Get top 3 types
-      const recommendations = await this.recommendationsService.generateRecommendations(userId, {
-        type,
-        limit: 2,
-      });
+
+    for (const type of allTypes.slice(0, 3)) {
+      // Get top 3 types
+      const recommendations =
+        await this.recommendationsService.generateRecommendations(userId, {
+          type,
+          limit: 2,
+        });
       quickRecommendations.push(...recommendations.recommendations.slice(0, 2));
     }
 

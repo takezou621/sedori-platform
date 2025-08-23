@@ -16,7 +16,9 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('🚀 Sedori Platform API Server is running!');
+      expect(appController.getHello()).toBe(
+        '🚀 Sedori Platform API Server is running!',
+      );
     });
   });
 });

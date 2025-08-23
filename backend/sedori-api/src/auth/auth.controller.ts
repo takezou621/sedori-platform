@@ -52,7 +52,10 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @ApiResponse({ status: 401, description: '認証失敗' })
-  @ApiResponse({ status: 429, description: 'ログイン試行回数が上限に達しました' })
+  @ApiResponse({
+    status: 429,
+    description: 'ログイン試行回数が上限に達しました',
+  })
   async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
   }

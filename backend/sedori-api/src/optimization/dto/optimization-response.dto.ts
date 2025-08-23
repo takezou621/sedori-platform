@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OptimizationType, OptimizationStatus } from '../entities/optimization-result.entity';
+import {
+  OptimizationType,
+  OptimizationStatus,
+} from '../entities/optimization-result.entity';
 
 export class OptimizationResponseDto {
   @ApiProperty({ description: '最適化結果ID' })

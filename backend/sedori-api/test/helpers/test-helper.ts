@@ -131,16 +131,20 @@ export class E2ETestHelper {
     // Generate highly unique email to avoid conflicts
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substr(2, 9);
-    const uniqueEmail = userData.email || `test-${timestamp}-${randomId}@example.com`;
-    
+    const uniqueEmail =
+      userData.email || `test-${timestamp}-${randomId}@example.com`;
+
     // Try multiple times if email conflicts occur
     let attempts = 0;
     let response;
-    
+
     while (attempts < 3) {
       try {
-        const emailToTry = attempts === 0 ? uniqueEmail : `test-${timestamp}-${randomId}-${attempts}@example.com`;
-        
+        const emailToTry =
+          attempts === 0
+            ? uniqueEmail
+            : `test-${timestamp}-${randomId}-${attempts}@example.com`;
+
         response = await request(this.httpServer)
           .post('/auth/register')
           .send({
@@ -149,7 +153,7 @@ export class E2ETestHelper {
             password: userData.password || 'Test123!@#',
           })
           .expect(201);
-        
+
         break; // Success, exit loop
       } catch (error) {
         if (error.status === 409 && attempts < 2) {
@@ -189,29 +193,35 @@ export class E2ETestHelper {
       email: `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}@sedori.com`,
       password: 'Admin123!@#',
     });
-    
+
     // Update user role directly in the database using TypeORM
     try {
-      const userRepository = this.moduleRef.get<Repository<User>>(getRepositoryToken(User));
+      const userRepository = this.moduleRef.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
       await userRepository.update(user.id, { role: 'admin' });
     } catch (error) {
-      console.log('Warning: Could not update user role via repository, trying alternative approach');
+      console.log(
+        'Warning: Could not update user role via repository, trying alternative approach',
+      );
       try {
         // Alternative: Get the User service directly
         const usersService = this.moduleRef.get<UsersService>(UsersService);
         await usersService.update(user.id, { role: 'admin' });
       } catch (innerError) {
-        console.log('Warning: Could not update user role in database, using JWT role only');
+        console.log(
+          'Warning: Could not update user role in database, using JWT role only',
+        );
       }
     }
-    
+
     // Set admin role in test user object
     user.role = 'admin';
-    
+
     // Create admin JWT token manually using the test JWT secret
     const jwt = require('jsonwebtoken');
     const testJwtSecret = '1qgHxS3/ZI/cZlomiWJEo+Ok8g8RWQoEWGcPAtE1GWw=';
-    
+
     const payload = {
       sub: user.id,
       email: user.email,
@@ -222,9 +232,9 @@ export class E2ETestHelper {
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour expiry
     };
-    
+
     user.accessToken = jwt.sign(payload, testJwtSecret);
-    
+
     return user;
   }
 
@@ -241,18 +251,20 @@ export class E2ETestHelper {
     categoryData?: Partial<TestCategory>,
   ): Promise<TestCategory> {
     const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${process.pid}`;
-    
+
     // Generate unique slug based on provided data or default
-    let slug = categoryData?.slug ? `${categoryData.slug}-${uniqueId}` : `test-category-${uniqueId}`;
-    
+    const slug = categoryData?.slug
+      ? `${categoryData.slug}-${uniqueId}`
+      : `test-category-${uniqueId}`;
+
     // Try multiple times if slug conflicts occur
     let attempts = 0;
     let response;
-    
+
     while (attempts < 3) {
       try {
         const slugToTry = attempts === 0 ? slug : `${slug}-${attempts}`;
-        
+
         response = await request(this.httpServer)
           .post('/categories')
           .set('Authorization', `Bearer ${admin.accessToken}`)
@@ -264,7 +276,7 @@ export class E2ETestHelper {
             sortOrder: categoryData?.sortOrder || 0,
           })
           .expect(201);
-        
+
         break; // Success, exit loop
       } catch (error) {
         if (error.status === 409 && attempts < 2) {

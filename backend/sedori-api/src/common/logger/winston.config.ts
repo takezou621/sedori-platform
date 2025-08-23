@@ -5,7 +5,10 @@ import { ConfigService } from '@nestjs/config';
 
 export const createWinstonLogger = (configService: ConfigService) => {
   const isProduction = configService.get('NODE_ENV') === 'production';
-  const logLevel = configService.get('LOG_LEVEL', isProduction ? 'info' : 'debug');
+  const logLevel = configService.get(
+    'LOG_LEVEL',
+    isProduction ? 'info' : 'debug',
+  );
   const logDir = configService.get('LOG_DIR', 'logs');
 
   // Custom format for structured logging
@@ -15,28 +18,30 @@ export const createWinstonLogger = (configService: ConfigService) => {
     }),
     winston.format.errors({ stack: true }),
     winston.format.json(),
-    winston.format.printf(({ timestamp, level, message, context, trace, ...meta }) => {
-      const logEntry: any = {
-        timestamp,
-        level,
-        message,
-        context,
-        ...meta,
-      };
+    winston.format.printf(
+      ({ timestamp, level, message, context, trace, ...meta }) => {
+        const logEntry: any = {
+          timestamp,
+          level,
+          message,
+          context,
+          ...meta,
+        };
 
-      if (trace) {
-        logEntry.trace = trace;
-      }
-
-      // Remove undefined/null values
-      Object.keys(logEntry).forEach(key => {
-        if (logEntry[key] == null) {
-          delete logEntry[key];
+        if (trace) {
+          logEntry.trace = trace;
         }
-      });
 
-      return JSON.stringify(logEntry);
-    }),
+        // Remove undefined/null values
+        Object.keys(logEntry).forEach((key) => {
+          if (logEntry[key] == null) {
+            delete logEntry[key];
+          }
+        });
+
+        return JSON.stringify(logEntry);
+      },
+    ),
   );
 
   // Console format for development
@@ -47,7 +52,9 @@ export const createWinstonLogger = (configService: ConfigService) => {
     }),
     winston.format.printf(({ timestamp, level, message, context, ...meta }) => {
       const contextStr = context ? `[${context}] ` : '';
-      const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+      const metaStr = Object.keys(meta).length
+        ? ` ${JSON.stringify(meta)}`
+        : '';
       return `${timestamp} ${level}: ${contextStr}${message}${metaStr}`;
     }),
   );
@@ -168,7 +175,7 @@ export const logPerformance = (
   logger: winston.Logger,
   operation: string,
   startTime: number,
-  metadata?: any
+  metadata?: any,
 ) => {
   const executionTime = Date.now() - startTime;
   logger.info(`Operation completed: ${operation}`, {
@@ -184,7 +191,7 @@ export const logError = (
   logger: winston.Logger,
   error: Error,
   context: string,
-  metadata?: any
+  metadata?: any,
 ) => {
   logger.error(error.message, {
     context,
