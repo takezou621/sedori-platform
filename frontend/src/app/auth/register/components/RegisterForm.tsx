@@ -6,14 +6,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { Button, Input } from '@/components/ui';
-import { useAuthStore } from '@/store';
 import { registerSchema, type RegisterFormData } from '@/schemas/auth';
 
 export function RegisterForm() {
   const router = useRouter();
-  const { register: registerUser, isLoading, error, clearError } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -65,25 +65,41 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      clearError();
-      await registerUser({
-        name: data.name,
-        email: data.email,
-        password: data.password,
+      setError(null);
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
       });
-      router.push('/dashboard');
-    } catch (error: unknown) {
-      // Handle specific error types
-      const apiError = error as { statusCode?: number; message?: string };
-      if (apiError?.statusCode === 409) {
-        setError('email', { message: 'An account with this email already exists' });
-      } else if (apiError?.statusCode === 422) {
-        setError('root', { message: 'Please check your input and try again' });
-      } else if (apiError?.statusCode === 429) {
-        setError('root', { message: 'Too many registration attempts. Please try again later.' });
-      } else {
-        setError('root', { message: apiError?.message || 'Registration failed. Please try again.' });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setError('email', { message: 'An account with this email already exists' });
+        } else if (response.status === 422) {
+          setError('root', { message: 'Please check your input and try again' });
+        } else if (response.status === 429) {
+          setError('root', { message: 'Too many registration attempts. Please try again later.' });
+        } else {
+          setError('root', { message: result.message || 'Registration failed. Please try again.' });
+        }
+        return;
       }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error: unknown) {
+      const apiError = error as { message?: string };
+      setError('root', { message: apiError?.message || 'Network error. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 

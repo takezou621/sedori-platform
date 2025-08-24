@@ -24,7 +24,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 成功した場合、レスポンスにCookieを設定
-    const response = NextResponse.json(data);
+    const response = NextResponse.json({
+      success: true,
+      user: data.user,
+    });
     
     if (data.accessToken) {
       response.cookies.set('auth_token', data.accessToken, {

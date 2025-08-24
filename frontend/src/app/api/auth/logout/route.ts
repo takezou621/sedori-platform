@@ -26,21 +26,8 @@ export async function POST(request: NextRequest) {
     const nextResponse = NextResponse.json({ success: true, message: 'Logged out successfully' });
 
     // Clear the authentication cookies
-    nextResponse.cookies.set('auth_token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
-
-    nextResponse.cookies.set('user_data', '', {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
+    nextResponse.cookies.delete('auth_token');
+    nextResponse.cookies.delete('user_session');
 
     return nextResponse;
   } catch (error) {

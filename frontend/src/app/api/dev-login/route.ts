@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
     const nextResponse = NextResponse.json({
       success: true,
       user: data.user,
-      accessToken: data.accessToken,
     });
 
     // Set secure HTTP-only cookies

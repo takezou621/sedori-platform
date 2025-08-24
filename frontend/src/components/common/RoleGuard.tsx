@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAuthStore } from '@/store/auth';
+import { useRole } from '@/hooks';
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -16,9 +16,13 @@ export function RoleGuard({
   fallback = null,
   requireAll = false 
 }: RoleGuardProps) {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, isLoading } = useRole();
 
-  if (!user) {
+  if (isLoading) {
+    return <div className="animate-pulse bg-gray-200 h-4 rounded"></div>;
+  }
+
+  if (!isAuthenticated || !user) {
     return <>{fallback}</>;
   }
 

@@ -21,13 +21,13 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    const { access_token, user } = data;
+    const { accessToken, user } = data;
 
     // Create the response
     const nextResponse = NextResponse.json({ user, success: true });
 
     // Set secure httpOnly cookie for the token
-    nextResponse.cookies.set('auth_token', access_token, {
+    nextResponse.cookies.set('auth_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -35,9 +35,9 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    // Set user data in a readable cookie (for client-side access)
-    nextResponse.cookies.set('user_data', JSON.stringify(user), {
-      httpOnly: false,
+    // Set user session data in HTTP-only cookie
+    nextResponse.cookies.set('user_session', JSON.stringify(user), {
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days

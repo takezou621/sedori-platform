@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/store';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { validateEmail, validatePassword } from '@/lib/utils';
 import type { RegisterRequest } from '@/types';
@@ -15,7 +14,7 @@ interface RegisterFormData extends RegisterRequest {
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { register: registerUser, error, clearError } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const {
@@ -23,24 +22,40 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors },
-    setError,
+    setError: setFormError,
   } = useForm<RegisterFormData>();
 
   const password = watch('password');
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
-    clearError();
+    setError(null);
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registerData } = data;
-      await registerUser(registerData);
+      
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registerData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setFormError('root', {
+          message: result.error || 'Registration failed. Please try again.',
+        });
+        return;
+      }
+
       router.push('/dashboard');
+      router.refresh();
     } catch (error: unknown) {
       console.error('Registration failed:', error);
-      const errorMessage = (error as Error)?.message || 'Registration failed. Please try again.';
-      setError('root', {
+      const errorMessage = (error as Error)?.message || 'Network error. Please try again.';
+      setFormError('root', {
         message: errorMessage,
       });
     } finally {

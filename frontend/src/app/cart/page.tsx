@@ -65,7 +65,8 @@ export default function CartPage() {
           throw new Error(`HTTP ${response.status}`);
         }
 
-        const serverCartData = await response.json();
+        const result = await response.json();
+        const serverCartData = result.data || result;
         setCartData(serverCartData);
         
         // Update localStorage

@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { Button, Input } from '@/components/ui';
-import { useAuthStore } from '@/store';
 import { loginSchema, type LoginFormData } from '@/schemas/auth';
 
 export function LoginForm() {
@@ -14,37 +13,54 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
   
-  const { login, isLoading, error, clearError } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
+    setError: setFormError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      clearError();
-      await login({
-        email: data.email,
-        password: data.password,
+      setError(null);
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
       });
-      router.push(redirectUrl);
-    } catch (error: unknown) {
-      // Handle specific error types
-      const apiError = error as { statusCode?: number; message?: string };
-      if (apiError?.statusCode === 401) {
-        setError('email', { message: 'Invalid email or password' });
-        setError('password', { message: 'Invalid email or password' });
-      } else if (apiError?.statusCode === 429) {
-        setError('root', { message: 'Too many login attempts. Please try again later.' });
-      } else {
-        setError('root', { message: apiError?.message || 'Login failed. Please try again.' });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setFormError('email', { message: 'Invalid email or password' });
+          setFormError('password', { message: 'Invalid email or password' });
+        } else if (response.status === 429) {
+          setFormError('root', { message: 'Too many login attempts. Please try again later.' });
+        } else {
+          setFormError('root', { message: result.message || 'Login failed. Please try again.' });
+        }
+        return;
       }
+
+      router.push(redirectUrl);
+      router.refresh();
+    } catch (error: unknown) {
+      const apiError = error as { message?: string };
+      setFormError('root', { message: apiError?.message || 'Network error. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 

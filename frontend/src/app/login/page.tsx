@@ -4,34 +4,48 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/store';
 import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { validateEmail } from '@/lib/utils';
 import type { LoginRequest } from '@/types';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login, error, clearError } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
+    setError: setFormError,
   } = useForm<LoginRequest>();
 
   const onSubmit = async (data: LoginRequest) => {
     setIsLoading(true);
-    clearError();
+    setError(null);
 
     try {
-      await login(data);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setFormError('root', {
+          message: result.error || 'Login failed. Please try again.',
+        });
+        return;
+      }
+
       router.push('/dashboard');
+      router.refresh();
     } catch (error: unknown) {
       console.error('Login failed:', error);
-      const errorMessage = (error as Error)?.message || 'Login failed. Please try again.';
-      setError('root', {
+      const errorMessage = (error as Error)?.message || 'Network error. Please try again.';
+      setFormError('root', {
         message: errorMessage,
       });
     } finally {

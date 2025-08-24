@@ -3,20 +3,24 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useAuthStore } from '@/store';
 import { Button } from '@/components/ui';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useRole } from '@/hooks';
 
 export function Header() {
-  const { user, logout } = useAuthStore();
-  const { isAdmin, isAuthenticated, role } = useRole();
+  const { user, isAdmin, isAuthenticated, role } = useRole();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    router.push('/auth/login');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/auth/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/auth/login');
+    }
   };
 
   const navigation = [
