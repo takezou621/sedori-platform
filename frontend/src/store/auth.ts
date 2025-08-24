@@ -11,11 +11,20 @@ import type {
   ApiError,
 } from '@/types';
 
-export const useAuthStore = create<AuthStore>()((set) => ({
-  user: getUserFromCookie() as User | null,
-  token: hasAuthToken() ? 'cookie' : null, // We don't expose the actual token value
+export const useAuthStore = create<AuthStore>()((set, get) => ({
+  user: null, // Will be initialized in browser
+  token: null, // Will be initialized in browser
   isLoading: false,
   error: null,
+
+  // Initialize auth state from cookies
+  initialize: () => {
+    if (typeof window !== 'undefined') {
+      const user = getUserFromCookie() as User | null;
+      const token = hasAuthToken() ? 'cookie' : null;
+      set({ user, token });
+    }
+  },
 
   login: async (credentials: LoginRequest) => {
     set({ isLoading: true, error: null });

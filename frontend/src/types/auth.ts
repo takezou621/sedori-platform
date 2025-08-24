@@ -2,7 +2,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'seller';
   createdAt: string;
   updatedAt: string;
 }
@@ -28,6 +28,7 @@ export interface AuthStore {
   token: string | null;
   isLoading: boolean;
   error: string | null;
+  initialize: () => void;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
