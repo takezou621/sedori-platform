@@ -7,7 +7,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
     // Phase 1: ホームページアクセスと開発モード確認
     console.log('Phase 1: Homepage access and dev mode verification');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await expect(page.locator('body')).toBeVisible();
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
@@ -61,7 +61,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
       console.log('Phase 5: Platform functionality test after authentication');
       
       // 商品ページアクセス
-      await page.goto('http://localhost:3002/products');
+      await page.goto('http://localhost:3005/products');
       await page.waitForTimeout(2000);
       
       await expect(page.locator('body')).toBeVisible();
@@ -75,14 +75,14 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
       }
       
       // ダッシュボードアクセス
-      await page.goto('http://localhost:3002/dashboard');
+      await page.goto('http://localhost:3005/dashboard');
       await page.waitForTimeout(2000);
       
       await expect(page.locator('body')).toBeVisible();
       console.log('✅ Dashboard accessible after login');
       
       // カートアクセス
-      await page.goto('http://localhost:3002/cart');
+      await page.goto('http://localhost:3005/cart');
       await page.waitForTimeout(2000);
       
       await expect(page.locator('body')).toBeVisible();
@@ -106,7 +106,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
   test('開発モード：3つのテストアカウント全てでログインテスト', async ({ page }) => {
     console.log('Testing all three dev test accounts');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     if (await devPanelTrigger.count() > 0) {
@@ -123,7 +123,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
         console.log(`Testing login for: ${account.name}`);
         
         // ホームページに戻る
-        await page.goto('http://localhost:3002');
+        await page.goto('http://localhost:3005');
         await page.waitForTimeout(1000);
         
         // パネルを開く
@@ -153,7 +153,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
   test('開発モードログイン後の認証状態維持確認', async ({ page }) => {
     console.log('Testing authentication state persistence after dev login');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     if (await devPanelTrigger.count() > 0) {
@@ -169,7 +169,7 @@ test.describe('完全E2Eワークフロー - 開発モードログイン使用',
       const protectedPages = ['/dashboard', '/products', '/cart'];
       
       for (const pagePath of protectedPages) {
-        await page.goto(`http://localhost:3002${pagePath}`);
+        await page.goto(`http://localhost:3005${pagePath}`);
         await page.waitForTimeout(2000);
         
         const currentUrl = page.url();

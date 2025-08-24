@@ -6,9 +6,11 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store';
 import { Button } from '@/components/ui';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { useRole } from '@/hooks';
 
 export function Header() {
   const { user, logout } = useAuthStore();
+  const { isAdmin, isAuthenticated, role } = useRole();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -23,6 +25,12 @@ export function Header() {
     { name: '注文', href: '/orders', current: false },
     { name: 'アナリティクス', href: '/analytics', current: false },
     { name: 'コミュニティ', href: '/community', current: false },
+  ];
+
+  // Admin-only navigation items
+  const adminNavigation = [
+    { name: '管理者', href: '/admin', current: false },
+    { name: 'ベータ管理', href: '/admin/beta', current: false },
   ];
 
   return (
@@ -48,6 +56,17 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            {/* Admin-only navigation */}
+            {isAdmin && adminNavigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="nav-link text-orange-600 dark:text-orange-400 font-medium"
+                aria-current={item.current ? 'page' : undefined}
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
 
           {/* Right side menu */}
@@ -58,6 +77,11 @@ export function Header() {
               <div className="flex items-center space-x-4">
                 <span className="hidden sm:block text-sm text-gray-700 dark:text-gray-300">
                   {user.name || user.email}さん
+                  {role && (
+                    <span className="ml-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      {role === 'admin' ? '管理者' : role === 'seller' ? '販売者' : 'ユーザー'}
+                    </span>
+                  )}
                 </span>
                 <Button
                   variant="outline"
@@ -113,6 +137,17 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              {/* Admin-only mobile navigation */}
+              {isAdmin && adminNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.name}

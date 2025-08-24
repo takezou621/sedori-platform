@@ -5,7 +5,7 @@ test.describe('認証フローE2Eテスト', () => {
     console.log('Testing basic login flow');
     
     // ログインページに移動
-    await page.goto('http://localhost:3002/auth/login');
+    await page.goto('http://localhost:3005/auth/login');
     
     // ページが読み込まれたことを確認
     await expect(page.locator('body')).toBeVisible();
@@ -54,7 +54,7 @@ test.describe('認証フローE2Eテスト', () => {
     console.log('Testing user registration flow');
     
     // 登録ページに移動
-    await page.goto('http://localhost:3002/auth/register');
+    await page.goto('http://localhost:3005/auth/register');
     
     // ページが読み込まれたことを確認
     await expect(page.locator('body')).toBeVisible();
@@ -118,7 +118,7 @@ test.describe('認証フローE2Eテスト', () => {
   test('パスワード強度検証', async ({ page }) => {
     console.log('Testing password strength validation');
     
-    await page.goto('http://localhost:3002/auth/register');
+    await page.goto('http://localhost:3005/auth/register');
     await expect(page.locator('body')).toBeVisible();
     
     const passwordField = page.locator('input[type="password"]').first();
@@ -147,7 +147,7 @@ test.describe('認証フローE2Eテスト', () => {
     console.log('Testing logout functionality');
     
     // まずログインする
-    await page.goto('http://localhost:3002/auth/login');
+    await page.goto('http://localhost:3005/auth/login');
     
     const emailField = page.locator('input[type="email"], input[name="email"]').first();
     const passwordField = page.locator('input[type="password"]').first();
@@ -193,7 +193,7 @@ test.describe('認証フローE2Eテスト', () => {
     const protectedRoutes = ['/dashboard', '/profile', '/orders', '/cart'];
     
     for (const route of protectedRoutes) {
-      await page.goto(`http://localhost:3002${route}`);
+      await page.goto(`http://localhost:3005${route}`);
       await page.waitForTimeout(2000);
       
       const currentUrl = page.url();

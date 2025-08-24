@@ -3,74 +3,40 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // バックエンドのAPIに直接リクエスト（サーバーサイドから）
-    const backendResponse = await fetch('http://localhost:3000/api/auth/login', {
+    const { email, password } = body;
+
+    // Call the backend dev-login API
+    const response = await fetch('http://localhost:3000/api/auth/dev-login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: body.email,
-        password: body.password,
+        email,
+        password,
       }),
     });
 
-    const data = await backendResponse.json();
-    
-    if (!backendResponse.ok) {
-      // アカウントが存在しない場合は自動登録を試行
-      const registerResponse = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: body.email.split('@')[0], // Use email prefix as name
-          email: body.email,
-          password: body.password,
-        }),
-      });
-
-      if (registerResponse.ok) {
-        const registerData = await registerResponse.json();
-        
-        // 登録成功時にCookieを設定
-        const response = NextResponse.json(registerData);
-        
-        if (registerData.accessToken) {
-          response.cookies.set('auth_token', registerData.accessToken, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-          });
-        }
-
-        if (registerData.user) {
-          response.cookies.set('user_data', JSON.stringify(registerData.user), {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-          });
-        }
-        
-        return response;
-      } else {
-        // 登録も失敗した場合は元のログインエラーを返す
-        return NextResponse.json(data, { status: backendResponse.status });
-      }
+    if (!response.ok) {
+      return NextResponse.json(
+        { success: false, error: 'Dev login failed' },
+        { status: response.status }
+      );
     }
 
-    // 成功した場合、レスポンスにCookieを設定
-    const response = NextResponse.json(data);
+    const data = await response.json();
     
+    // Create response with cookies
+    const nextResponse = NextResponse.json({
+      success: true,
+      user: data.user,
+      accessToken: data.accessToken,
+    });
+
+    // Set cookies
     if (data.accessToken) {
-      response.cookies.set('auth_token', data.accessToken, {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+      nextResponse.cookies.set('auth_token', data.accessToken, {
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -79,8 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (data.user) {
-      response.cookies.set('user_data', JSON.stringify(data.user), {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+      nextResponse.cookies.set('user_data', JSON.stringify(data.user), {
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -88,11 +54,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return response;
+    return nextResponse;
   } catch (error) {
-    console.error('Dev login proxy error:', error);
+    console.error('Dev login error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

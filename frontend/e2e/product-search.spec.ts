@@ -5,7 +5,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
     console.log('Testing product page basic functionality');
     
     // 商品ページに移動
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     await expect(page.locator('body')).toBeVisible();
     
     // ページタイトルまたはヘッダーの確認
@@ -45,7 +45,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
   test('商品詳細ページのナビゲーション', async ({ page }) => {
     console.log('Testing product detail navigation');
     
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     await page.waitForTimeout(3000);
     
     // クリック可能な商品要素を探す
@@ -87,7 +87,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
     console.log('Testing cart functionality');
     
     // カートページに直接アクセス
-    await page.goto('http://localhost:3002/cart');
+    await page.goto('http://localhost:3005/cart');
     await expect(page.locator('body')).toBeVisible();
     
     // カートページの基本要素確認
@@ -123,7 +123,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
   test('商品フィルタリング機能', async ({ page }) => {
     console.log('Testing product filtering');
     
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     await page.waitForTimeout(3000);
     
     // フィルター要素を探す
@@ -189,7 +189,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
   test('ページネーション機能', async ({ page }) => {
     console.log('Testing pagination functionality');
     
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     await page.waitForTimeout(3000);
     
     // ページネーション要素を探す
@@ -235,7 +235,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
   test('商品詳細からカートへの追加', async ({ page }) => {
     console.log('Testing add to cart from product detail');
     
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     await page.waitForTimeout(3000);
     
     // 商品詳細ページに移動
@@ -282,7 +282,7 @@ test.describe('商品検索・カートE2Eテスト', () => {
         }
         
         // カートページで確認
-        await page.goto('http://localhost:3002/cart');
+        await page.goto('http://localhost:3005/cart');
         await page.waitForTimeout(2000);
         
         const cartItems = page.locator('[data-testid*="cart-item"], .cart-item');
