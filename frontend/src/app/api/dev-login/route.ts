@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Store minimal user info in secure cookie
     if (data.user) {
       const userSession = {
         id: data.user.id,

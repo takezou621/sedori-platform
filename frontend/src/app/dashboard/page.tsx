@@ -2,30 +2,35 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store';
+import { useRole } from '@/hooks';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 
 export default function DashboardPage() {
-  const { user, token, initialize } = useAuthStore();
+  const { user, isAuthenticated, isLoading } = useRole();
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize auth state from cookies on client side
-    initialize();
-  }, [initialize]);
-
-  useEffect(() => {
-    if (!user || !token) {
+    if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [user, token, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-secondary-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-secondary-600">Please log in to access the dashboard.</p>
         </div>
       </div>
     );
