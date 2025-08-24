@@ -6,7 +6,6 @@ import {
   IsInt,
   Min,
   Max,
-  IsString,
   IsUUID,
 } from 'class-validator';
 import { Transform } from 'class-transformer';

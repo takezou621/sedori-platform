@@ -84,7 +84,9 @@ export class MessagingController {
 
   @Get('unread/count')
   async getUnreadMessageCount(@Request() req: any) {
-    const count = await this.messagingService.getUnreadMessageCount(req.user.id);
+    const count = await this.messagingService.getUnreadMessageCount(
+      req.user.id,
+    );
     return { unreadCount: count };
   }
 

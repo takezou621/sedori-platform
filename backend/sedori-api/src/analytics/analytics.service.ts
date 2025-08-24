@@ -41,6 +41,24 @@ interface ProductAnalyticsResult {
   sales: string;
 }
 
+interface CategoryAnalyticsResult {
+  categoryId: string;
+  categoryName: string;
+  views: string;
+  sales: string;
+}
+
+interface UserBehaviorQueryResult {
+  sessions?: string;
+  newUsers?: string;
+  totalUsers?: string;
+}
+
+interface ConversionRateQueryResult {
+  count?: string;
+  sessions?: string;
+}
+
 @Injectable()
 export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
@@ -323,11 +341,11 @@ export class AnalyticsService {
       .limit(10)
       .getRawMany();
 
-    return result.map((row) => ({
+    return result.map((row: CategoryAnalyticsResult) => ({
       categoryId: row.categoryId,
       categoryName: row.categoryName || 'Unknown Category',
-      views: parseInt(row.views),
-      sales: parseInt(row.sales),
+      views: parseInt(String(row.views || '0')),
+      sales: parseInt(String(row.sales || '0')),
       revenue: 0, // Would need to join with order items for accurate revenue
     }));
   }
@@ -336,32 +354,32 @@ export class AnalyticsService {
     startDate: Date,
     endDate: Date,
   ): Promise<UserBehaviorDto> {
-    const sessionsResult = await this.analyticsEventRepository
+    const sessionsResult = (await this.analyticsEventRepository
       .createQueryBuilder('event')
       .select('COUNT(DISTINCT event.sessionId)', 'sessions')
       .where('event.timestamp >= :startDate', { startDate })
       .andWhere('event.timestamp <= :endDate', { endDate })
       .andWhere('event.sessionId IS NOT NULL')
-      .getRawOne();
+      .getRawOne()) as UserBehaviorQueryResult | null;
 
-    const newUsersResult = await this.userRepository
+    const newUsersResult = (await this.userRepository
       .createQueryBuilder('user')
       .select('COUNT(*)', 'newUsers')
       .where('user.createdAt >= :startDate', { startDate })
       .andWhere('user.createdAt <= :endDate', { endDate })
-      .getRawOne();
+      .getRawOne()) as UserBehaviorQueryResult | null;
 
-    const totalUsersResult = await this.analyticsEventRepository
+    const totalUsersResult = (await this.analyticsEventRepository
       .createQueryBuilder('event')
       .select('COUNT(DISTINCT event.userId)', 'totalUsers')
       .where('event.timestamp >= :startDate', { startDate })
       .andWhere('event.timestamp <= :endDate', { endDate })
       .andWhere('event.userId IS NOT NULL')
-      .getRawOne();
+      .getRawOne()) as UserBehaviorQueryResult | null;
 
-    const sessions = parseInt(sessionsResult?.sessions || '0');
-    const newUsers = parseInt(newUsersResult?.newUsers || '0');
-    const totalUsers = parseInt(totalUsersResult?.totalUsers || '0');
+    const sessions = parseInt(String(sessionsResult?.sessions || '0'));
+    const newUsers = parseInt(String(newUsersResult?.newUsers || '0'));
+    const totalUsers = parseInt(String(totalUsersResult?.totalUsers || '0'));
 
     return {
       sessions,
@@ -501,40 +519,44 @@ export class AnalyticsService {
 
     try {
       // Active users in last 5 minutes
-      const activeUsersResult = await this.analyticsEventRepository
+      const activeUsersResult = (await this.analyticsEventRepository
         .createQueryBuilder('event')
         .select('COUNT(DISTINCT event.userId)', 'count')
         .where('event.timestamp >= :last5Minutes', { last5Minutes })
         .andWhere('event.userId IS NOT NULL')
-        .getRawOne();
+        .getRawOne()) as CountResult | null;
 
       // Today's orders
-      const todayOrdersResult = await this.orderRepository
+      const todayOrdersResult = (await this.orderRepository
         .createQueryBuilder('order')
         .select('COUNT(*)', 'count')
         .addSelect('COALESCE(SUM(order.totalAmount), 0)', 'revenue')
         .where('order.orderDate >= :todayStart', { todayStart })
-        .getRawOne();
+        .getRawOne()) as (CountResult & RevenueResult) | null;
 
-      const todayOrderCount = parseInt(todayOrdersResult?.count || '0');
-      const todayRevenue = parseFloat(todayOrdersResult?.revenue || '0');
+      const todayOrderCount = parseInt(String(todayOrdersResult?.count || '0'));
+      const todayRevenue = parseFloat(
+        String(todayOrdersResult?.revenue || '0'),
+      );
       const avgOrderValue =
         todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0;
 
       // Calculate conversion rate (orders / sessions)
-      const todaySessionsResult = await this.analyticsEventRepository
+      const todaySessionsResult = (await this.analyticsEventRepository
         .createQueryBuilder('event')
         .select('COUNT(DISTINCT event.sessionId)', 'sessions')
         .where('event.timestamp >= :todayStart', { todayStart })
         .andWhere('event.sessionId IS NOT NULL')
-        .getRawOne();
+        .getRawOne()) as ConversionRateQueryResult | null;
 
-      const todaySessions = parseInt(todaySessionsResult?.sessions || '0');
+      const todaySessions = parseInt(
+        String(todaySessionsResult?.sessions || '0'),
+      );
       const conversionRate =
         todaySessions > 0 ? (todayOrderCount / todaySessions) * 100 : 0;
 
       return {
-        currentActiveUsers: parseInt(activeUsersResult?.count || '0'),
+        currentActiveUsers: parseInt(String(activeUsersResult?.count || '0')),
         todayOrderCount,
         todayRevenue,
         avgOrderValue: Math.round(avgOrderValue * 100) / 100,
@@ -838,18 +860,18 @@ export class AnalyticsService {
           .select('COUNT(*)', 'count')
           .where('order.orderDate >= :startDate', { startDate })
           .andWhere('order.orderDate <= :endDate', { endDate })
-          .getRawOne(),
+          .getRawOne() as Promise<CountResult | null>,
         this.analyticsEventRepository
           .createQueryBuilder('event')
           .select('COUNT(DISTINCT event.sessionId)', 'sessions')
           .where('event.timestamp >= :startDate', { startDate })
           .andWhere('event.timestamp <= :endDate', { endDate })
           .andWhere('event.sessionId IS NOT NULL')
-          .getRawOne(),
+          .getRawOne() as Promise<ConversionRateQueryResult | null>,
       ]);
 
-      const orders = parseInt(ordersResult?.count || '0');
-      const sessions = parseInt(sessionsResult?.sessions || '0');
+      const orders = parseInt(String(ordersResult?.count || '0'));
+      const sessions = parseInt(String(sessionsResult?.sessions || '0'));
 
       return sessions > 0 ? (orders / sessions) * 100 : 0;
     } catch (error) {
@@ -858,9 +880,11 @@ export class AnalyticsService {
     }
   }
 
-  private async identifySlowMovingProducts(): Promise<
-    Array<{ id: string; name: string; daysSinceLastSale: number }>
-  > {
+  private identifySlowMovingProducts(): Array<{
+    id: string;
+    name: string;
+    daysSinceLastSale: number;
+  }> {
     // Mock implementation - would require more complex queries in real scenario
     return [
       { id: '1', name: 'Product A', daysSinceLastSale: 15 },
@@ -869,10 +893,7 @@ export class AnalyticsService {
     ];
   }
 
-  private async calculateBounceRate(
-    startDate: Date,
-    endDate: Date,
-  ): Promise<number> {
+  private calculateBounceRate(_startDate: Date, _endDate: Date): number {
     // Mock implementation - would require session analysis
     return Math.random() * 30 + 40; // 40-70%
   }

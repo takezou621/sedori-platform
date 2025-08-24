@@ -6,7 +6,10 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Res,
+  Req,
 } from '@nestjs/common';
+import { Response, Request } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -33,13 +36,26 @@ export class AuthController {
   @ApiOperation({ summary: 'ユーザー登録' })
   @ApiResponse({
     status: 201,
-    description: 'ユーザー登録成功',
-    type: AuthResponseDto,
+    description: 'ユーザー登録成功（トークンはHTTP-onlyクッキーで設定）',
   })
   @ApiResponse({ status: 400, description: 'バリデーションエラー' })
   @ApiResponse({ status: 409, description: 'メールアドレス重複' })
-  async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
-    return this.authService.register(registerDto);
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<Omit<AuthResponseDto, 'accessToken'>> {
+    const result = await this.authService.register(registerDto);
+    
+    // Set HTTP-only cookie for security
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+    
+    // Return user data without token
+    return { user: result.user };
   }
 
   @Post('login')
@@ -48,16 +64,29 @@ export class AuthController {
   @ApiOperation({ summary: 'ログイン' })
   @ApiResponse({
     status: 200,
-    description: 'ログイン成功',
-    type: AuthResponseDto,
+    description: 'ログイン成功（トークンはHTTP-onlyクッキーで設定）',
   })
   @ApiResponse({ status: 401, description: '認証失敗' })
   @ApiResponse({
     status: 429,
     description: 'ログイン試行回数が上限に達しました',
   })
-  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<Omit<AuthResponseDto, 'accessToken'>> {
+    const result = await this.authService.login(loginDto);
+    
+    // Set HTTP-only cookie for security
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+    
+    // Return user data without token
+    return { user: result.user };
   }
 
   @Get('profile')
@@ -93,12 +122,25 @@ export class AuthController {
   @ApiOperation({ summary: 'トークン更新' })
   @ApiResponse({
     status: 200,
-    description: 'トークン更新成功',
-    type: AuthResponseDto,
+    description: 'トークン更新成功（トークンはHTTP-onlyクッキーで設定）',
   })
   @ApiResponse({ status: 401, description: '認証が必要です' })
-  async refreshToken(@CurrentUser() user: User): Promise<AuthResponseDto> {
-    return this.authService.refreshToken(user);
+  async refreshToken(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<Omit<AuthResponseDto, 'accessToken'>> {
+    const result = await this.authService.refreshToken(user);
+    
+    // Set HTTP-only cookie for security
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+    
+    // Return user data without token
+    return { user: result.user };
   }
 
   @Post('dev-login')
@@ -107,11 +149,24 @@ export class AuthController {
   @ApiOperation({ summary: '開発環境用ログイン（自動アカウント作成）' })
   @ApiResponse({
     status: 200,
-    description: 'ログイン成功',
-    type: AuthResponseDto,
+    description: 'ログイン成功（トークンはHTTP-onlyクッキーで設定）',
   })
   @ApiResponse({ status: 401, description: '認証失敗' })
-  async devLogin(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.devLogin(loginDto);
+  async devLogin(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<Omit<AuthResponseDto, 'accessToken'>> {
+    const result = await this.authService.devLogin(loginDto);
+    
+    // Set HTTP-only cookie for security
+    response.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
+    
+    // Return user data without token
+    return { user: result.user };
   }
 }

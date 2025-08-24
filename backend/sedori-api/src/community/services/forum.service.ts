@@ -13,7 +13,11 @@ import {
   PostStatus,
 } from '../entities/forum-post.entity';
 import { ForumReply } from '../entities/forum-reply.entity';
-import { CreatePostDto, UpdatePostDto, CreateReplyDto } from '../dto/create-post.dto';
+import {
+  CreatePostDto,
+  UpdatePostDto,
+  CreateReplyDto,
+} from '../dto/create-post.dto';
 import { NotificationService } from '../../notifications/services/notification.service';
 import {
   NotificationType,
@@ -226,7 +230,7 @@ export class ForumService {
       parentReply = await this.replyRepository.findOne({
         where: { id: createReplyDto.parentId, postId },
       });
-      
+
       if (!parentReply) {
         throw new NotFoundException('親の返信が見つかりません');
       }
@@ -237,14 +241,16 @@ export class ForumService {
       postId,
       authorId: userId,
     };
-    
+
     if (parentReply) {
       replyData.parent = parentReply;
     }
-    
+
     const reply = this.replyRepository.create(replyData);
 
-    const savedReply = await this.replyRepository.save(reply) as unknown as ForumReply;
+    const savedReply = (await this.replyRepository.save(
+      reply,
+    )) as unknown as ForumReply;
 
     // Update post reply count and last activity
     await this.postRepository.update(postId, {
@@ -270,7 +276,11 @@ export class ForumService {
     }
 
     // Notify parent reply author (if exists and different)
-    if (parentReply && parentReply.authorId !== userId && parentReply.authorId !== post.authorId) {
+    if (
+      parentReply &&
+      parentReply.authorId !== userId &&
+      parentReply.authorId !== post.authorId
+    ) {
       await this.notificationService.create({
         userId: parentReply.authorId,
         title: '返信への返信がありました',
@@ -287,7 +297,9 @@ export class ForumService {
       });
     }
 
-    this.logger.log(`Created reply ${savedReply.id} for post ${postId} by user ${userId}`);
+    this.logger.log(
+      `Created reply ${savedReply.id} for post ${postId} by user ${userId}`,
+    );
 
     return savedReply;
   }
@@ -442,6 +454,8 @@ export class ForumService {
   ): Promise<void> {
     // This would require user follow relationships
     // For now, we'll skip this implementation
-    this.logger.log(`Would notify followers of user ${authorId} about new post ${post.id}`);
+    this.logger.log(
+      `Would notify followers of user ${authorId} about new post ${post.id}`,
+    );
   }
 }

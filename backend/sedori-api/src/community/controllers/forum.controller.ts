@@ -131,7 +131,7 @@ export class ForumController {
 
   @Get('categories')
   async getCategories() {
-    return Object.values(PostCategory).map(category => ({
+    return Object.values(PostCategory).map((category) => ({
       value: category,
       label: this.getCategoryLabel(category),
     }));

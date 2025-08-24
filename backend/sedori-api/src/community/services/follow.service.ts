@@ -173,10 +173,7 @@ export class FollowService {
     };
   }
 
-  async isFollowing(
-    followerId: string,
-    followingId: string,
-  ): Promise<boolean> {
+  async isFollowing(followerId: string, followingId: string): Promise<boolean> {
     const follow = await this.followRepository.findOne({
       where: { followerId, followingId, isActive: true },
     });
@@ -214,9 +211,7 @@ export class FollowService {
 
     const [followCounts, isFollowing, postsCount] = await Promise.all([
       this.getFollowCounts(targetUserId),
-      currentUserId
-        ? this.isFollowing(currentUserId, targetUserId)
-        : false,
+      currentUserId ? this.isFollowing(currentUserId, targetUserId) : false,
       this.getPostsCount(targetUserId),
     ]);
 
@@ -293,11 +288,7 @@ export class FollowService {
     const suggestedUserIds = await this.followRepository
       .createQueryBuilder('f1')
       .select('f2.followingId', 'suggestedId')
-      .innerJoin(
-        'user_follows',
-        'f2',
-        'f1.followingId = f2.followerId',
-      )
+      .innerJoin('user_follows', 'f2', 'f1.followingId = f2.followerId')
       .leftJoin(
         'user_follows',
         'f3',

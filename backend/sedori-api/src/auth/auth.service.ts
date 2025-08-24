@@ -153,7 +153,7 @@ export class AuthService {
   async devLogin(loginDto: LoginDto): Promise<AuthResponseDto> {
     // Check if user exists first
     const existingUser = await this.usersService.findByEmail(loginDto.email);
-    
+
     if (existingUser) {
       // If user exists, try to validate credentials
       try {
@@ -205,10 +205,10 @@ export class AuthService {
         );
       }
     }
-    
+
     // If user doesn't exist, create a new dev account
     const hashedPassword = await bcrypt.hash(loginDto.password, 10);
-    
+
     // Determine role based on email pattern
     let role = UserRole.USER; // default
     if (loginDto.email.includes('admin')) {
@@ -216,13 +216,13 @@ export class AuthService {
     } else if (loginDto.email.includes('moderator')) {
       role = UserRole.MODERATOR;
     }
-    
+
     // Check once more if user exists before creating (race condition protection)
     const finalUserCheck = await this.usersService.findByEmail(loginDto.email);
     if (finalUserCheck) {
       // User was created during processing, return existing user
       await this.usersService.updateLastLogin(finalUserCheck.id);
-      
+
       const payload: JwtPayload = {
         sub: finalUserCheck.id,
         email: finalUserCheck.email,
@@ -247,7 +247,7 @@ export class AuthService {
         },
       };
     }
-    
+
     const newUser = await this.usersService.create({
       name: loginDto.email.split('@')[0], // Use email prefix as name
       email: loginDto.email,

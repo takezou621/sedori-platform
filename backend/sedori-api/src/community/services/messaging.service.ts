@@ -109,10 +109,9 @@ export class MessagingService {
         'message.createdAt',
         'message.status',
       ])
-      .where(
-        '(message.senderId = :userId OR message.recipientId = :userId)',
-        { userId },
-      )
+      .where('(message.senderId = :userId OR message.recipientId = :userId)', {
+        userId,
+      })
       .andWhere('message.deletedAt IS NULL')
       .orderBy('message.createdAt', 'DESC')
       .distinctOn(['message.conversationId'])
@@ -168,9 +167,7 @@ export class MessagingService {
       !userMessage ||
       (userMessage.senderId !== userId && userMessage.recipientId !== userId)
     ) {
-      throw new ForbiddenException(
-        'この会話にアクセスする権限がありません',
-      );
+      throw new ForbiddenException('この会話にアクセスする権限がありません');
     }
 
     const [messages, total] = await this.messageRepository.findAndCount({
@@ -191,10 +188,7 @@ export class MessagingService {
     };
   }
 
-  async markMessageAsRead(
-    messageId: string,
-    userId: string,
-  ): Promise<void> {
+  async markMessageAsRead(messageId: string, userId: string): Promise<void> {
     const message = await this.messageRepository.findOne({
       where: { id: messageId, recipientId: userId },
     });
@@ -278,10 +272,9 @@ export class MessagingService {
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.sender', 'sender')
       .leftJoinAndSelect('message.recipient', 'recipient')
-      .where(
-        '(message.senderId = :userId OR message.recipientId = :userId)',
-        { userId },
-      )
+      .where('(message.senderId = :userId OR message.recipientId = :userId)', {
+        userId,
+      })
       .andWhere('LOWER(message.content) LIKE :query', {
         query: `%${query.toLowerCase()}%`,
       })

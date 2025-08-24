@@ -34,20 +34,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     ConfigModule,
     NotificationsModule,
   ],
-  controllers: [
-    ForumController,
-    MessagingController,
-    FollowController,
-  ],
-  providers: [
-    ForumService,
-    MessagingService,
-    FollowService,
-  ],
-  exports: [
-    ForumService,
-    MessagingService,
-    FollowService,
-  ],
+  controllers: [ForumController, MessagingController, FollowController],
+  providers: [ForumService, MessagingService, FollowService],
+  exports: [ForumService, MessagingService, FollowService],
 })
 export class CommunityModule {}
