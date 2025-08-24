@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies from backend
       body: JSON.stringify({
         email,
         password,
@@ -32,15 +33,12 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
 
-    // Set secure HTTP-only cookies
-    if (data.accessToken) {
-      nextResponse.cookies.set('auth_token', data.accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: '/',
-      });
+    // Forward the HTTP-only cookies from backend to frontend
+    // Get all set-cookie headers from the backend response
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      // Backend should set both accessToken and any other cookies
+      nextResponse.headers.set('set-cookie', setCookieHeader);
     }
 
     // Store minimal user info in secure cookie

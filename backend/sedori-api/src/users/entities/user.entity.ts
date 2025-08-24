@@ -5,6 +5,7 @@ export enum UserRole {
   USER = 'user',
   ADMIN = 'admin',
   MODERATOR = 'moderator',
+  SELLER = 'seller',
 }
 
 export enum UserPlan {

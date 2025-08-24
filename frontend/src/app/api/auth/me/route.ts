@@ -6,10 +6,19 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get('auth_token')?.value;
+    const token = cookieStore.get('auth_token')?.value || cookieStore.get('accessToken')?.value;
     const userSessionCookie = cookieStore.get('user_session')?.value;
     
-    if (!token || !userSessionCookie) {
+    // For dev-login, allow authentication with just user_session cookie
+    if (!userSessionCookie) {
+      return NextResponse.json({
+        isAuthenticated: false,
+        user: null
+      });
+    }
+    
+    // If we have a token but no user session, or vice versa for regular login
+    if (!token && !userSessionCookie) {
       return NextResponse.json({
         isAuthenticated: false,
         user: null

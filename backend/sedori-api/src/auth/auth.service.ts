@@ -163,14 +163,17 @@ export class AuthService {
           let expectedRole = UserRole.USER; // default
           if (loginDto.email.includes('admin')) {
             expectedRole = UserRole.ADMIN;
+          } else if (loginDto.email.includes('moderator')) {
+            expectedRole = UserRole.MODERATOR;
           } else if (loginDto.email.includes('seller')) {
-            expectedRole = UserRole.USER;
-          } else {
-            expectedRole = UserRole.USER;
+            expectedRole = UserRole.SELLER;
           }
 
-          // Note: Role updating for existing users would require additional setup
-          // For now, we'll use the user's existing role from the database
+          // Update user role if it differs from expected role for dev accounts
+          if (user.role !== expectedRole) {
+            await this.usersService.updateRole(user.id, expectedRole);
+            user.role = expectedRole;
+          }
 
           await this.usersService.updateLastLogin(user.id);
 
@@ -215,6 +218,8 @@ export class AuthService {
       role = UserRole.ADMIN;
     } else if (loginDto.email.includes('moderator')) {
       role = UserRole.MODERATOR;
+    } else if (loginDto.email.includes('seller')) {
+      role = UserRole.SELLER;
     }
 
     // Check once more if user exists before creating (race condition protection)
