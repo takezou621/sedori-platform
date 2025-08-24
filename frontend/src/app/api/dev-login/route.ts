@@ -35,12 +35,16 @@ export async function POST(request: NextRequest) {
       if (registerResponse.ok) {
         const registerData = await registerResponse.json();
         
-        // 登録成功時にCookieを設定
-        const response = NextResponse.json(registerData);
+        // Create secure response with HTTP-only cookies for registration
+        const response = NextResponse.json({
+          success: true,
+          user: registerData.user,
+          accessToken: registerData.accessToken,
+        });
         
         if (registerData.accessToken) {
           response.cookies.set('auth_token', registerData.accessToken, {
-            httpOnly: false,
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -49,8 +53,16 @@ export async function POST(request: NextRequest) {
         }
 
         if (registerData.user) {
-          response.cookies.set('user_data', JSON.stringify(registerData.user), {
-            httpOnly: false,
+          const userSession = {
+            id: registerData.user.id,
+            name: registerData.user.name,
+            email: registerData.user.email,
+            role: registerData.user.role,
+            plan: registerData.user.plan,
+            status: registerData.user.status
+          };
+          response.cookies.set('user_session', JSON.stringify(userSession), {
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -65,12 +77,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 成功した場合、レスポンスにCookieを設定
-    const response = NextResponse.json(data);
-    
+    // Create secure response with HTTP-only cookies  
+    const response = NextResponse.json({
+      success: true,
+      user: data.user,
+      accessToken: data.accessToken,
+    });
+
+    // Set secure HTTP-only cookies
     if (data.accessToken) {
       response.cookies.set('auth_token', data.accessToken, {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -78,9 +95,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Store minimal user info in secure cookie
     if (data.user) {
-      response.cookies.set('user_data', JSON.stringify(data.user), {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+      const userSession = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        plan: data.user.plan,
+        status: data.user.status
+      };
+      response.cookies.set('user_session', JSON.stringify(userSession), {
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
