@@ -7,7 +7,7 @@ test.describe('開発モードログイン 簡単テスト', () => {
     console.log('🚀 Starting simple login test');
     
     // ホームページにアクセス
-    await page.goto('http://localhost:3002');
+    await page.goto('/');
     console.log('✅ Home page loaded');
     
     // 開発パネルボタンが表示されることを確認
@@ -54,7 +54,7 @@ test.describe('開発モードログイン 簡単テスト', () => {
       // APIの成功を見れなかった場合でも、クッキーをチェック
       const cookies = await page.context().cookies();
       const hasAuthToken = cookies.some(cookie => cookie.name === 'auth_token');
-      const hasUserData = cookies.some(cookie => cookie.name === 'user_data');
+      const hasUserData = cookies.some(cookie => cookie.name === 'user_session');
       
       console.log('Has auth_token cookie:', hasAuthToken);
       console.log('Has user_data cookie:', hasUserData);
@@ -68,7 +68,7 @@ test.describe('開発モードログイン 簡単テスト', () => {
     // アサーション - ログインが成功したか、適切なクッキーが設定されているか
     const cookies = await page.context().cookies();
     const hasAuthToken = cookies.some(cookie => cookie.name === 'auth_token');
-    const hasUserData = cookies.some(cookie => cookie.name === 'user_data');
+    const hasUserData = cookies.some(cookie => cookie.name === 'user_session');
     
     expect(hasAuthToken || loginSuccessful).toBeTruthy();
     expect(hasUserData || loginSuccessful).toBeTruthy();
@@ -78,7 +78,7 @@ test.describe('開発モードログイン 簡単テスト', () => {
     console.log('🔍 Testing dashboard direct access');
     
     // まずログイン
-    await page.goto('http://localhost:3002');
+    await page.goto('/');
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     await devPanelTrigger.click();
     await page.waitForTimeout(1000);
@@ -89,7 +89,7 @@ test.describe('開発モードログイン 簡単テスト', () => {
     
     // ダッシュボードに直接アクセス
     console.log('Navigating to dashboard...');
-    await page.goto('http://localhost:3002/dashboard');
+    await page.goto('/dashboard');
     await page.waitForTimeout(5000);
     
     // ページタイトルを確認

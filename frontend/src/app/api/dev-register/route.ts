@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     
     if (data.accessToken) {
       response.cookies.set('auth_token', data.accessToken, {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -37,8 +37,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (data.user) {
-      response.cookies.set('user_data', JSON.stringify(data.user), {
-        httpOnly: false, // フロントエンドからもアクセス可能にする
+      const userSession = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        plan: data.user.plan,
+        status: data.user.status
+      };
+      response.cookies.set('user_session', JSON.stringify(userSession), {
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days

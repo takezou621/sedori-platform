@@ -126,9 +126,7 @@ export class PriceUpdateScheduler {
       const urgentProducts = await this.productRepository
         .createQueryBuilder('product')
         .where('product.status = :status', { status: ProductStatus.ACTIVE })
-        .andWhere('product.metadata ? :priceAlert', {
-          priceAlert: 'priceAlert',
-        })
+        .andWhere("product.metadata::jsonb ? 'priceAlert'")
         .take(10)
         .getMany();
 

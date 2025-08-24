@@ -5,7 +5,7 @@ test.describe('認証フロー詳細デバッグ', () => {
     console.log('🔍 Starting detailed authentication flow debug');
     
     // ステップ1: ホームページにアクセス
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await page.waitForLoadState('networkidle');
     console.log('✅ Step 1: Home page loaded');
     
@@ -74,7 +74,7 @@ test.describe('認証フロー詳細デバッグ', () => {
     // ステップ13: もしダッシュボードにリダイレクトされていない場合、手動でアクセス
     if (!currentUrl.includes('/dashboard')) {
       console.log('⚠️ Not redirected to dashboard, navigating manually...');
-      await page.goto('http://localhost:3002/dashboard');
+      await page.goto('http://localhost:3005/dashboard');
       await page.waitForTimeout(3000);
       
       const finalUrl = page.url();
@@ -104,7 +104,7 @@ test.describe('認証フロー詳細デバッグ', () => {
     console.log('🔍 Testing dashboard direct access after login');
     
     // まずログインフローを実行
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await page.waitForLoadState('networkidle');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
@@ -136,7 +136,7 @@ test.describe('認証フロー詳細デバッグ', () => {
     }
     
     // Dashboard に直接アクセス
-    await page.goto('http://localhost:3002/dashboard');
+    await page.goto('http://localhost:3005/dashboard');
     await page.waitForTimeout(5000); // zustand初期化を待機
     
     // Dashboard内容の確認

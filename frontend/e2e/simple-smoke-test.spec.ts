@@ -5,7 +5,7 @@ test.describe('スモークテスト - 基本動作確認', () => {
     console.log('Testing homepage basic functionality');
     
     // ホームページへのアクセス
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     // ページタイトルの確認
     await expect(page).toHaveTitle(/.*/, { timeout: 10000 });
@@ -20,7 +20,7 @@ test.describe('スモークテスト - 基本動作確認', () => {
     console.log('Testing authentication pages');
     
     // ログインページ
-    await page.goto('http://localhost:3002/auth/login');
+    await page.goto('http://localhost:3005/auth/login');
     await expect(page.locator('body')).toBeVisible();
     
     // 基本的なフォーム要素の存在確認
@@ -42,7 +42,7 @@ test.describe('スモークテスト - 基本動作確認', () => {
     console.log('Testing products page');
     
     // 商品ページにアクセス
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     
     // ページが読み込まれることを確認
     await expect(page.locator('body')).toBeVisible();
@@ -57,7 +57,7 @@ test.describe('スモークテスト - 基本動作確認', () => {
   test('ナビゲーション基本機能', async ({ page }) => {
     console.log('Testing basic navigation');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     // ナビゲーションリンクのテスト
     const links = page.locator('a[href]');
@@ -91,7 +91,7 @@ test.describe('スモークテスト - 基本動作確認', () => {
     
     // デスクトップサイズ
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await expect(page.locator('body')).toBeVisible();
     
     // タブレットサイズ

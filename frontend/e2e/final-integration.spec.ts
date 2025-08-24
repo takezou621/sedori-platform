@@ -7,7 +7,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     // === Phase 1: Platform Access and Basic Navigation ===
     console.log('Phase 1: Platform Access and Basic Navigation');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await expect(page.locator('body')).toBeVisible();
     console.log('✅ Platform successfully loaded');
     
@@ -33,7 +33,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
       await page.waitForTimeout(2000);
       console.log('✅ Navigated to products page');
     } else {
-      await page.goto('http://localhost:3002/products');
+      await page.goto('http://localhost:3005/products');
       console.log('✅ Direct navigation to products page');
     }
     
@@ -136,7 +136,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     console.log('Phase 6: Cart and Order Management');
     
     // カート機能の確認
-    await page.goto('http://localhost:3002/cart');
+    await page.goto('http://localhost:3005/cart');
     await expect(page.locator('body')).toBeVisible();
     
     const cartTitle = page.locator('h1, h2, [role="heading"]');
@@ -166,7 +166,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
       await page.waitForTimeout(3000);
       console.log('✅ Dashboard accessible via navigation');
     } else {
-      await page.goto('http://localhost:3002/dashboard');
+      await page.goto('http://localhost:3005/dashboard');
       await page.waitForTimeout(3000);
       console.log('✅ Dashboard accessible via direct URL');
     }
@@ -215,7 +215,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     
     // ページ読み込み速度の基本確認
     const startTime = Date.now();
-    await page.goto('http://localhost:3002/products');
+    await page.goto('http://localhost:3005/products');
     const loadTime = Date.now() - startTime;
     
     if (loadTime < 5000) {
@@ -241,7 +241,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     console.log('Phase 10: Error Handling and Edge Cases');
     
     // 存在しないページへのアクセス
-    await page.goto('http://localhost:3002/nonexistent-page-test-12345');
+    await page.goto('http://localhost:3005/nonexistent-page-test-12345');
     await page.waitForTimeout(2000);
     
     const errorElements = page.locator('text=404, text=Not Found, text=エラー, .error, [role="alert"]');
@@ -271,10 +271,10 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     
     // 複数ページの連続アクセステスト
     const pages = [
-      'http://localhost:3002/',
-      'http://localhost:3002/products', 
-      'http://localhost:3002/cart',
-      'http://localhost:3002/dashboard'
+      'http://localhost:3005/',
+      'http://localhost:3005/products', 
+      'http://localhost:3005/cart',
+      'http://localhost:3005/dashboard'
     ];
     
     for (const url of pages) {
@@ -299,7 +299,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
       jsErrors.push(error.message);
     });
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await page.waitForTimeout(3000);
     
     if (jsErrors.length === 0) {
@@ -314,7 +314,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
   test('せどりビジネス機能統合確認', async ({ page }) => {
     console.log('💼 Sedori Business Logic Integration Test');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     // せどり特有の機能要素確認
     const sedoriFeatures = [
@@ -342,7 +342,7 @@ test.describe('最終統合E2Eテスト - せどりプラットフォーム', ()
     let foundFeatures = 0;
     
     for (const feature of sedoriFeatures) {
-      await page.goto('http://localhost:3002/products');
+      await page.goto('http://localhost:3005/products');
       await page.waitForTimeout(1000);
       
       const elements = page.locator(feature);

@@ -5,7 +5,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
     console.log('Testing development mode login panel');
     
     // ホームページにアクセス
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     await expect(page.locator('body')).toBeVisible();
     
     // 開発モード用パネルが表示されることを確認（開発環境でのみ）
@@ -39,7 +39,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
   test('テストユーザーでワンクリックログイン', async ({ page }) => {
     console.log('Testing one-click login with test user');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     // 開発モード用パネルを開く
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
@@ -83,7 +83,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
   test('管理者テストアカウントでログイン', async ({ page }) => {
     console.log('Testing admin account login');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     if (await devPanelTrigger.count() > 0) {
@@ -108,7 +108,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
   test('せどり業者テストアカウントでログイン', async ({ page }) => {
     console.log('Testing seller account login');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     if (await devPanelTrigger.count() > 0) {
@@ -126,7 +126,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
         console.log('✅ Seller account login successful');
         
         // せどり関連機能が利用可能か確認
-        await page.goto('http://localhost:3002/products');
+        await page.goto('http://localhost:3005/products');
         await page.waitForTimeout(2000);
         
         // せどり機能の表示確認
@@ -146,7 +146,7 @@ test.describe('開発モード E2E ワンクリックログイン', () => {
   test('パネルの開閉動作確認', async ({ page }) => {
     console.log('Testing panel open/close functionality');
     
-    await page.goto('http://localhost:3002');
+    await page.goto('http://localhost:3005');
     
     const devPanelTrigger = page.locator('[data-testid="show-dev-panel"]');
     if (await devPanelTrigger.count() > 0) {

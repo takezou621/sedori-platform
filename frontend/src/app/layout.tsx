@@ -15,12 +15,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3005"),
   title: "Sedori Platform",
   description: "Your comprehensive platform for product sourcing, sales tracking, and business intelligence",
   keywords: "product sourcing, sales tracking, business intelligence, sedori, inventory management",
   authors: [{ name: "Sedori Platform Team" }],
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#2563eb",
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/icon-192x192.png",
@@ -48,6 +47,12 @@ export const metadata: Metadata = {
     description: "Your comprehensive platform for product sourcing, sales tracking, and business intelligence",
     images: ["/twitter-image.png"],
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({

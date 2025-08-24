@@ -3,11 +3,14 @@
 import { useState, useEffect } from 'react';
 import { AdminStats } from '@/types/admin';
 import { Card, Button } from '@/components/ui';
+import { AdminOnlyAccess } from '@/components/common';
+import { useRole } from '@/hooks';
 import Link from 'next/link';
 
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isAdmin, isAuthenticated, isLoading } = useRole();
 
   useEffect(() => {
     // Mock data for now
@@ -22,8 +25,14 @@ export default function AdminPage() {
     setLoading(false);
   }, []);
 
-  if (loading) {
+  // Show loading while checking authentication
+  if (isLoading || loading) {
     return <div className="p-8">Loading...</div>;
+  }
+
+  // Show unauthorized access if not authenticated or not admin
+  if (!isAuthenticated || !isAdmin) {
+    return <AdminOnlyAccess />;
   }
 
   return (

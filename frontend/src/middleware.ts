@@ -4,29 +4,65 @@ export function middleware(request: NextRequest) {
   // Get the pathname
   const { pathname } = request.nextUrl;
 
-  // Define protected routes
+  // Define route access levels
   const protectedRoutes = ['/dashboard', '/products', '/analytics'];
+  const adminOnlyRoutes = ['/admin', '/admin/beta'];
+  const sellerRoutes = ['/seller']; // Future seller-specific routes
   const authRoutes = ['/auth/login', '/auth/register', '/login', '/register'];
   
-  // Get auth token from cookies
+  // Get auth token and user session from HTTP-only cookies
   const token = request.cookies.get('auth_token');
+  const userSessionCookie = request.cookies.get('user_session');
   const isAuthenticated = !!token?.value;
   
-  // Check if the current route is protected
+  let user: any = null;
+  if (userSessionCookie?.value) {
+    try {
+      const decodedValue = decodeURIComponent(userSessionCookie.value);
+      user = JSON.parse(decodedValue);
+    } catch (error) {
+      // Silently ignore parsing errors in production
+    }
+  }
+
+  // Check route types
   const isProtectedRoute = protectedRoutes.some(route => 
     pathname.startsWith(route)
   );
   
-  // Check if the current route is an auth route (login/register)
+  const isAdminOnlyRoute = adminOnlyRoutes.some(route => 
+    pathname.startsWith(route)
+  );
+  
+  const isSellerRoute = sellerRoutes.some(route => 
+    pathname.startsWith(route)
+  );
+  
   const isAuthRoute = authRoutes.some(route => 
     pathname.startsWith(route)
   );
 
   // If user is not authenticated and tries to access protected route
-  if (isProtectedRoute && !isAuthenticated) {
+  if ((isProtectedRoute || isAdminOnlyRoute || isSellerRoute) && !isAuthenticated) {
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // If user is authenticated but tries to access admin route without admin role
+  if (isAdminOnlyRoute && isAuthenticated) {
+    if (!user || user.role !== 'admin') {
+      const errorUrl = new URL('/not-found', request.url);
+      return NextResponse.redirect(errorUrl);
+    }
+  }
+
+  // If user is authenticated but tries to access seller route without seller/admin role
+  if (isSellerRoute && isAuthenticated) {
+    if (!user || (user.role !== 'seller' && user.role !== 'admin')) {
+      const errorUrl = new URL('/not-found', request.url);
+      return NextResponse.redirect(errorUrl);
+    }
   }
 
   // If user is authenticated and tries to access auth routes, redirect to dashboard
