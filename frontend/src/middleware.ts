@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define route access levels
-  const protectedRoutes = ['/dashboard', '/products', '/analytics'];
+  const protectedRoutes = ['/dashboard', '/products', '/analytics', '/cart', '/orders', '/profile', '/checkout'];
   const adminOnlyRoutes = ['/admin', '/admin/beta'];
   const sellerRoutes = ['/seller']; // Future seller-specific routes
   const authRoutes = ['/auth/login', '/auth/register', '/login', '/register'];

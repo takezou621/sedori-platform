@@ -47,13 +47,13 @@ describe('Cookie utilities', () => {
 
     it('should return parsed user data when cookie exists', () => {
       const userData = { id: '1', name: 'Test User', email: 'test@example.com' };
-      document.cookie = `user_data=${encodeURIComponent(JSON.stringify(userData))}`;
+      document.cookie = `user_session=${encodeURIComponent(JSON.stringify(userData))}`;
       
       expect(getUserFromCookie()).toEqual(userData);
     });
 
     it('should return null when cookie contains invalid JSON', () => {
-      document.cookie = 'user_data=invalid_json';
+      document.cookie = 'user_session=invalid_json';
       
       // Mock console.error to avoid noise in tests
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});

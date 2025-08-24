@@ -33,8 +33,9 @@ export function DevLoginButtons() {
   const [showDevPanel, setShowDevPanel] = useState(false);
   const router = useRouter();
 
-  // 開発モードでのみ表示
-  if (process.env.NODE_ENV !== 'development') {
+  // 開発モードでのみ表示 (Next.js dev serverでも動作するように修正)
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+  if (!isDevelopment) {
     return null;
   }
 
@@ -42,12 +43,10 @@ export function DevLoginButtons() {
     setIsLoading(account.id);
     
     try {
-      console.log('Attempting login for:', account.email);
       const requestBody = {
         email: account.email,
         password: account.password,
       };
-      console.log('Request payload:', requestBody);
       
       // Next.js API Route (プロキシ)を使用してCORS問題を回避
       const response = await fetch('/api/dev-login', {
@@ -58,23 +57,17 @@ export function DevLoginButtons() {
         body: JSON.stringify(requestBody),
       });
       
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      // Response received
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Login response data:', data);
         
         // ログイン成功時にトークンを保存（必要に応じて）
         if (data.accessToken) {
           localStorage.setItem('auth-token', data.accessToken);
-          console.log('Token saved to localStorage');
-          console.log('Cookie should be set automatically by server');
         } else {
           console.error('No accessToken in response:', data);
         }
-        
-        console.log('Dev login successful for:', account.name);
         
         // ダッシュボードへリダイレクト
         window.location.href = '/dashboard';
@@ -102,11 +95,7 @@ export function DevLoginButtons() {
           // 登録成功時にトークンを保存
           if (registerData.accessToken) {
             localStorage.setItem('auth-token', registerData.accessToken);
-            console.log('Registration token saved to localStorage');
-            console.log('Cookie should be set automatically by server');
           }
-          
-          console.log('Dev account created and logged in:', account.name);
           window.location.href = '/dashboard';
         } else {
           console.error('Dev account creation failed:', await registerResponse.text());
@@ -127,7 +116,9 @@ export function DevLoginButtons() {
       {!showDevPanel && (
         <div className="text-center">
           <button
-            onClick={() => setShowDevPanel(true)}
+            onClick={() => {
+              setShowDevPanel(true);
+            }}
             className="text-xs text-secondary-500 hover:text-secondary-700 transition-colors px-2 py-1 rounded border border-dashed border-secondary-300 hover:border-secondary-400"
             data-testid="show-dev-panel"
           >

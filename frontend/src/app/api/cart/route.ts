@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
       itemCount: 3
     };
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Remove artificial delay for better performance
 
     return NextResponse.json({
       success: true,
@@ -62,8 +61,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Simulate adding item to cart
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Remove artificial delay for better performance
     
     return NextResponse.json({
       success: true,
