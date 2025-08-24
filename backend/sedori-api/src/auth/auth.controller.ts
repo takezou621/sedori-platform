@@ -87,4 +87,31 @@ export class AuthController {
   async refreshToken(@CurrentUser() user: User): Promise<AuthResponseDto> {
     return this.authService.refreshToken(user);
   }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'ユーザー情報取得' })
+  @ApiResponse({
+    status: 200,
+    description: 'ユーザー情報取得成功',
+  })
+  @ApiResponse({ status: 401, description: '認証が必要です' })
+  async getMe(@CurrentUser() user: User) {
+    return this.authService.getProfile(user);
+  }
+
+  @Post('dev-login')
+  @Throttle({ default: { limit: 200, ttl: 600000 } }) // 200 dev-login attempts per 10 minutes (dev mode)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '開発環境用ログイン（自動アカウント作成）' })
+  @ApiResponse({
+    status: 200,
+    description: 'ログイン成功',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({ status: 401, description: '認証失敗' })
+  async devLogin(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
+    return this.authService.devLogin(loginDto);
+  }
 }

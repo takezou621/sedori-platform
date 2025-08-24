@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
     }
     
     try {
-      const user = JSON.parse(userSessionCookie);
+      // URL decode the user session cookie value
+      const decodedUserSession = decodeURIComponent(userSessionCookie);
+      const user = JSON.parse(decodedUserSession);
       return NextResponse.json({
         isAuthenticated: true,
         user
