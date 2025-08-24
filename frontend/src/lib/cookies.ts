@@ -14,12 +14,12 @@ export function getCookie(name: string): string | undefined {
 }
 
 export function getUserFromCookie(): unknown {
-  const userDataCookie = getCookie('user_data');
-  if (userDataCookie) {
+  const userSessionCookie = getCookie('user_session');
+  if (userSessionCookie) {
     try {
-      return JSON.parse(decodeURIComponent(userDataCookie));
+      return JSON.parse(decodeURIComponent(userSessionCookie));
     } catch (error) {
-      console.error('Error parsing user data from cookie:', error);
+      console.error('Error parsing user session from cookie:', error);
       return null;
     }
   }

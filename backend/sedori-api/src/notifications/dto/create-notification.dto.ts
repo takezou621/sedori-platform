@@ -40,6 +40,38 @@ export class NotificationDataDto {
 
   @IsOptional()
   @IsString()
+  followerId?: string;
+
+  @IsOptional()
+  @IsString()
+  followerUsername?: string;
+
+  @IsOptional()
+  @IsString()
+  postId?: string;
+
+  @IsOptional()
+  @IsString()
+  replyId?: string;
+
+  @IsOptional()
+  @IsString()
+  parentReplyId?: string;
+
+  @IsOptional()
+  @IsString()
+  messageId?: string;
+
+  @IsOptional()
+  @IsString()
+  conversationId?: string;
+
+  @IsOptional()
+  @IsString()
+  senderId?: string;
+
+  @IsOptional()
+  @IsString()
   licenseId?: string;
 
   @IsOptional()

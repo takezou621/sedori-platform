@@ -6,21 +6,22 @@ export function middleware(request: NextRequest) {
 
   // Define route access levels
   const protectedRoutes = ['/dashboard', '/products', '/analytics'];
-  const adminOnlyRoutes = ['/admin'];
+  const adminOnlyRoutes = ['/admin', '/admin/beta'];
   const sellerRoutes = ['/seller']; // Future seller-specific routes
   const authRoutes = ['/auth/login', '/auth/register', '/login', '/register'];
   
-  // Get auth token and user data from cookies
+  // Get auth token and user session from HTTP-only cookies
   const token = request.cookies.get('auth_token');
-  const userDataCookie = request.cookies.get('user_data');
+  const userSessionCookie = request.cookies.get('user_session');
   const isAuthenticated = !!token?.value;
   
   let user: any = null;
-  if (userDataCookie?.value) {
+  if (userSessionCookie?.value) {
     try {
-      user = JSON.parse(decodeURIComponent(userDataCookie.value));
+      const decodedValue = decodeURIComponent(userSessionCookie.value);
+      user = JSON.parse(decodedValue);
     } catch (error) {
-      console.error('Error parsing user data in middleware:', error);
+      // Silently ignore parsing errors in production
     }
   }
 

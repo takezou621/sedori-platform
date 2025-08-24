@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
       accessToken: data.accessToken,
     });
 
-    // Set cookies
+    // Set secure HTTP-only cookies
     if (data.accessToken) {
       nextResponse.cookies.set('auth_token', data.accessToken, {
-        httpOnly: false,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
@@ -45,8 +45,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (data.user) {
-      nextResponse.cookies.set('user_data', JSON.stringify(data.user), {
-        httpOnly: false,
+      const userSession = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        plan: data.user.plan,
+        status: data.user.status
+      };
+      nextResponse.cookies.set('user_session', JSON.stringify(userSession), {
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7, // 7 days
