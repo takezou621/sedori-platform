@@ -101,7 +101,7 @@ export default function DebugLoginPage() {
             </h2>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {logs.length === 0 ? (
-                <p className="text-gray-500 italic">No logs yet. Click "Test Login" to start.</p>
+                <p className="text-gray-500 italic">No logs yet. Click &quot;Test Login&quot; to start.</p>
               ) : (
                 logs.map((log, index) => (
                   <div key={index} className="text-sm font-mono text-gray-700 bg-white p-2 rounded border">

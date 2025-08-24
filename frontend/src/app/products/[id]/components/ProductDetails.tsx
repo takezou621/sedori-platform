@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Product } from '@/types/product';
 import { Button, Badge, Card } from '@/components/ui';
+import Image from 'next/image';
 
 interface ProductDetailsProps {
   product: Product;
@@ -37,9 +38,11 @@ export function ProductDetails({ product, onAddToCart }: ProductDetailsProps) {
       {/* Product Image */}
       <div className="aspect-square overflow-hidden rounded-lg border">
         {product.imageUrl ? (
-          <img
+          <Image
             src={product.imageUrl}
             alt={product.title}
+            width={400}
+            height={400}
             className="h-full w-full object-cover object-center"
           />
         ) : (

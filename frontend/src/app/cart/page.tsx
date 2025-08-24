@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui';
 import { ApiErrorDisplay } from '@/components/common/ErrorBoundary';
 import { useErrorHandler, AppError, createApiError, ErrorCode } from '@/lib/errors';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import Image from 'next/image';
 
 interface CartItem {
   id: string;
@@ -30,12 +31,7 @@ export default function CartPage() {
   const [processingCheckout, setProcessingCheckout] = useState(false);
   const { handleError } = useErrorHandler();
 
-  // Load cart data on component mount
-  useEffect(() => {
-    loadCartData();
-  }, []);
-
-  const loadCartData = async () => {
+  const loadCartData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -89,7 +85,12 @@ export default function CartPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [cartData, handleError]);
+
+  // Load cart data on component mount
+  useEffect(() => {
+    loadCartData();
+  }, [loadCartData]);
 
   const updateQuantity = async (productId: string, newQuantity: number) => {
     if (!cartData) return;
@@ -313,13 +314,12 @@ export default function CartPage() {
                         {/* Product Image */}
                         <div className="flex-shrink-0 w-16 h-16">
                           {item.imageUrl ? (
-                            <img
+                            <Image
                               src={item.imageUrl}
                               alt={item.title}
+                              width={64}
+                              height={64}
                               className="w-full h-full object-cover rounded"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
                             />
                           ) : (
                             <div className="w-full h-full bg-secondary-100 rounded flex items-center justify-center">

@@ -3,6 +3,7 @@
 import { Product } from '@/types/product';
 import { Card, Button, Badge } from '@/components/ui';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -25,9 +26,11 @@ export function ProductCard({ product, onAddToCart, showAddToCart = true }: Prod
       <Link href={`/products/${product.id}`}>
         <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-secondary-200">
           {product.imageUrl ? (
-            <img
+            <Image
               src={product.imageUrl}
               alt={product.title}
+              width={300}
+              height={192}
               className="h-48 w-full object-cover object-center group-hover:opacity-75"
             />
           ) : (

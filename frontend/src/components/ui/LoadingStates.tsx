@@ -300,7 +300,7 @@ export function OfflineState({
         </svg>
       </div>
       <h3 className="text-lg font-semibold text-yellow-900 mb-2">
-        オフライン / You're Offline
+        オフライン / You&apos;re Offline
       </h3>
       <p className="text-yellow-800 mb-6 max-w-md mx-auto">
         インターネット接続を確認してください。キャッシュされたデータを表示しています。<br />

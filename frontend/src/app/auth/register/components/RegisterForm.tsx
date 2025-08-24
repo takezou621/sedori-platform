@@ -13,7 +13,7 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
   const {
     register,
@@ -65,7 +65,7 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      setError(null);
+      setGlobalError(null);
       setIsLoading(true);
       
       const response = await fetch('/api/auth/register', {
@@ -106,7 +106,7 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Global error message */}
-      {(error || errors.root) && (
+      {(globalError || errors.root) && (
         <div className="rounded-md bg-red-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -129,7 +129,7 @@ export function RegisterForm() {
                 Registration Failed
               </h3>
               <div className="mt-2 text-sm text-red-700">
-                <p>{error || errors.root?.message}</p>
+                <p>{globalError || errors.root?.message}</p>
               </div>
             </div>
           </div>

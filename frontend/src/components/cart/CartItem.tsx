@@ -3,6 +3,7 @@
 import { CartItem as CartItemType } from '@/types/cart';
 import { Button, Card } from '@/components/ui';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface CartItemProps {
   item: CartItemType;
@@ -25,9 +26,11 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
         {/* Product Image */}
         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
           {item.imageUrl ? (
-            <img
+            <Image
               src={item.imageUrl}
               alt={item.title}
+              width={64}
+              height={64}
               className="h-full w-full object-cover object-center"
             />
           ) : (
