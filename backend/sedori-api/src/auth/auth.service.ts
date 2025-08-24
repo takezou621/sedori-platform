@@ -217,6 +217,37 @@ export class AuthService {
       role = UserRole.MODERATOR;
     }
     
+    // Check once more if user exists before creating (race condition protection)
+    const finalUserCheck = await this.usersService.findByEmail(loginDto.email);
+    if (finalUserCheck) {
+      // User was created during processing, return existing user
+      await this.usersService.updateLastLogin(finalUserCheck.id);
+      
+      const payload: JwtPayload = {
+        sub: finalUserCheck.id,
+        email: finalUserCheck.email,
+        name: finalUserCheck.name,
+        role: finalUserCheck.role,
+        plan: finalUserCheck.plan,
+        status: finalUserCheck.status,
+      };
+
+      return {
+        accessToken: this.jwtService.sign(payload),
+        user: {
+          id: finalUserCheck.id,
+          name: finalUserCheck.name,
+          email: finalUserCheck.email,
+          role: finalUserCheck.role,
+          plan: finalUserCheck.plan,
+          status: finalUserCheck.status,
+          createdAt: finalUserCheck.createdAt,
+          lastLoginAt: finalUserCheck.lastLoginAt,
+          emailVerifiedAt: finalUserCheck.emailVerifiedAt,
+        },
+      };
+    }
+    
     const newUser = await this.usersService.create({
       name: loginDto.email.split('@')[0], // Use email prefix as name
       email: loginDto.email,
