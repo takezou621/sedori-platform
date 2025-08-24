@@ -73,6 +73,19 @@ export class AuthController {
     return this.authService.getProfile(user);
   }
 
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'ユーザー情報取得' })
+  @ApiResponse({
+    status: 200,
+    description: 'ユーザー情報取得成功',
+  })
+  @ApiResponse({ status: 401, description: '認証が必要です' })
+  async getMe(@CurrentUser() user: User) {
+    return this.authService.getProfile(user);
+  }
+
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
@@ -86,19 +99,6 @@ export class AuthController {
   @ApiResponse({ status: 401, description: '認証が必要です' })
   async refreshToken(@CurrentUser() user: User): Promise<AuthResponseDto> {
     return this.authService.refreshToken(user);
-  }
-
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'ユーザー情報取得' })
-  @ApiResponse({
-    status: 200,
-    description: 'ユーザー情報取得成功',
-  })
-  @ApiResponse({ status: 401, description: '認証が必要です' })
-  async getMe(@CurrentUser() user: User) {
-    return this.authService.getProfile(user);
   }
 
   @Post('dev-login')

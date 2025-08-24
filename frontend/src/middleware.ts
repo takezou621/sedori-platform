@@ -21,8 +21,7 @@ export function middleware(request: NextRequest) {
       const decodedValue = decodeURIComponent(userSessionCookie.value);
       user = JSON.parse(decodedValue);
     } catch (error) {
-      console.error('Error parsing user session in middleware:', error);
-      console.error('Raw cookie value:', userSessionCookie.value);
+      // Silently ignore parsing errors in production
     }
   }
 
@@ -52,21 +51,10 @@ export function middleware(request: NextRequest) {
 
   // If user is authenticated but tries to access admin route without admin role
   if (isAdminOnlyRoute && isAuthenticated) {
-    console.log('Admin route check:', {
-      pathname,
-      isAuthenticated,
-      user: user ? { email: user.email, role: user.role } : null,
-      token: !!token?.value,
-      userSessionCookie: !!userSessionCookie?.value
-    });
-    
     if (!user || user.role !== 'admin') {
-      console.log('Access denied - redirecting to /not-found');
       const errorUrl = new URL('/not-found', request.url);
       return NextResponse.redirect(errorUrl);
     }
-    
-    console.log('Admin access granted');
   }
 
   // If user is authenticated but tries to access seller route without seller/admin role

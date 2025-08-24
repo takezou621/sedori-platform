@@ -164,7 +164,7 @@ export class AuthService {
           if (loginDto.email.includes('admin')) {
             expectedRole = UserRole.ADMIN;
           } else if (loginDto.email.includes('seller')) {
-            expectedRole = UserRole.SELLER;
+            expectedRole = UserRole.USER;
           } else {
             expectedRole = UserRole.USER;
           }
@@ -206,9 +206,50 @@ export class AuthService {
       }
     }
     
-    // If user doesn't exist, just throw unauthorized instead of creating
-    throw new UnauthorizedException(
-      'メールアドレスまたはパスワードが間違っています',
-    );
+    // If user doesn't exist, create a new dev account
+    const hashedPassword = await bcrypt.hash(loginDto.password, 10);
+    
+    // Determine role based on email pattern
+    let role = UserRole.USER; // default
+    if (loginDto.email.includes('admin')) {
+      role = UserRole.ADMIN;
+    } else if (loginDto.email.includes('moderator')) {
+      role = UserRole.MODERATOR;
+    }
+    
+    const newUser = await this.usersService.create({
+      name: loginDto.email.split('@')[0], // Use email prefix as name
+      email: loginDto.email,
+      password: hashedPassword,
+      role: role,
+      status: UserStatus.ACTIVE,
+      emailVerifiedAt: new Date(),
+    });
+
+    await this.usersService.updateLastLogin(newUser.id);
+
+    const payload: JwtPayload = {
+      sub: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role,
+      plan: newUser.plan,
+      status: newUser.status,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        plan: newUser.plan,
+        status: newUser.status,
+        createdAt: newUser.createdAt,
+        lastLoginAt: newUser.lastLoginAt,
+        emailVerifiedAt: newUser.emailVerifiedAt,
+      },
+    };
   }
 }

@@ -1,7 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAuthState, type User, type AuthState } from '@/lib/cookies';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'seller' | 'user';
+  plan: string;
+  status: string;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+}
 
 export function useRole() {
   const [authState, setAuthState] = useState<AuthState>({ isAuthenticated: false, user: null });
@@ -10,8 +23,12 @@ export function useRole() {
   useEffect(() => {
     const fetchAuthState = async () => {
       try {
-        const state = await getAuthState();
-        setAuthState(state);
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        setAuthState({
+          isAuthenticated: data.isAuthenticated,
+          user: data.user
+        });
       } catch (error) {
         console.error('Error fetching auth state:', error);
         setAuthState({ isAuthenticated: false, user: null });
