@@ -19,6 +19,8 @@ import { StorageModule } from './storage/storage.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ComplianceModule } from './compliance/compliance.module';
 import { HealthModule } from './health/health.module';
+import { ExternalApisModule } from './external-apis/external-apis.module';
+import { AiModule } from './ai/ai.module';
 import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 
@@ -64,6 +66,8 @@ import appConfig from './config/app.config';
     NotificationsModule,
     ComplianceModule,
     HealthModule,
+    ExternalApisModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

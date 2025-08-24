@@ -39,6 +39,19 @@ export default registerAs('externalApis', () => ({
     },
     timeout: parseInt(process.env.YAHOO_API_TIMEOUT || '20000'), // 20 seconds
   },
+  keepa: {
+    apiKey: process.env.KEEPA_API_KEY || '',
+    baseUrl: process.env.KEEPA_BASE_URL || 'https://api.keepa.com',
+    version: process.env.KEEPA_API_VERSION || 'v1',
+    rateLimits: {
+      tokensPerMinute: parseInt(process.env.KEEPA_TOKENS_PER_MINUTE || '100'), // API tokens per minute
+      tokensPerDay: parseInt(process.env.KEEPA_TOKENS_PER_DAY || '100000'), // Daily token quota
+      requestsPerSecond: parseInt(process.env.KEEPA_REQUESTS_PER_SECOND || '5'), // Max requests per second
+    },
+    timeout: parseInt(process.env.KEEPA_API_TIMEOUT || '30000'), // 30 seconds
+    enableAiEnhancements: process.env.KEEPA_ENABLE_AI !== 'false',
+    domain: parseInt(process.env.KEEPA_DOMAIN || '5'), // 5 = Japan Amazon
+  },
   scheduler: {
     priceUpdateInterval: process.env.PRICE_UPDATE_INTERVAL || '0 */6 * * *', // Every 6 hours
     trendingUpdateInterval: process.env.TRENDING_UPDATE_INTERVAL || '0 9 * * 1', // Monday 9 AM
@@ -98,6 +111,7 @@ export const validateExternalApiConfig = () => {
     'AMAZON_ACCESS_KEY',
     'RAKUTEN_APPLICATION_ID',
     'YAHOO_CLIENT_ID',
+    'KEEPA_API_KEY',
   ];
 
   const missingApiVars = apiVars.filter((varName) => !process.env[varName]);

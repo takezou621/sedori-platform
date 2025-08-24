@@ -36,6 +36,11 @@ export class ApiRateLimiterService {
       windowMs: 24 * 60 * 60 * 1000, // 24 hours
       burstLimit: 100, // burst limit per second
     },
+    'keepa-api': {
+      requests: 100000, // tokens per day
+      windowMs: 24 * 60 * 60 * 1000, // 24 hours
+      burstLimit: 5, // requests per second
+    },
   };
 
   constructor(@InjectRedis() private readonly redis: Redis) {}
