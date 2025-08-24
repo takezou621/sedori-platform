@@ -10,7 +10,7 @@ import Link from 'next/link';
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { isAdmin, isAuthenticated } = useRole();
+  const { isAdmin, isAuthenticated, isLoading } = useRole();
 
   useEffect(() => {
     // Mock data for now
@@ -25,13 +25,14 @@ export default function AdminPage() {
     setLoading(false);
   }, []);
 
-  // Show unauthorized access if not admin
-  if (isAuthenticated && !isAdmin) {
-    return <AdminOnlyAccess />;
+  // Show loading while checking authentication
+  if (isLoading || loading) {
+    return <div className="p-8">Loading...</div>;
   }
 
-  if (loading) {
-    return <div className="p-8">Loading...</div>;
+  // Show unauthorized access if not authenticated or not admin
+  if (!isAuthenticated || !isAdmin) {
+    return <AdminOnlyAccess />;
   }
 
   return (

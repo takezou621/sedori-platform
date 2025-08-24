@@ -6,21 +6,23 @@ export function middleware(request: NextRequest) {
 
   // Define route access levels
   const protectedRoutes = ['/dashboard', '/products', '/analytics'];
-  const adminOnlyRoutes = ['/admin'];
+  const adminOnlyRoutes = ['/admin', '/admin/beta'];
   const sellerRoutes = ['/seller']; // Future seller-specific routes
   const authRoutes = ['/auth/login', '/auth/register', '/login', '/register'];
   
-  // Get auth token and user data from cookies
+  // Get auth token and user session from HTTP-only cookies
   const token = request.cookies.get('auth_token');
-  const userDataCookie = request.cookies.get('user_data');
+  const userSessionCookie = request.cookies.get('user_session');
   const isAuthenticated = !!token?.value;
   
   let user: any = null;
-  if (userDataCookie?.value) {
+  if (userSessionCookie?.value) {
     try {
-      user = JSON.parse(decodeURIComponent(userDataCookie.value));
+      const decodedValue = decodeURIComponent(userSessionCookie.value);
+      user = JSON.parse(decodedValue);
     } catch (error) {
-      console.error('Error parsing user data in middleware:', error);
+      console.error('Error parsing user session in middleware:', error);
+      console.error('Raw cookie value:', userSessionCookie.value);
     }
   }
 
@@ -50,10 +52,21 @@ export function middleware(request: NextRequest) {
 
   // If user is authenticated but tries to access admin route without admin role
   if (isAdminOnlyRoute && isAuthenticated) {
+    console.log('Admin route check:', {
+      pathname,
+      isAuthenticated,
+      user: user ? { email: user.email, role: user.role } : null,
+      token: !!token?.value,
+      userSessionCookie: !!userSessionCookie?.value
+    });
+    
     if (!user || user.role !== 'admin') {
+      console.log('Access denied - redirecting to /not-found');
       const errorUrl = new URL('/not-found', request.url);
       return NextResponse.redirect(errorUrl);
     }
+    
+    console.log('Admin access granted');
   }
 
   // If user is authenticated but tries to access seller route without seller/admin role

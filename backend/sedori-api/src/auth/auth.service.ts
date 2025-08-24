@@ -10,7 +10,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { User, UserStatus } from '../users/entities/user.entity';
+import { User, UserStatus, UserRole } from '../users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -148,5 +148,67 @@ export class AuthService {
   async getProfile(user: User): Promise<Omit<User, 'password'>> {
     const { password, ...profile } = user;
     return profile;
+  }
+
+  async devLogin(loginDto: LoginDto): Promise<AuthResponseDto> {
+    // Check if user exists first
+    const existingUser = await this.usersService.findByEmail(loginDto.email);
+    
+    if (existingUser) {
+      // If user exists, try to validate credentials
+      try {
+        const user = await this.validateUser(loginDto.email, loginDto.password);
+        if (user) {
+          // Update role based on email pattern for dev accounts
+          let expectedRole = UserRole.USER; // default
+          if (loginDto.email.includes('admin')) {
+            expectedRole = UserRole.ADMIN;
+          } else if (loginDto.email.includes('seller')) {
+            expectedRole = UserRole.SELLER;
+          } else {
+            expectedRole = UserRole.USER;
+          }
+
+          // Note: Role updating for existing users would require additional setup
+          // For now, we'll use the user's existing role from the database
+
+          await this.usersService.updateLastLogin(user.id);
+
+          const payload: JwtPayload = {
+            sub: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            plan: user.plan,
+            status: user.status,
+          };
+
+          return {
+            accessToken: this.jwtService.sign(payload),
+            user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              plan: user.plan,
+              status: user.status,
+              createdAt: user.createdAt,
+              lastLoginAt: user.lastLoginAt,
+              emailVerifiedAt: user.emailVerifiedAt,
+            },
+          };
+        }
+      } catch (error) {
+        // If validation fails for existing user, throw error
+        throw new UnauthorizedException(
+          'メールアドレスまたはパスワードが間違っています',
+        );
+      }
+    }
+    
+    // If user doesn't exist, just throw unauthorized instead of creating
+    throw new UnauthorizedException(
+      'メールアドレスまたはパスワードが間違っています',
+    );
   }
 }
