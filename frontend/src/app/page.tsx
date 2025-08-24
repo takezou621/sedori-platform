@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui';
+import { DevLoginButtons } from '@/components/dev/DevLoginButtons';
 
 export default function Home() {
   return (
@@ -12,8 +15,8 @@ export default function Home() {
             <span className="block text-primary-600">Sedori Platform</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-secondary-600">
-            Your comprehensive platform for product sourcing, sales tracking, and business intelligence. 
-            Start building your business today with our powerful tools and analytics.
+            せどり・転売ビジネスを成功に導く統合プラットフォーム。商品分析、利益計算、在庫管理から競合価格調査まで、
+            あなたのビジネス成長を支援する全ての機能を提供します。
           </p>
           <div className="mx-auto mt-8 max-w-md sm:flex sm:max-w-lg sm:justify-center">
             <div className="rounded-md shadow sm:ml-3">
@@ -31,6 +34,9 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+          {/* Development Mode E2E Test Login Buttons */}
+          <DevLoginButtons />
         </div>
       </div>
 
@@ -66,10 +72,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-secondary-900">
-                  Product Management
+                  商品管理・在庫分析
                 </h3>
                 <p className="mt-2 text-base text-secondary-600">
-                  Manage your inventory, track product performance, and optimize your catalog.
+                  在庫管理、商品パフォーマンス追跡、利益率分析で最適な仕入れ戦略を実現
                 </p>
               </div>
 
@@ -91,10 +97,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-secondary-900">
-                  Sales Analytics
+                  売上・利益分析
                 </h3>
                 <p className="mt-2 text-base text-secondary-600">
-                  Track your sales performance with detailed analytics and insights.
+                  詳細な売上分析とROI計算で収益性を最大化。競合価格とのギャップ分析も対応
                 </p>
               </div>
 
@@ -116,10 +122,10 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="mt-4 text-lg font-medium text-secondary-900">
-                  Smart Recommendations
+                  AIマーケット分析
                 </h3>
                 <p className="mt-2 text-base text-secondary-600">
-                  Get AI-powered recommendations to optimize your business decisions.
+                  Amazon・楽天・メルカリの価格動向を自動分析。最適な仕入れタイミングをAIが提案
                 </p>
               </div>
             </div>

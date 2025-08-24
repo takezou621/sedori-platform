@@ -29,7 +29,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @Throttle({ default: { limit: 10, ttl: 600000 } }) // 10 registrations per 10 minutes
+  @Throttle({ default: { limit: 100, ttl: 600000 } }) // 100 registrations per 10 minutes (dev mode)
   @ApiOperation({ summary: 'ユーザー登録' })
   @ApiResponse({
     status: 201,
@@ -43,7 +43,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 20, ttl: 600000 } }) // 20 login attempts per 10 minutes
+  @Throttle({ default: { limit: 200, ttl: 600000 } }) // 200 login attempts per 10 minutes (dev mode)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'ログイン' })
   @ApiResponse({

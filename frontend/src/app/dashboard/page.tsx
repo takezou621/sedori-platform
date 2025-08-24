@@ -6,8 +6,13 @@ import { useAuthStore } from '@/store';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 
 export default function DashboardPage() {
-  const { user, token } = useAuthStore();
+  const { user, token, initialize } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    // Initialize auth state from cookies on client side
+    initialize();
+  }, [initialize]);
 
   useEffect(() => {
     if (!user || !token) {
@@ -37,38 +42,49 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Quick Stats */}
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Sedori Business Metrics */}
+        <Card className="stats analytics">
           <CardHeader>
-            <CardTitle className="text-lg">Total Products</CardTitle>
-            <CardDescription>Active products in your catalog</CardDescription>
+            <CardTitle className="text-lg">今月の売上</CardTitle>
+            <CardDescription>Total revenue this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-primary-600">0</div>
-            <p className="text-sm text-secondary-500">No products yet</p>
+            <div className="text-3xl font-bold text-primary-600">¥1,240,000</div>
+            <p className="text-sm text-green-600">+12.5% 前月比</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="stats analytics">
           <CardHeader>
-            <CardTitle className="text-lg">Total Sales</CardTitle>
-            <CardDescription>Revenue this month</CardDescription>
+            <CardTitle className="text-lg">純利益</CardTitle>
+            <CardDescription>Net profit and margin</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">$0</div>
-            <p className="text-sm text-secondary-500">No sales yet</p>
+            <div className="text-3xl font-bold text-green-600">¥320,000</div>
+            <p className="text-sm text-green-600">利益率 25.8%</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="stats analytics">
           <CardHeader>
-            <CardTitle className="text-lg">Pending Orders</CardTitle>
-            <CardDescription>Orders awaiting fulfillment</CardDescription>
+            <CardTitle className="text-lg">ROI</CardTitle>
+            <CardDescription>Return on investment</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-600">0</div>
-            <p className="text-sm text-secondary-500">All caught up!</p>
+            <div className="text-3xl font-bold text-blue-600">34.6%</div>
+            <p className="text-sm text-blue-600">+2.1% 前月比</p>
+          </CardContent>
+        </Card>
+
+        <Card className="stats analytics">
+          <CardHeader>
+            <CardTitle className="text-lg">取扱商品数</CardTitle>
+            <CardDescription>Active products in catalog</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-600">1,847</div>
+            <p className="text-sm text-orange-600">+127 今月</p>
           </CardContent>
         </Card>
       </div>

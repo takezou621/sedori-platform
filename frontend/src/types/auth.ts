@@ -28,6 +28,7 @@ export interface AuthStore {
   token: string | null;
   isLoading: boolean;
   error: string | null;
+  initialize: () => void;
   login: (credentials: LoginRequest) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
