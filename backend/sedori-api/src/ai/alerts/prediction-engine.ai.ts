@@ -113,6 +113,26 @@ export class PredictionEngineAiService {
     }
   }
 
+  async generatePredictions(asin: string, options?: {
+    timeHorizon?: number;
+    targetPrice?: number;
+    priceType?: number;
+  }): Promise<{
+    probabilityScore?: number;
+    estimatedDays?: number;
+    confidence: number;
+    insights: string[];
+  }> {
+    // Convert to the expected format for compatibility
+    const alertPrediction = await this.generateAlertPredictions(asin);
+    return {
+      probabilityScore: 0.7, // Default probability
+      estimatedDays: options?.timeHorizon || 30,
+      confidence: 0.7, // Default confidence
+      insights: alertPrediction.riskFactors.map(rf => rf.impact || 'Risk factor identified'),
+    };
+  }
+
   async generateAlertPredictions(asin: string): Promise<AlertPrediction> {
     const cacheKey = `alert-predictions:${asin}`;
     

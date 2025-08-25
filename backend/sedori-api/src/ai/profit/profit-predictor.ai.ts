@@ -786,7 +786,7 @@ export class ProfitPredictorAiService {
 }
 
 // Additional interfaces
-interface ProductRanking {
+export interface ProductRanking {
   asin: string;
   rank: number;
   expectedProfit: number;
@@ -796,7 +796,7 @@ interface ProductRanking {
   recommendation: string;
 }
 
-interface PortfolioSuggestion {
+export interface PortfolioSuggestion {
   selectedProducts: ProductRanking[];
   totalInvestment: number;
   totalExpectedProfit: number;

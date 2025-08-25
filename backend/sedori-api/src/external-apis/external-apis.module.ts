@@ -10,6 +10,7 @@ import { RakutenApiService } from './rakuten-api.service';
 import { YahooApiService } from './yahoo-api.service';
 import { KeepaApiService } from './keepa-api.service';
 import { KeepaAiService } from './keepa-ai.service';
+import { KeepaController } from './keepa.controller';
 import { PriceUpdateScheduler } from './schedulers/price-update.scheduler';
 import { ApiRateLimiterService } from './rate-limiter/api-rate-limiter.service';
 import { Product } from '../products/entities/product.entity';
@@ -31,6 +32,9 @@ import { NlpProcessorService } from '../ai/nlp-processor.service';
       }),
     }),
     TypeOrmModule.forFeature([Product]),
+  ],
+  controllers: [
+    KeepaController,
   ],
   providers: [
     MarketDataService,
