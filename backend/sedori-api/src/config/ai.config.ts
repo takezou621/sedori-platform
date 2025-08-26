@@ -7,6 +7,8 @@ export default registerAs('ai', () => ({
     maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '2000'),
     temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.3'),
     timeout: parseInt(process.env.OPENAI_TIMEOUT || '30000'), // 30 seconds
+    maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '3'),
+    rateLimitPerMinute: parseInt(process.env.OPENAI_RATE_LIMIT || '60'),
   },
   tensorflow: {
     enableGpu: process.env.TF_ENABLE_GPU === 'true',
@@ -42,6 +44,8 @@ export default registerAs('ai', () => ({
     cacheTimeout: parseInt(process.env.AI_CACHE_TIMEOUT || '3600000'), // 1 hour
     maxCacheSize: parseInt(process.env.AI_MAX_CACHE_SIZE || '1000'),
     predictionCacheTimeout: parseInt(process.env.AI_PREDICTION_CACHE_TIMEOUT || '1800000'), // 30 minutes
+    compressionEnabled: process.env.AI_CACHE_COMPRESSION !== 'false',
+    encryptionEnabled: process.env.AI_CACHE_ENCRYPTION === 'true',
   },
   quality: {
     minAccuracyThreshold: parseFloat(process.env.AI_MIN_ACCURACY || '0.8'),
@@ -56,6 +60,27 @@ export default registerAs('ai', () => ({
     enableAlerting: process.env.AI_ALERTING_ENABLED !== 'false',
     alertWebhook: process.env.AI_ALERT_WEBHOOK || '',
     logLevel: process.env.AI_LOG_LEVEL || 'info',
+    enableHealthChecks: process.env.AI_HEALTH_CHECKS !== 'false',
+    healthCheckInterval: parseInt(process.env.AI_HEALTH_CHECK_INTERVAL || '300000'), // 5 minutes
+  },
+  security: {
+    enableRateLimiting: process.env.AI_RATE_LIMITING !== 'false',
+    maxRequestsPerMinute: parseInt(process.env.AI_MAX_REQUESTS_PER_MINUTE || '100'),
+    maxConcurrentRequests: parseInt(process.env.AI_MAX_CONCURRENT_REQUESTS || '10'),
+    enableInputValidation: process.env.AI_INPUT_VALIDATION !== 'false',
+    enableOutputSanitization: process.env.AI_OUTPUT_SANITIZATION !== 'false',
+    enableAuditLogging: process.env.AI_AUDIT_LOGGING === 'true',
+    trustedDomains: (process.env.AI_TRUSTED_DOMAINS || '').split(',').filter(Boolean),
+    enableCors: process.env.AI_ENABLE_CORS !== 'false',
+  },
+  performance: {
+    enableCircuitBreaker: process.env.AI_CIRCUIT_BREAKER !== 'false',
+    circuitBreakerTimeout: parseInt(process.env.AI_CIRCUIT_BREAKER_TIMEOUT || '30000'),
+    circuitBreakerThreshold: parseInt(process.env.AI_CIRCUIT_BREAKER_THRESHOLD || '5'),
+    enableMemoryLimit: process.env.AI_MEMORY_LIMIT_ENABLED === 'true',
+    memoryLimitMB: parseInt(process.env.AI_MEMORY_LIMIT_MB || '1024'),
+    enableResourceMonitoring: process.env.AI_RESOURCE_MONITORING !== 'false',
+    maxProcessingTime: parseInt(process.env.AI_MAX_PROCESSING_TIME || '300000'), // 5 minutes
   },
 }));
 
@@ -67,6 +92,26 @@ export const validateAiConfig = () => {
   // Check OpenAI API key for advanced features
   if (!process.env.OPENAI_API_KEY) {
     warnings.push('Missing OPENAI_API_KEY - AI features will be limited to basic ML models');
+  }
+
+  // Security validations
+  if (process.env.AI_CACHE_ENCRYPTION === 'true' && !process.env.AI_ENCRYPTION_KEY) {
+    errors.push('AI_ENCRYPTION_KEY is required when cache encryption is enabled');
+  }
+
+  if (process.env.AI_AUDIT_LOGGING === 'true' && !process.env.AI_AUDIT_LOG_PATH) {
+    warnings.push('AI_AUDIT_LOG_PATH not specified - audit logs will use default location');
+  }
+
+  // Performance validations
+  const maxConcurrentRequests = parseInt(process.env.AI_MAX_CONCURRENT_REQUESTS || '10');
+  if (maxConcurrentRequests > 50) {
+    warnings.push('AI_MAX_CONCURRENT_REQUESTS is very high - may cause resource exhaustion');
+  }
+
+  const maxProcessingTime = parseInt(process.env.AI_MAX_PROCESSING_TIME || '300000');
+  if (maxProcessingTime > 600000) { // 10 minutes
+    warnings.push('AI_MAX_PROCESSING_TIME is very high - may cause request timeouts');
   }
 
   // Validate numeric ranges
