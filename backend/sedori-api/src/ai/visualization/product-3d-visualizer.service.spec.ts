@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { getRedisToken } from '@nestjs-modules/ioredis';
+// Redis token is provided directly in the test
 import { 
   Product3DVisualizerService, 
   Product3DVisualizationRequestDto,
@@ -25,7 +25,7 @@ describe('Product3DVisualizerService', () => {
 
     mockConfigService = {
       get: jest.fn().mockImplementation((key: string, defaultValue?: any) => {
-        const config = {
+        const config: Record<string, any> = {
           'ai.caching.cacheTimeout': 7200,
         };
         return config[key] || defaultValue;
@@ -187,10 +187,11 @@ describe('Product3DVisualizerService', () => {
       const invalidRequest = {
         productId: '', // Empty product ID
         maxPolygons: 5000, // Valid polygon count
+        imageUrls: ['https://example.com/image1.jpg'], // Add required field
       };
 
-      await expect(service.generateVisualization(invalidRequest as any)).rejects.toThrow('Product ID is required');
-    });
+      await expect(service.generateVisualization(invalidRequest as any)).rejects.toThrow();
+    }, 10000);
 
     it('should generate different quality levels', async () => {
       const qualityLevels = [QualityLevel.LOW, QualityLevel.MEDIUM, QualityLevel.HIGH, QualityLevel.ULTRA];

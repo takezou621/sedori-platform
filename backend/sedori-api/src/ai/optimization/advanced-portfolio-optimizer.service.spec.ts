@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { getRedisToken } from '@nestjs-modules/ioredis';
+// Redis token is provided directly in the test
 import { 
   AdvancedPortfolioOptimizerService, 
   PortfolioOptimizationRequestDto,
@@ -23,7 +23,7 @@ describe('AdvancedPortfolioOptimizerService', () => {
 
     mockConfigService = {
       get: jest.fn().mockImplementation((key: string, defaultValue?: any) => {
-        const config = {
+        const config: Record<string, any> = {
           'ai.caching.cacheTimeout': 3600,
         };
         return config[key] || defaultValue;

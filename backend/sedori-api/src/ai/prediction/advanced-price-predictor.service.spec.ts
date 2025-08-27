@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { getRedisToken } from '@nestjs-modules/ioredis';
+// Redis token is provided directly in the test
 import { AdvancedPricePredictorService, PricePredictionRequestDto } from './advanced-price-predictor.service';
 import Redis from 'ioredis';
 
@@ -19,7 +19,7 @@ describe('AdvancedPricePredictorService', () => {
 
     mockConfigService = {
       get: jest.fn().mockImplementation((key: string, defaultValue?: any) => {
-        const config = {
+        const config: Record<string, any> = {
           'ai.caching.predictionCacheTimeout': 1800,
         };
         return config[key] || defaultValue;
